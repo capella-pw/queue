@@ -77,6 +77,15 @@ var Errors map[int]string = map[int]string{
 
 	10026000: "SimpleQueue.UpdateMarks: queue RLock fail wait",
 	10026001: "SimpleQueue.UpdateMarks: block RLock mutex fail wait",
+
+	10027000: "SimpleQueue.searchMaxExtID: queue RLock fail wait",
+	10027001: "SimpleQueue.searchMaxExtID: block RLock fail wait",
+
+	10028000: "SimpleQueue.searchExtID: queue RLock fail wait",
+	10028001: "SimpleQueue.searchExtID: block RLock fail wait",
+
+	10029000: "SimpleQueue.AddUnique: externalID should be != 0",
+	10029001: "SimpleQueue.AddUnique: queue Lock by source fail wait",
 }
 
 // GenerateError -

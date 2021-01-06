@@ -829,3 +829,79 @@ func TestSimpleQueue_SaveMarkSaveMode_moveStorage(t *testing.T) {
 	}
 
 }
+
+func TestSimpleQueue_SaveMarkSaveMode_saveUnique(t *testing.T) {
+
+	stor := storage.CreateMapSorage()
+	q := CreateSimpleQueue(5, 0, 0, stor, nil, nil)
+
+	// Add msgs
+	{
+		for i := 0; i < 100; i++ {
+			source := "A"
+			if i%3 == 1 {
+				source = "B"
+			}
+			_, err := q.AddUnique(context.Background(), []byte("test text"), int64(i)+1, 0, source, SaveMarkSaveMode)
+			if err != nil {
+				t.Error(err)
+			}
+		}
+
+		if len(q.Blocks) != 20 {
+			t.Errorf("SimpleQueue.Add should add only 20 blocks not %v", len(q.Blocks))
+		}
+
+		if q.lastExtID["B"] != 98 {
+			t.Errorf("SimpleQueue.lastExtID[A] should be 98 not %v", q.lastExtID["B"])
+		}
+	}
+
+	// Get messages one by one
+	{
+		id := int64(0)
+		msgs, err := q.Get(context.Background(), id, 1)
+		extID := int64(0)
+		for len(msgs) != 0 {
+			extID++
+			if err != nil {
+				t.Error(err)
+				err = nil
+				break
+			}
+
+			if msgs[0].ExternalID != extID {
+				t.Errorf("SimpleQueue.Get external ids are not equal expect %v != %v actual", extID, msgs[0].ExternalID)
+				break
+			}
+
+			id = msgs[0].ID
+
+			msgs, err = q.Get(context.Background(), id, 1)
+		}
+
+		if err != nil {
+			t.Error(err)
+		}
+	}
+
+	// Add msgs
+	{
+		for i := 0; i < 100; i++ {
+			source := "A"
+			_, err := q.AddUnique(context.Background(), []byte("test text"), int64(i)+1, 0, source, SaveMarkSaveMode)
+			if err != nil {
+				t.Error(err)
+			}
+		}
+
+		if len(q.Blocks) != 27 {
+			t.Errorf("SimpleQueue.Add should add only 27 blocks not %v", len(q.Blocks))
+		}
+
+		if q.lastExtID["A"] != 100 {
+			t.Errorf("SimpleQueue.lastExtID[A] should be 100 not %v", q.lastExtID["A"])
+		}
+	}
+
+}

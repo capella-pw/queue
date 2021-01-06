@@ -60,8 +60,8 @@ type SimpleQueue struct {
 
 	SaveBlocks map[int64]*SimpleQueueBlock `json:"-"`
 
-	mxExt     *mfs.MapMutex
-	LastExtID map[string]int64 `json:"-"`
+	mxExt     mfs.MapMutex
+	lastExtID map[string]int64 `json:"-"`
 }
 
 // SimpleQueueBlock block with data
@@ -246,7 +246,7 @@ func (q *SimpleQueue) checkAndAddCurrentBlockForWrite(ctx context.Context, saveM
 
 // Add message to queue
 // externalDt is unix time
-// externalID is source id
+// externalID is source id (should be != 0 if set 0 - not set)
 func (q *SimpleQueue) Add(ctx context.Context, message []byte, externalID int64, externalDt int64, source string, saveMode int) (id int64, err *mft.Error) {
 	if externalDt > time.Now().Unix() {
 		return id, GenerateError(10010008, externalDt, time.Now())
@@ -282,6 +282,10 @@ func (q *SimpleQueue) Add(ctx context.Context, message []byte, externalID int64,
 	if err != nil {
 		q.mx.RUnlock()
 		return id, err
+	}
+
+	if externalID != 0 {
+		q.SetMaxExtID(source, externalID)
 	}
 
 	q.mx.RUnlock()
@@ -1221,4 +1225,169 @@ func (q *SimpleQueue) DeleteBlocks(ctx context.Context, blocksCount int) (err *m
 	}
 
 	return nil
+}
+
+// SetMaxExtID - set max external id
+func (q *SimpleQueue) SetMaxExtID(source string, extID int64) {
+	q.mxExt.DoGlobal(func() {
+		if q.lastExtID == nil {
+			q.lastExtID = make(map[string]int64)
+		}
+		v, ok := q.lastExtID[source]
+		if !ok {
+			q.lastExtID[source] = extID
+		} else if v < extID {
+			q.lastExtID[source] = extID
+		}
+	})
+}
+
+// getCurrentMaxExtID - get current saved max external id
+func (q *SimpleQueue) getCurrentMaxExtID(source string) (extID int64, ok bool) {
+	q.mxExt.DoGlobal(func() {
+		if q.lastExtID != nil {
+			extID, ok = q.lastExtID[source]
+		}
+	})
+
+	return extID, ok
+}
+
+// searchMaxExtID - search maximum ext id
+// need mxExt lock
+func (q *SimpleQueue) searchMaxExtID(ctx context.Context, source string, dt time.Time) (extID int64, ok bool, err *mft.Error) {
+	blocks := make([]*SimpleQueueBlock, 0)
+
+	if !q.mx.RTryLock(ctx) {
+		return extID, false, GenerateError(10027000)
+	}
+
+	for i := len(q.Blocks) - 1; i >= 0; i-- {
+		blocks = append(blocks, q.Blocks[i])
+		if q.Blocks[i].Dt.Unix() < dt.Unix() {
+			break
+		}
+	}
+
+	q.mx.RUnlock()
+	maxID := int64(0)
+	for _, block := range blocks {
+		if !block.mx.RTryLock(ctx) {
+			return extID, false, GenerateError(10027001)
+		}
+
+		if block.IsUnload {
+			err = block.load(ctx, q)
+			if err != nil {
+				return extID, false, err
+			}
+		} else {
+			block.LastGet = time.Now()
+		}
+
+		if len(block.Data) == 0 {
+			block.mx.RUnlock()
+			continue
+		}
+
+		for i := len(block.Data) - 1; i >= 0; i-- {
+			if block.Data[i].Source == source {
+				if maxID == 0 {
+					maxID = block.Data[i].ExternalID
+				} else if maxID < block.Data[i].ExternalID {
+					maxID = block.Data[i].ExternalID
+				}
+				block.mx.RUnlock()
+			}
+		}
+
+		block.mx.RUnlock()
+	}
+	if maxID != 0 {
+		return maxID, true, nil
+	}
+
+	return extID, false, nil
+}
+
+// searchMaxExtID - search ext id
+// need mxExt lock
+func (q *SimpleQueue) searchExtID(ctx context.Context, source string, extID int64, dt int64) (id int64, ok bool, err *mft.Error) {
+	blocks := make([]*SimpleQueueBlock, 0)
+
+	if !q.mx.RTryLock(ctx) {
+		return id, false, GenerateError(10028000)
+	}
+
+	for i := len(q.Blocks) - 1; i >= 0; i-- {
+		blocks = append(blocks, q.Blocks[i])
+		if q.Blocks[i].Dt.Unix() <= dt {
+			break
+		}
+	}
+
+	q.mx.RUnlock()
+
+	for _, block := range blocks {
+		if !block.mx.RTryLock(ctx) {
+			return id, false, GenerateError(10028001)
+		}
+
+		if block.IsUnload {
+			err = block.load(ctx, q)
+			if err != nil {
+				return id, false, err
+			}
+		} else {
+			block.LastGet = time.Now()
+		}
+
+		if len(block.Data) == 0 {
+			block.mx.RUnlock()
+			continue
+		}
+
+		for i := len(block.Data) - 1; i >= 0; i-- {
+			if block.Data[i].Source == source && block.Data[i].ExternalID == extID {
+
+				id = block.Data[i].ID
+				block.mx.RUnlock()
+
+				return id, true, nil
+			}
+		}
+
+		block.mx.RUnlock()
+	}
+
+	return id, false, nil
+}
+
+// AddUnique message to queue
+// externalDt is unix time
+// externalID is source id (should be != 0 !!!!)
+func (q *SimpleQueue) AddUnique(ctx context.Context, message []byte, externalID int64, externalDt int64, source string, saveMode int) (id int64, err *mft.Error) {
+	if externalID == 0 {
+		return id, GenerateError(10029000)
+	}
+
+	if !q.mxExt.TryLock(ctx, source) {
+		return id, GenerateError(10029001)
+	}
+	defer q.mxExt.Unlock(source)
+
+	extID, ok := q.getCurrentMaxExtID(source)
+
+	if !ok || extID >= externalID {
+		id, ok, err = q.searchExtID(ctx, source, externalID, externalDt)
+		if err != nil {
+			return id, err
+		}
+		if ok {
+			return id, nil
+		}
+	}
+
+	return q.Add(ctx, message, externalID, externalDt, source, saveMode)
+
 }
