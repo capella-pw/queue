@@ -16,6 +16,8 @@ type Storage interface {
 	Save(ctx context.Context, name string, body []byte) *mft.Error
 	// Delete delete data from storage
 	Delete(ctx context.Context, name string) *mft.Error
+	// Rename rename file from oldName to newName
+	Rename(ctx context.Context, oldName string, newName string) *mft.Error
 }
 
 // DeleteIfExists delete file if exists

@@ -10,7 +10,7 @@ import (
 func BenchmarkSimpleQueue_SaveMarkSaveMode(b *testing.B) {
 	ctx := context.Background()
 	stor := storage.CreateMapSorage()
-	q := CreateSimpleQueue(5, 0, 0, stor, nil, nil)
+	q := CreateSimpleQueue(5, 0, 0, stor, nil, nil, nil)
 
 	for i := 0; i < b.N; i++ {
 		_, err := q.Add(ctx, []byte("test  text"), int64(i)+1, 0, "", SaveMarkSaveMode)
@@ -23,7 +23,7 @@ func BenchmarkSimpleQueue_SaveMarkSaveMode(b *testing.B) {
 func BenchmarkSimpleQueue_SaveImmediatelySaveMode(b *testing.B) {
 	ctx := context.Background()
 	stor := storage.CreateMapSorage()
-	q := CreateSimpleQueue(5, 0, 0, stor, nil, nil)
+	q := CreateSimpleQueue(5, 0, 0, stor, nil, nil, nil)
 
 	for i := 0; i < b.N; i++ {
 		_, err := q.Add(ctx, []byte("test  text"), int64(i)+1, 0, "", SaveImmediatelySaveMode)
@@ -36,7 +36,7 @@ func BenchmarkSimpleQueue_SaveImmediatelySaveMode(b *testing.B) {
 func BenchmarkSimpleQueue_SaveMarkSaveMode_and_Save_500(b *testing.B) {
 	ctx := context.Background()
 	stor := storage.CreateMapSorage()
-	q := CreateSimpleQueue(500, 0, 0, stor, nil, nil)
+	q := CreateSimpleQueue(500, 0, 0, stor, nil, nil, nil)
 
 	for i := 0; i < b.N; i++ {
 		_, err := q.Add(ctx, []byte("test  text"), int64(i)+1, 0, "", SaveMarkSaveMode)
@@ -53,7 +53,7 @@ func BenchmarkSimpleQueue_SaveMarkSaveMode_and_Save_500(b *testing.B) {
 func BenchmarkSimpleQueue_SaveMarkSaveMode_and_Save_50(b *testing.B) {
 	ctx := context.Background()
 	stor := storage.CreateMapSorage()
-	q := CreateSimpleQueue(50, 0, 0, stor, nil, nil)
+	q := CreateSimpleQueue(50, 0, 0, stor, nil, nil, nil)
 
 	for i := 0; i < b.N; i++ {
 		_, err := q.Add(ctx, []byte("test  text"), int64(i)+1, 0, "", SaveMarkSaveMode)
@@ -70,7 +70,7 @@ func BenchmarkSimpleQueue_SaveMarkSaveMode_and_Save_50(b *testing.B) {
 func BenchmarkSimpleQueue_SaveMarkSaveMode_and_Save_50_lage(b *testing.B) {
 	ctx := context.Background()
 	stor := storage.CreateMapSorage()
-	q := CreateSimpleQueue(50, 0, 0, stor, nil, nil)
+	q := CreateSimpleQueue(50, 0, 0, stor, nil, nil, nil)
 
 	t := "test  text"
 	for i := 0; i < 10; i++ {
@@ -92,7 +92,7 @@ func BenchmarkSimpleQueue_SaveMarkSaveMode_and_Save_50_lage(b *testing.B) {
 func BenchmarkSimpleQueue_SaveMarkSaveMode_and_Save_5_lage(b *testing.B) {
 	ctx := context.Background()
 	stor := storage.CreateMapSorage()
-	q := CreateSimpleQueue(5, 0, 0, stor, nil, nil)
+	q := CreateSimpleQueue(5, 0, 0, stor, nil, nil, nil)
 
 	t := "test  text"
 	for i := 0; i < 10; i++ {

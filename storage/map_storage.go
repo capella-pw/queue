@@ -62,3 +62,23 @@ func (s *MapSorage) Delete(ctx context.Context, name string) *mft.Error {
 
 	return nil
 }
+
+// Rename rename file from oldName to newName
+func (s *MapSorage) Rename(ctx context.Context, oldName string, newName string) *mft.Error {
+	s.mx.Lock()
+	defer s.mx.Unlock()
+
+	b, ok := s.storage[oldName]
+	_, ok2 := s.storage[newName]
+	if ok && !ok2 {
+		s.storage[newName] = b
+		delete(s.storage, oldName)
+
+		return nil
+	} else if ok2 {
+		return GenerateError(10000001, newName)
+	}
+
+	return GenerateError(10000000, oldName)
+
+}

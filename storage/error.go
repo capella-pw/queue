@@ -9,6 +9,8 @@ import (
 // Errors codes and description
 var Errors map[int]string = map[int]string{
 	10000000: "MapSorage: not found name: %v",
+	10000001: "MapSorage: name exists: %v",
+	10000002: "File: error: %v",
 }
 
 // GenerateError -

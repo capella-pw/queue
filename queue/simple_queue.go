@@ -26,6 +26,9 @@ const (
 // MetaDataFileName - file name with metadata queue info
 const MetaDataFileName = "q.json"
 
+// SubscribersFileName - file name with subscribers queue info
+const SubscribersFileName = "subscr.json"
+
 // BlockPrefixFileName - prefix file name with queue block
 const BlockPrefixFileName = "bl_"
 
@@ -42,6 +45,9 @@ type SimpleQueue struct {
 
 	// MetaStorage - storage for metadata (block info)
 	MetaStorage storage.Storage `json:"-"`
+
+	// SubscriberStorage - storage for subscriber info
+	SubscriberStorage storage.Storage `json:"-"`
 
 	// MarkerBlockDataStorage - storage for block data with marker
 	// case nil use MetaStorage
@@ -62,6 +68,10 @@ type SimpleQueue struct {
 
 	mxExt     mfs.MapMutex
 	lastExtID map[string]int64 `json:"-"`
+
+	Subscribers *SimpleQueueSubscribers `json:"-"`
+
+	Source string `json:"-"`
 }
 
 // SimpleQueueBlock block with data
@@ -103,30 +113,24 @@ type SimpleQueueMessage struct {
 	Source     string    `json:"src,omitempty"`
 }
 
-// SimpleQueueMessageWithMeta one message with meta
-type SimpleQueueMessageWithMeta struct {
-	ID int64 `json:"id"`
-	// ExternalID, source id, when 0 then equal ID
-	ExternalID int64     `json:"eid,omitempty"`
-	ExternalDt int64     `json:"s_dt,omitempty"`
-	Dt         time.Time `json:"dt"`
-	Message    []byte    `json:"msg"`
-	Source     string    `json:"src,omitempty"`
-	IsSaved    bool      `json:"is_saved"`
+// SimpleQueueSubscribers line subscribers info
+type SimpleQueueSubscribers struct {
+	mx         mfs.PMutex
+	mxFileSave mfs.PMutex
+
+	ChangesRv int64 `json:"-"`
+	SaveRv    int64 `json:"-"`
+
+	SaveWait []chan bool `json:"-"`
+
+	SubscribersInfo map[string]*SimpleQueueSubscriberInfo `json:"si,omitempty"`
 }
 
-// CopyWM copy message to SimpleQueueMessageWithMeta
-func (msg *SimpleQueueMessage) CopyWM() *SimpleQueueMessageWithMeta {
-	out := &SimpleQueueMessageWithMeta{
-		ID:         msg.ID,
-		ExternalID: msg.ExternalID,
-		Dt:         msg.Dt,
-		ExternalDt: msg.ExternalDt,
-		Message:    msg.Message,
-		Source:     msg.Source,
-	}
-
-	return out
+// SimpleQueueSubscriberInfo info aboun one subscriber
+type SimpleQueueSubscriberInfo struct {
+	LastID  int64     `json:"last_id"`
+	StartDt time.Time `json:"start_dt"`
+	LastDt  time.Time `json:"last_dt"`
 }
 
 // Mutex - returns Mutex
@@ -160,12 +164,13 @@ func (q *SimpleQueue) MutexBlockSaveWait() *mfs.PMutex {
 // MetaStorage - storage for metadata (block info)
 // MarkerBlockDataStorage - storage for block data with marker
 // case nil use MetaStorage
-func CreateSimpleQueue(cntLimit int, timeLimit time.Duration, lenLimit int, metaStorage storage.Storage, markerBlockDataStorage map[string]storage.Storage, idGenerator *mft.G) *SimpleQueue {
+func CreateSimpleQueue(cntLimit int, timeLimit time.Duration, lenLimit int, metaStorage storage.Storage, subscriberStorage storage.Storage, markerBlockDataStorage map[string]storage.Storage, idGenerator *mft.G) *SimpleQueue {
 	if idGenerator == nil {
 		idGenerator = &mft.G{}
 	}
 	return &SimpleQueue{
 		MetaStorage:            metaStorage,
+		SubscriberStorage:      subscriberStorage,
 		MarkerBlockDataStorage: markerBlockDataStorage,
 		Blocks:                 make([]*SimpleQueueBlock, 0),
 		IDGenerator:            idGenerator,
@@ -175,7 +180,75 @@ func CreateSimpleQueue(cntLimit int, timeLimit time.Duration, lenLimit int, meta
 		LenLimit:  lenLimit,
 
 		SaveBlocks: make(map[int64]*SimpleQueueBlock),
+
+		Subscribers: &SimpleQueueSubscribers{
+			SubscribersInfo: make(map[string]*SimpleQueueSubscriberInfo),
+		},
 	}
+}
+
+// LoadSimpleQueue load queue from storage
+func LoadSimpleQueue(ctx context.Context, metaStorage storage.Storage, subscriberStorage storage.Storage, markerBlockDataStorage map[string]storage.Storage, idGenerator *mft.G) (q *SimpleQueue, err *mft.Error) {
+	if idGenerator == nil {
+		idGenerator = &mft.G{}
+	}
+
+	q = &SimpleQueue{
+		MetaStorage:            metaStorage,
+		SubscriberStorage:      subscriberStorage,
+		MarkerBlockDataStorage: markerBlockDataStorage,
+		Blocks:                 make([]*SimpleQueueBlock, 0),
+		IDGenerator:            idGenerator,
+
+		SaveBlocks: make(map[int64]*SimpleQueueBlock),
+
+		Subscribers: &SimpleQueueSubscribers{
+			SubscribersInfo: make(map[string]*SimpleQueueSubscriberInfo),
+		},
+	}
+
+	body, err := metaStorage.Get(ctx, MetaDataFileName)
+
+	if err != nil {
+		return nil, err
+	}
+
+	er0 := json.Unmarshal(body, q)
+	if er0 != nil {
+		return nil, GenerateErrorE(10030000, er0)
+	}
+
+	q.SaveRv = idGenerator.RvGet()
+	q.ChangesRv = q.SaveRv
+
+	for i := 0; i < len(q.Blocks); i++ {
+		q.Blocks[i].SaveRv = q.SaveRv
+		q.Blocks[i].ChangesRv = q.SaveRv
+	}
+
+	q.Subscribers.SaveRv = q.SaveRv
+	q.Subscribers.ChangesRv = q.SaveRv
+
+	if q.SubscriberStorage != nil {
+		ok, err := q.SubscriberStorage.Exists(ctx, SubscribersFileName)
+		if err != nil {
+			return nil, err
+		}
+
+		if ok {
+			bodyS, err := q.SubscriberStorage.Get(ctx, SubscribersFileName)
+			if err != nil {
+				return nil, err
+			}
+
+			er1 := json.Unmarshal(bodyS, q.Subscribers)
+			if er1 != nil {
+				return nil, GenerateErrorE(10030001, er1)
+			}
+		}
+	}
+
+	return q, nil
 }
 
 // CurrentBlockForWrite - block for write next message
@@ -262,6 +335,10 @@ func (q *SimpleQueue) Add(ctx context.Context, message []byte, externalID int64,
 
 	id, chWaitBlockSave, err := block.add(ctx, message, externalID, externalDt, source, q.IDGenerator, saveMode)
 
+	if source == "" {
+		source = q.Source
+	}
+
 	if saveMode != NotSaveSaveMode {
 		// mark block as need to save even if there are errors
 
@@ -331,6 +408,10 @@ func (block *SimpleQueueBlock) add(ctx context.Context, message []byte, external
 
 	id = idGen.RvGet()
 
+	if externalID == 0 {
+		externalID = id
+	}
+
 	msg := &SimpleQueueMessage{
 		ID:         id,
 		ExternalID: externalID,
@@ -383,7 +464,7 @@ func (block *SimpleQueueBlock) canAppend(ctx context.Context, cntLimit int, time
 
 // getBlockForNext gets block where eixts next after idStart available message
 // q.mx should be rlocked
-func (q *SimpleQueue) getBlockForNext(ctx context.Context, idStart int64) (block *SimpleQueueBlock, err *mft.Error) {
+func (q *SimpleQueue) getBlockForNext(ctx context.Context, idStart int64) (block []*SimpleQueueBlock, err *mft.Error) {
 	if len(q.Blocks) == 0 {
 		return nil, nil
 	}
@@ -424,7 +505,7 @@ func (q *SimpleQueue) getBlockForNext(ctx context.Context, idStart int64) (block
 		q.Blocks[idx].mx.RUnlock()
 
 		if ok {
-			return q.Blocks[idx], nil
+			return q.Blocks[idx:], nil
 		}
 		idx++
 	}
@@ -434,7 +515,7 @@ func (q *SimpleQueue) getBlockForNext(ctx context.Context, idStart int64) (block
 
 // getItemsAfter gets items from block where id > idStart
 // returns messages == nil when no elements
-func (block *SimpleQueueBlock) getItemsAfter(ctx context.Context, q *SimpleQueue, idStart int64, cntLimit int, queueSaveRv int64) (messages []*SimpleQueueMessageWithMeta, err *mft.Error) {
+func (block *SimpleQueueBlock) getItemsAfter(ctx context.Context, q *SimpleQueue, idStart int64, cntLimit int, queueSaveRv int64) (messages []*MessageWithMeta, err *mft.Error) {
 	if !block.mx.RTryLock(ctx) {
 		return nil, GenerateError(10011001)
 	}
@@ -472,13 +553,13 @@ func (block *SimpleQueueBlock) getItemsAfter(ctx context.Context, q *SimpleQueue
 
 // Get - gets messages from queue not more then cntLimit count and id more idStart
 // returns messages == nil when no elements
-func (q *SimpleQueue) Get(ctx context.Context, idStart int64, cntLimit int) (messages []*SimpleQueueMessageWithMeta, err *mft.Error) {
+func (q *SimpleQueue) Get(ctx context.Context, idStart int64, cntLimit int) (messages []*MessageWithMeta, err *mft.Error) {
 
 	if !q.mx.RTryLock(ctx) {
 		return nil, GenerateError(10011002)
 	}
 
-	block, err := q.getBlockForNext(ctx, idStart)
+	blocks, err := q.getBlockForNext(ctx, idStart)
 	queueSaveRv := q.SaveRv
 	q.mx.RUnlock()
 
@@ -486,11 +567,25 @@ func (q *SimpleQueue) Get(ctx context.Context, idStart int64, cntLimit int) (mes
 		return nil, err
 	}
 
-	if block == nil {
+	if len(blocks) == 0 {
 		return nil, nil
 	}
 
-	return block.getItemsAfter(ctx, q, idStart, cntLimit, queueSaveRv)
+	for i := 0; i < len(blocks); i++ {
+		msgs, err := blocks[i].getItemsAfter(ctx, q, idStart, cntLimit-len(messages), queueSaveRv)
+
+		if err != nil {
+			return messages, err
+		}
+
+		messages = append(messages, msgs...)
+
+		if len(messages) >= cntLimit {
+			break
+		}
+	}
+
+	return messages, nil
 }
 
 // Save save meta info of queue
@@ -689,6 +784,11 @@ func (q *SimpleQueue) SaveAll(ctx context.Context) (err *mft.Error) {
 			q.SaveBlocks[blockID] = block
 		}
 		q.mxBlockSaveWait.Unlock()
+		return err
+	}
+
+	err = q.SaveSubscribers(ctx)
+	if err != nil {
 		return err
 	}
 
@@ -1390,4 +1490,146 @@ func (q *SimpleQueue) AddUnique(ctx context.Context, message []byte, externalID 
 
 	return q.Add(ctx, message, externalID, externalDt, source, saveMode)
 
+}
+
+// SaveSubscribers save subscribers info of queue
+// When MetaStorage == nil returns nil
+// When SaveRv == ChangesRv do nothing and returns nil
+func (q *SimpleQueue) SaveSubscribers(ctx context.Context) (err *mft.Error) {
+	if q.SubscriberStorage == nil {
+		return nil
+	}
+	if !q.Subscribers.mxFileSave.TryLock(ctx) {
+		return GenerateError(10031000)
+	}
+	defer q.Subscribers.mxFileSave.Unlock()
+
+	if !q.Subscribers.mx.RTryLock(ctx) {
+		return GenerateError(10031001)
+	}
+
+	if q.Subscribers.SaveRv == q.Subscribers.ChangesRv {
+		q.Subscribers.mx.RUnlock()
+		return nil
+	}
+
+	changesRv := q.Subscribers.ChangesRv
+	data, errMarshal := json.MarshalIndent(q.Subscribers, "", "\t")
+	chLen := len(q.Subscribers.SaveWait)
+
+	q.Subscribers.mx.RUnlock()
+
+	if errMarshal != nil {
+		return GenerateErrorE(10031002, errMarshal)
+	}
+
+	err = q.SubscriberStorage.Save(ctx, SubscribersFileName, data)
+	if err != nil {
+		return GenerateErrorE(10031003, err, SubscribersFileName)
+	}
+
+	if !q.Subscribers.mx.TryLock(ctx) {
+		return GenerateError(10031004)
+	}
+	q.Subscribers.SaveRv = changesRv
+	if len(q.Subscribers.SaveWait) > 0 && chLen > 0 {
+		saveWait := make([]chan bool, 0)
+		for i := chLen; i < len(q.Subscribers.SaveWait); i++ {
+			saveWait = append(saveWait, q.Subscribers.SaveWait[i])
+		}
+		approve := q.Subscribers.SaveWait[0:chLen]
+
+		q.Subscribers.SaveWait = saveWait
+		go func() {
+			for _, v := range approve {
+				v <- true
+			}
+		}()
+	}
+
+	q.Subscribers.mx.Unlock()
+
+	return nil
+}
+
+// SubscriberSetLastRead - set last read info
+// if id == 0 remove subscribe
+func (q *SimpleQueue) SubscriberSetLastRead(ctx context.Context, subscriber string, id int64, saveMode int) (err *mft.Error) {
+
+	if !q.Subscribers.mx.TryLock(ctx) {
+		return GenerateError(10032000)
+	}
+
+	isChanged := false
+	var chWait chan bool
+	v, ok := q.Subscribers.SubscribersInfo[subscriber]
+	if !ok && id != 0 {
+		v = &SimpleQueueSubscriberInfo{
+			StartDt: time.Now(),
+			LastID:  id,
+			LastDt:  time.Now(),
+		}
+		q.Subscribers.SubscribersInfo[subscriber] = v
+
+		isChanged = true
+	} else if v.LastID < id && id != 0 {
+		v.LastID = id
+		v.LastDt = time.Now()
+
+		isChanged = true
+	} else if ok && id == 0 {
+		delete(q.Subscribers.SubscribersInfo, subscriber)
+	}
+
+	if !isChanged {
+		q.Subscribers.mx.Unlock()
+		return nil
+	}
+
+	if saveMode == SaveWaitSaveMode {
+		chWait = make(chan bool, 1)
+		q.Subscribers.SaveWait = append(q.Subscribers.SaveWait, chWait)
+	}
+
+	if saveMode == SaveMarkSaveMode {
+		q.Subscribers.ChangesRv = q.IDGenerator.RvGet()
+	}
+
+	q.Subscribers.mx.Unlock()
+
+	if saveMode == SaveImmediatelySaveMode {
+		err = q.SaveSubscribers(ctx)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+
+	if saveMode == SaveWaitSaveMode {
+		if chWait != nil {
+			select {
+			case <-chWait:
+			case <-ctx.Done():
+				return GenerateError(10032001)
+			}
+		}
+	}
+
+	return nil
+}
+
+// SubscriberGetLastRead - get last read info
+func (q *SimpleQueue) SubscriberGetLastRead(ctx context.Context, subscriber string) (id int64, err *mft.Error) {
+
+	if !q.Subscribers.mx.RTryLock(ctx) {
+		return 0, GenerateError(10033000)
+	}
+	defer q.Subscribers.mx.RUnlock()
+
+	v, ok := q.Subscribers.SubscribersInfo[subscriber]
+	if !ok {
+		return 0, nil
+	}
+
+	return v.LastID, nil
 }

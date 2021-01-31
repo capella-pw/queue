@@ -86,6 +86,20 @@ var Errors map[int]string = map[int]string{
 
 	10029000: "SimpleQueue.AddUnique: externalID should be != 0",
 	10029001: "SimpleQueue.AddUnique: queue Lock by source fail wait",
+
+	10030000: "LoadSimpleQueue() (*SimpleQueue): unmarshal queue info error",
+	10030001: "LoadSimpleQueue() (*SimpleQueue): unmarshal subscribers info error",
+
+	10031000: "SimpleQueue.SaveSubscribers: queue subscribers Lock FileSave mutex fail wait",
+	10031001: "SimpleQueue.SaveSubscribers: queue subscribers RLock fail wait",
+	10031002: "SimpleQueue.SaveSubscribers: queue subscribers marshal fail",
+	10031003: "SimpleQueue.SaveSubscribers: file %v save fail",
+	10031004: "SimpleQueue.SaveSubscribers: queue Lock fail wait",
+
+	10032000: "SimpleQueue.SubscriberSetLastRead: queue subscribers Lock fail wait",
+	10032001: "SimpleQueue.SubscriberSetLastRead: chWait fail wait",
+
+	10033000: "SimpleQueue.SubscriberGetLastRead: queue subscribers RLock fail wait",
 }
 
 // GenerateError -

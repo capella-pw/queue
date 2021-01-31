@@ -12,7 +12,7 @@ import (
 
 func TestSimpleQueue_NoSave_full(t *testing.T) {
 	stor := storage.CreateMapSorage()
-	q := CreateSimpleQueue(5, 0, 0, stor, nil, nil)
+	q := CreateSimpleQueue(5, 0, 0, stor, nil, nil, nil)
 
 	// Add msgs
 	{
@@ -76,7 +76,7 @@ func TestSimpleQueue_NoSave_full(t *testing.T) {
 
 func TestSimpleQueue_SaveImmediately_full(t *testing.T) {
 	stor := storage.CreateMapSorage()
-	q := CreateSimpleQueue(5, 0, 0, stor, nil, nil)
+	q := CreateSimpleQueue(5, 0, 0, stor, nil, nil, nil)
 
 	// Add msgs
 	{
@@ -146,7 +146,7 @@ func TestSimpleQueue_SaveImmediately_full(t *testing.T) {
 
 func TestSimpleQueue_SaveMarkSaveMode_full(t *testing.T) {
 	stor := storage.CreateMapSorage()
-	q := CreateSimpleQueue(5, 0, 0, stor, nil, nil)
+	q := CreateSimpleQueue(5, 0, 0, stor, nil, nil, nil)
 
 	// Add msgs
 	{
@@ -228,7 +228,7 @@ func TestSimpleQueue_SaveMarkSaveMode_full(t *testing.T) {
 
 func TestSimpleQueue_SaveWaitSaveMode_full(t *testing.T) {
 	stor := storage.CreateMapSorage()
-	q := CreateSimpleQueue(5, 0, 0, stor, nil, nil)
+	q := CreateSimpleQueue(5, 0, 0, stor, nil, nil, nil)
 
 	waitMsgs := 0
 	// Add msgs
@@ -352,7 +352,7 @@ func TestSimpleQueue_SaveWaitSaveMode_full(t *testing.T) {
 
 func TestSimpleQueue_SaveMarkSaveMode_Size(t *testing.T) {
 	stor := storage.CreateMapSorage()
-	q := CreateSimpleQueue(500, 0, 0, stor, nil, nil)
+	q := CreateSimpleQueue(500, 0, 0, stor, nil, nil, nil)
 
 	// Add msgs
 	{
@@ -386,7 +386,7 @@ func TestSimpleQueue_SaveMarkSaveMode_Size(t *testing.T) {
 func TestSimpleQueue_SaveMarkSaveMode_unload_and_load(t *testing.T) {
 
 	stor := storage.CreateMapSorage()
-	q := CreateSimpleQueue(5, 0, 0, stor, nil, nil)
+	q := CreateSimpleQueue(5, 0, 0, stor, nil, nil, nil)
 
 	// Add msgs
 	{
@@ -503,7 +503,7 @@ func TestSimpleQueue_SaveMarkSaveMode_unload_and_load(t *testing.T) {
 func TestSimpleQueue_SaveMarkSaveMode_delete(t *testing.T) {
 
 	stor := storage.CreateMapSorage()
-	q := CreateSimpleQueue(5, 0, 0, stor, nil, nil)
+	q := CreateSimpleQueue(5, 0, 0, stor, nil, nil, nil)
 
 	// Add msgs
 	{
@@ -619,7 +619,7 @@ func TestSimpleQueue_SaveMarkSaveMode_moveStorage(t *testing.T) {
 	stor := storage.CreateMapSorage()
 	storA := storage.CreateMapSorage()
 	storB := storage.CreateMapSorage()
-	q := CreateSimpleQueue(5, 0, 0, stor, map[string]storage.Storage{"a": storA, "b": storB}, nil)
+	q := CreateSimpleQueue(5, 0, 0, stor, nil, map[string]storage.Storage{"a": storA, "b": storB}, nil)
 
 	// Add msgs
 	{
@@ -833,7 +833,7 @@ func TestSimpleQueue_SaveMarkSaveMode_moveStorage(t *testing.T) {
 func TestSimpleQueue_SaveMarkSaveMode_saveUnique(t *testing.T) {
 
 	stor := storage.CreateMapSorage()
-	q := CreateSimpleQueue(5, 0, 0, stor, nil, nil)
+	q := CreateSimpleQueue(5, 0, 0, stor, nil, nil, nil)
 
 	// Add msgs
 	{
@@ -901,6 +901,101 @@ func TestSimpleQueue_SaveMarkSaveMode_saveUnique(t *testing.T) {
 
 		if q.lastExtID["A"] != 100 {
 			t.Errorf("SimpleQueue.lastExtID[A] should be 100 not %v", q.lastExtID["A"])
+		}
+	}
+
+}
+
+func TestSimpleQueue_SaveMarkSaveMode_load(t *testing.T) {
+	stor := storage.CreateMapSorage()
+	q := CreateSimpleQueue(5, 0, 0, stor, nil, nil, nil)
+
+	// Add msgs
+	{
+		for i := 0; i < 10; i++ {
+			_, err := q.Add(context.Background(), []byte("test text"), int64(i)+1, 0, "", SaveMarkSaveMode)
+			if err != nil {
+				t.Error(err)
+			}
+		}
+
+		if len(q.Blocks) != 2 {
+			t.Errorf("SimpleQueue.Add should add only 2 blocks not %v", len(q.Blocks))
+		}
+	}
+
+	// Get messages one by one
+	{
+		id := int64(0)
+		msgs, err := q.Get(context.Background(), id, 1)
+		extID := int64(0)
+		for len(msgs) != 0 {
+			extID++
+			if err != nil {
+				t.Error(err)
+				err = nil
+				break
+			}
+
+			if msgs[0].ExternalID != extID {
+				t.Errorf("SimpleQueue.Get external ids are not equal expect %v != %v actual", extID, msgs[0].ExternalID)
+				break
+			}
+
+			id = msgs[0].ID
+
+			msgs, err = q.Get(context.Background(), id, 1)
+		}
+
+		if err != nil {
+			t.Error(err)
+		}
+	}
+
+	// save
+	{
+		err := q.SaveAll(context.Background())
+		if err != nil {
+			t.Error(err)
+		}
+
+	}
+
+	// load
+	q2, err := LoadSimpleQueue(context.Background(), stor, nil, nil, nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	// Get messages one by one q2
+	{
+		id := int64(0)
+		msgs, err := q2.Get(context.Background(), id, 1)
+		extID := int64(0)
+		for len(msgs) != 0 {
+			extID++
+			if err != nil {
+				t.Error(err)
+				err = nil
+				break
+			}
+
+			if msgs[0].ExternalID != extID {
+				t.Errorf("SimpleQueue.Get (q2) external ids are not equal expect %v != %v actual", extID, msgs[0].ExternalID)
+				break
+			}
+
+			id = msgs[0].ID
+
+			msgs, err = q2.Get(context.Background(), id, 1)
+		}
+
+		if err != nil {
+			t.Error(err)
+		}
+
+		if len(q2.Blocks) != 2 {
+			t.Errorf("SimpleQueue.Blocks should be 2 blocks (q2) not %v", len(q2.Blocks))
 		}
 	}
 
