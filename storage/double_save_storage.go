@@ -154,7 +154,7 @@ func (s *DoubleSaveSorage) Save(ctx context.Context, name string, body []byte) *
 		return nil
 	}
 
-	err = s.storage.Delete(ctx, pathNew)
+	err = s.storage.Delete(ctx, pathOld)
 	if err != nil {
 		return err
 	}
@@ -206,4 +206,9 @@ func (s *DoubleSaveSorage) Delete(ctx context.Context, name string) *mft.Error {
 // Rename rename file from oldName to newName
 func (s *DoubleSaveSorage) Rename(ctx context.Context, oldName string, newName string) *mft.Error {
 	return s.storage.Rename(ctx, oldName, newName)
+}
+
+// MkDirIfNotExists make directory
+func (s *DoubleSaveSorage) MkDirIfNotExists(ctx context.Context, name string) *mft.Error {
+	return s.storage.MkDirIfNotExists(ctx, name)
 }

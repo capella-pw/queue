@@ -18,6 +18,8 @@ type Storage interface {
 	Delete(ctx context.Context, name string) *mft.Error
 	// Rename rename file from oldName to newName
 	Rename(ctx context.Context, oldName string, newName string) *mft.Error
+	// Rename make directory
+	MkDirIfNotExists(ctx context.Context, name string) *mft.Error
 }
 
 // DeleteIfExists delete file if exists

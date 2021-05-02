@@ -17,11 +17,11 @@ func TestSubscribeCopy_base(t *testing.T) {
 	q1.Source = "55"
 	q2.Source = "66"
 
-	copy := SubscribeCopy(q1, q2, SaveMarkSaveMode, SaveMarkSaveMode, "q2_subscr", 3, func() context.Context {
-		return context.Background()
-	})
+	copy := SubscribeCopyUnique(q1, q2, SaveMarkSaveMode, SaveMarkSaveMode, "q2_subscr", 3, false)
 
-	isEmpty, err := copy()
+	ctx := context.Background()
+
+	isEmpty, err := copy(ctx)
 
 	if err != nil {
 		t.Errorf("SubscribeCopy return error %v", err)
@@ -46,7 +46,7 @@ func TestSubscribeCopy_base(t *testing.T) {
 	}
 
 	for i := 0; i < 3; i++ {
-		isEmpty, err := copy()
+		isEmpty, err := copy(ctx)
 
 		if err != nil {
 			t.Errorf("SubscribeCopy 2 return error %v", err)
@@ -96,7 +96,7 @@ func TestSubscribeCopy_base(t *testing.T) {
 
 	// copy last row
 	{
-		isEmpty, err := copy()
+		isEmpty, err := copy(ctx)
 
 		if err != nil {
 			t.Errorf("SubscribeCopy 3 return error %v", err)
@@ -146,7 +146,7 @@ func TestSubscribeCopy_base(t *testing.T) {
 
 	// copy last row
 	{
-		isEmpty, err := copy()
+		isEmpty, err := copy(ctx)
 
 		if err != nil {
 			t.Errorf("SubscribeCopy 4 return error %v", err)

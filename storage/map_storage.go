@@ -82,3 +82,8 @@ func (s *MapSorage) Rename(ctx context.Context, oldName string, newName string) 
 	return GenerateError(10000000, oldName)
 
 }
+
+// MkDirIfNotExists make directory
+func (s *MapSorage) MkDirIfNotExists(ctx context.Context, name string) *mft.Error {
+	return nil
+}

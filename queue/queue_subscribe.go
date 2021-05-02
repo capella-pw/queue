@@ -6,18 +6,18 @@ import (
 	"github.com/myfantasy/mft"
 )
 
-// SubscribeCopy subscribe on to queue and copy to destination
-func SubscribeCopy(src Queue, dst Queue, saveModeSrc int, saveModeDst int, subscriberName string, cntLimit int, ctxGenerator func() context.Context) func() (isEmpty bool, err *mft.Error) {
+// SubscribeCopyUnique subscribe on to queue and copy (addUniqueList) to destination
+func SubscribeCopyUnique(src Queue, dst Queue, saveModeSrc int, saveModeDst int, subscriberName string, cntLimit int, doSaveDst bool) func(ctx context.Context) (isEmpty bool, err *mft.Error) {
 	var id int64
-	return func() (isEmpty bool, err *mft.Error) {
+	return func(ctx context.Context) (isEmpty bool, err *mft.Error) {
 		if id == 0 {
-			id, err = src.SubscriberGetLastRead(ctxGenerator(), subscriberName)
+			id, err = src.SubscriberGetLastRead(ctx, subscriberName)
 			if err != nil {
 				return false, err
 			}
 		}
 
-		mesages, err := src.Get(ctxGenerator(), id, cntLimit)
+		mesages, err := src.Get(ctx, id, cntLimit)
 		if err != nil {
 			return false, err
 		}
@@ -26,15 +26,29 @@ func SubscribeCopy(src Queue, dst Queue, saveModeSrc int, saveModeDst int, subsc
 			return true, nil
 		}
 
+		messageSend := make([]Message, 0, len(mesages))
+
+		idMax := mesages[len(mesages)-1].ID
 		for i := 0; i < len(mesages); i++ {
-			_, err = dst.AddUnique(ctxGenerator(), mesages[i].Message, mesages[i].ExternalID, mesages[i].ExternalDt, mesages[i].Source, saveModeDst)
+			messageSend = append(messageSend, mesages[i].ToMessage())
+		}
+
+		_, err = dst.AddUniqueList(ctx, messageSend, saveModeDst)
+
+		if doSaveDst {
+			err = dst.SaveAll(ctx)
 			if err != nil {
 				return false, err
 			}
-			id = mesages[i].ID
 		}
 
-		err = src.SubscriberSetLastRead(ctxGenerator(), subscriberName, id, saveModeSrc)
-		return false, err
+		err = src.SubscriberSetLastRead(ctx, subscriberName, idMax, saveModeSrc)
+		if err != nil {
+			return false, err
+		}
+
+		id = idMax
+
+		return false, nil
 	}
 }

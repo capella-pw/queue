@@ -16,13 +16,27 @@ type FileSorage struct {
 	Folder     string
 }
 
+// CreateFileSorageParams params for create file storage
+type CreateFileSorageParams struct {
+	Folder string `json:"folder"`
+}
+
 // CreateFileSorage creates simple FileOnDisk with perms 0760 & 0660
-func CreateFileSorage(folder string) *FileSorage {
-	return &FileSorage{
+func CreateFileSorage(ctx context.Context, params CreateFileSorageParams) (*FileSorage, *mft.Error) {
+	res := &FileSorage{
 		FolderPerm: 0760,
 		FilePerm:   0660,
-		Folder:     folder,
+		Folder:     params.Folder,
 	}
+
+	if len(res.Folder) > 0 && res.Folder[len(res.Folder)-1] == '/' {
+		err := res.MkDirIfNotExists(ctx, "")
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return res, nil
 }
 
 // Exists name in storage
@@ -55,6 +69,9 @@ func (s *FileSorage) Save(ctx context.Context, name string, body []byte) *mft.Er
 	path := filepath.FromSlash(s.Folder + name)
 
 	er0 := ioutil.WriteFile(path, body, s.FilePerm)
+	if er0 == nil {
+		return nil
+	}
 	return GenerateError(10000002, er0)
 }
 
@@ -63,6 +80,9 @@ func (s *FileSorage) Delete(ctx context.Context, name string) *mft.Error {
 	path := filepath.FromSlash(s.Folder + name)
 
 	er0 := os.RemoveAll(path)
+	if er0 == nil {
+		return nil
+	}
 	return GenerateError(10000002, er0)
 }
 
@@ -72,6 +92,9 @@ func (s *FileSorage) Rename(ctx context.Context, oldName string, newName string)
 	pathNew := filepath.FromSlash(s.Folder + newName)
 
 	er0 := os.Rename(pathOld, pathNew)
+	if er0 == nil {
+		return nil
+	}
 	return GenerateError(10000002, er0)
 }
 
@@ -86,7 +109,7 @@ func (s *FileSorage) MkDirIfNotExists(ctx context.Context, name string) *mft.Err
 	if !ok {
 		er0 := os.MkdirAll(path, s.FolderPerm)
 		if er0 != nil {
-			return GenerateError(10000002, er0)
+			return GenerateErrorE(10000003, er0, path)
 		}
 	}
 

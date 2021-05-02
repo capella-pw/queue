@@ -100,6 +100,14 @@ var Errors map[int]string = map[int]string{
 	10032001: "SimpleQueue.SubscriberSetLastRead: chWait fail wait",
 
 	10033000: "SimpleQueue.SubscriberGetLastRead: queue subscribers RLock fail wait",
+
+	10033100: "SimpleQueue.SubscriberAddReplicaMember: queue subscribers Lock fail wait",
+	10033101: "SimpleQueue.SubscriberAddReplicaMember: save fail",
+
+	10033200: "SimpleQueue.SubscriberRemoveReplicaMember: queue subscribers Lock fail wait",
+	10033201: "SimpleQueue.SubscriberRemoveReplicaMember: save fail",
+
+	10033300: "SimpleQueue.SubscriberGetReplicaCount: queue subscribers RLock fail wait",
 }
 
 // GenerateError -

@@ -1,0 +1,41 @@
+{
+    "mounts": {
+        "default": {
+            "provider": "file_dbl_save",
+            "home_path": "tmp/",
+            "params": {}
+        },
+        "fast": {
+            "provider": "file_dbl_save",
+            "home_path": "tmp/fast/",
+            "params": {}
+        },
+        "compress": {
+            "provider": "file_dbl_save_gzip",
+            "home_path": "tmp/zip/",
+
+            "compress_alg" : "gzip",
+            "file_extention" : ".gz",
+
+            "params": {}
+        },
+        "compress9": {
+            "provider": "file_dbl_save_gzip",
+            "home_path": "tmp/zip/",
+
+            "compress_alg" : "gzip9",
+            "file_extention" : ".gz",
+
+            "params": {}
+        },
+        "compress1": {
+            "provider": "file_dbl_save_gzip",
+            "home_path": "tmp/zip/",
+
+            "compress_alg" : "gzip1",
+            "file_extention" : ".gz",
+
+            "params": {}
+        }
+    }
+}
