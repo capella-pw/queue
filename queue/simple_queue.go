@@ -111,6 +111,7 @@ type SimpleQueueMessage struct {
 	Dt         time.Time `json:"dt"`
 	Message    []byte    `json:"msg,omitempty"`
 	Source     string    `json:"src,omitempty"`
+	Segment    int64     `json:"sg,omitempty"`
 }
 
 // SimpleQueueSubscribers line subscribers info
@@ -329,7 +330,7 @@ func (q *SimpleQueue) checkAndAddCurrentBlockForWrite(ctx context.Context, saveM
 // Add message to queue
 // externalDt is unix time
 // externalID is source id (should be != 0 if set 0 - not set)
-func (q *SimpleQueue) Add(ctx context.Context, message []byte, externalID int64, externalDt int64, source string, saveMode int) (id int64, err *mft.Error) {
+func (q *SimpleQueue) Add(ctx context.Context, message []byte, externalID int64, externalDt int64, source string, segment int64, saveMode int) (id int64, err *mft.Error) {
 	if externalDt > time.Now().Unix() {
 		return id, GenerateError(10010008, externalDt, time.Now())
 	}
@@ -342,7 +343,7 @@ func (q *SimpleQueue) Add(ctx context.Context, message []byte, externalID int64,
 		return id, err
 	}
 
-	id, chWaitBlockSave, err := block.add(ctx, message, externalID, externalDt, source, q.IDGenerator, saveMode)
+	id, chWaitBlockSave, err := block.add(ctx, message, externalID, externalDt, source, segment, q.IDGenerator, saveMode)
 
 	if source == "" {
 		source = q.Source
@@ -416,6 +417,7 @@ func (q *SimpleQueue) AddList(ctx context.Context, messages []Message, saveMode 
 			messages[i].ExternalID,
 			messages[i].ExternalDt,
 			messages[i].Source,
+			messages[i].Segment,
 			baseSaveMode,
 		)
 		if err != nil {
@@ -430,6 +432,7 @@ func (q *SimpleQueue) AddList(ctx context.Context, messages []Message, saveMode 
 		messages[i].ExternalID,
 		messages[i].ExternalDt,
 		messages[i].Source,
+		messages[i].Segment,
 		saveMode,
 	)
 	if err != nil {
@@ -442,7 +445,7 @@ func (q *SimpleQueue) AddList(ctx context.Context, messages []Message, saveMode 
 
 // add message to queue block
 // externalDt - unix()
-func (block *SimpleQueueBlock) add(ctx context.Context, message []byte, externalID int64, externalDt int64, source string, idGen *mft.G, saveMode int) (id int64, chWait chan bool, err *mft.Error) {
+func (block *SimpleQueueBlock) add(ctx context.Context, message []byte, externalID int64, externalDt int64, source string, segment int64, idGen *mft.G, saveMode int) (id int64, chWait chan bool, err *mft.Error) {
 	if !block.mx.TryLock(ctx) {
 		return id, nil, GenerateError(10010001)
 	}
@@ -464,6 +467,7 @@ func (block *SimpleQueueBlock) add(ctx context.Context, message []byte, external
 		ExternalDt: externalDt,
 		Message:    message,
 		Source:     source,
+		Segment:    segment,
 		Dt:         time.Now(),
 	}
 
@@ -1513,7 +1517,7 @@ func (q *SimpleQueue) searchExtID(ctx context.Context, source string, extID int6
 // AddUnique message to queue
 // externalDt is unix time
 // externalID is source id (should be != 0 !!!!)
-func (q *SimpleQueue) AddUnique(ctx context.Context, message []byte, externalID int64, externalDt int64, source string, saveMode int) (id int64, err *mft.Error) {
+func (q *SimpleQueue) AddUnique(ctx context.Context, message []byte, externalID int64, externalDt int64, source string, segment int64, saveMode int) (id int64, err *mft.Error) {
 	if externalID == 0 {
 		return id, GenerateError(10029000)
 	}
@@ -1535,7 +1539,7 @@ func (q *SimpleQueue) AddUnique(ctx context.Context, message []byte, externalID 
 		}
 	}
 
-	return q.Add(ctx, message, externalID, externalDt, source, saveMode)
+	return q.Add(ctx, message, externalID, externalDt, source, segment, saveMode)
 
 }
 func (q *SimpleQueue) AddUniqueList(ctx context.Context, messages []Message, saveMode int) (ids []int64, err *mft.Error) {
@@ -1552,6 +1556,7 @@ func (q *SimpleQueue) AddUniqueList(ctx context.Context, messages []Message, sav
 			messages[i].ExternalID,
 			messages[i].ExternalDt,
 			messages[i].Source,
+			messages[i].Segment,
 			baseSaveMode,
 		)
 		if err != nil {
@@ -1566,6 +1571,7 @@ func (q *SimpleQueue) AddUniqueList(ctx context.Context, messages []Message, sav
 		messages[i].ExternalID,
 		messages[i].ExternalDt,
 		messages[i].Source,
+		messages[i].Segment,
 		saveMode,
 	)
 	if err != nil {

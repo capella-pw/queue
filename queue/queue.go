@@ -17,6 +17,7 @@ type MessageWithMeta struct {
 	Message    []byte    `json:"msg"`
 	Source     string    `json:"src,omitempty"`
 	IsSaved    bool      `json:"is_saved"`
+	Segment    int64     `json:"sg,omitempty"`
 }
 
 // MessageOnlyMeta one message only meta
@@ -28,6 +29,7 @@ type MessageOnlyMeta struct {
 	Dt         time.Time `json:"dt"`
 	Source     string    `json:"src,omitempty"`
 	IsSaved    bool      `json:"is_saved"`
+	Segment    int64     `json:"sg,omitempty"`
 }
 
 // MessageWithMeta one message with meta
@@ -36,11 +38,12 @@ type Message struct {
 	ExternalDt int64  `json:"s_dt,omitempty"`
 	Message    []byte `json:"msg"`
 	Source     string `json:"src,omitempty"`
+	Segment    int64  `json:"sg,omitempty"`
 }
 
 // Queue - queue of messages
 type Queue interface {
-	Add(ctx context.Context, message []byte, externalID int64, externalDt int64, source string, saveMode int) (id int64, err *mft.Error)
+	Add(ctx context.Context, message []byte, externalID int64, externalDt int64, source string, segment int64, saveMode int) (id int64, err *mft.Error)
 	AddList(ctx context.Context, messages []Message, saveMode int) (ids []int64, err *mft.Error)
 
 	// Get - gets messages from queue not more then cntLimit count and id more idStart
@@ -53,7 +56,7 @@ type Queue interface {
 	// AddUnique message to queue
 	// externalDt is unix time
 	// externalID is source id (should be != 0 !!!!)
-	AddUnique(ctx context.Context, message []byte, externalID int64, externalDt int64, source string, saveMode int) (id int64, err *mft.Error)
+	AddUnique(ctx context.Context, message []byte, externalID int64, externalDt int64, source string, segment int64, saveMode int) (id int64, err *mft.Error)
 	AddUniqueList(ctx context.Context, messages []Message, saveMode int) (ids []int64, err *mft.Error)
 
 	// SubscriberSetLastRead - set last read info
@@ -82,6 +85,7 @@ func (msg *SimpleQueueMessage) CopyWM() *MessageWithMeta {
 		ExternalDt: msg.ExternalDt,
 		Message:    msg.Message,
 		Source:     msg.Source,
+		Segment:    msg.Segment,
 	}
 
 	return out
@@ -95,6 +99,7 @@ func (msg *MessageWithMeta) CopyOM() *MessageOnlyMeta {
 		Dt:         msg.Dt,
 		ExternalDt: msg.ExternalDt,
 		Source:     msg.Source,
+		Segment:    msg.Segment,
 	}
 
 	return out
@@ -107,6 +112,7 @@ func (msg *MessageWithMeta) ToMessage() Message {
 		ExternalDt: msg.ExternalDt,
 		Source:     msg.Source,
 		Message:    msg.Message,
+		Segment:    msg.Segment,
 	}
 
 	return out

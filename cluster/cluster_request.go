@@ -390,7 +390,7 @@ func CallFuncInCluster(ctx context.Context, cluster Cluster, request *RequestBod
 			return responce
 		}
 
-		id, err := queue.Add(ctx, qReq.Message.Message, qReq.Message.ExternalID, qReq.Message.ExternalDt, qReq.Message.Source, qReq.SaveMode)
+		id, err := queue.Add(ctx, qReq.Message.Message, qReq.Message.ExternalID, qReq.Message.ExternalDt, qReq.Message.Source, qReq.Message.Segment, qReq.SaveMode)
 
 		responce = MarshalResponceMust(id, err)
 		return responce
@@ -443,7 +443,7 @@ func CallFuncInCluster(ctx context.Context, cluster Cluster, request *RequestBod
 			return responce
 		}
 
-		id, err := queue.AddUnique(ctx, qReq.Message.Message, qReq.Message.ExternalID, qReq.Message.ExternalDt, qReq.Message.Source, qReq.SaveMode)
+		id, err := queue.AddUnique(ctx, qReq.Message.Message, qReq.Message.ExternalID, qReq.Message.ExternalDt, qReq.Message.Source, qReq.Message.Segment, qReq.SaveMode)
 
 		responce = MarshalResponceMust(id, err)
 		return responce
@@ -828,13 +828,14 @@ type QueueAddRequest struct {
 	SaveMode int           `json:"sm"`
 }
 
-func (eac *ExternalAbstractQueue) Add(ctx context.Context, message []byte, externalID int64, externalDt int64, source string, saveMode int) (id int64, err *mft.Error) {
+func (eac *ExternalAbstractQueue) Add(ctx context.Context, message []byte, externalID int64, externalDt int64, source string, segment int64, saveMode int) (id int64, err *mft.Error) {
 	request := eac.MarshalRequestMust(OpQueueAdd, QueueAddRequest{
 		Message: queue.Message{
 			ExternalID: externalID,
 			ExternalDt: externalDt,
 			Source:     source,
 			Message:    message,
+			Segment:    segment,
 		},
 		SaveMode: saveMode,
 	})
@@ -886,13 +887,14 @@ func (eac *ExternalAbstractQueue) SaveAll(ctx context.Context) (err *mft.Error) 
 	return responce.Err
 }
 
-func (eac *ExternalAbstractQueue) AddUnique(ctx context.Context, message []byte, externalID int64, externalDt int64, source string, saveMode int) (id int64, err *mft.Error) {
+func (eac *ExternalAbstractQueue) AddUnique(ctx context.Context, message []byte, externalID int64, externalDt int64, source string, segment int64, saveMode int) (id int64, err *mft.Error) {
 	request := eac.MarshalRequestMust(OpQueueAddUnique, QueueAddRequest{
 		Message: queue.Message{
 			ExternalID: externalID,
 			ExternalDt: externalDt,
 			Source:     source,
 			Message:    message,
+			Segment:    segment,
 		},
 		SaveMode: saveMode,
 	})

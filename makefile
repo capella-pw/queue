@@ -41,5 +41,13 @@ e_chcu:
 	go run ./examples/106_create_handler_copy_unique
 e_hcus:
 	go run ./examples/107_handler_copy_unique_start
+e_hcsu:
+	go run ./examples/108_create_and_start_handler_unload
+e_hcsd:
+	go run ./examples/109_create_and_start_handler_delete
+e_hcsm:
+	go run ./examples/110_create_and_start_handler_mark
+e_hle:
+	go run ./examples/111_get_handler_last_error
 
-tbe: e_cq e_smtq e_gmfq e_chrs e_hrss e_cec e_chcu e_hcus
+tbe: e_cq e_smtq e_gmfq e_chrs e_hrss e_cec e_chcu e_hcus e_hcsu e_hcsd e_hcsm e_hle

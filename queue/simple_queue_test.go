@@ -17,7 +17,7 @@ func TestSimpleQueue_NoSave_full(t *testing.T) {
 	// Add msgs
 	{
 		for i := 0; i < 10; i++ {
-			_, err := q.Add(context.Background(), []byte("test text"), int64(i)+1, 0, "", NotSaveSaveMode)
+			_, err := q.Add(context.Background(), []byte("test text"), int64(i)+1, 0, "", 0, NotSaveSaveMode)
 			if err != nil {
 				t.Error(err)
 			}
@@ -81,7 +81,7 @@ func TestSimpleQueue_SaveImmediately_full(t *testing.T) {
 	// Add msgs
 	{
 		for i := 0; i < 10; i++ {
-			_, err := q.Add(context.Background(), []byte("test text"), int64(i)+1, 0, "", SaveImmediatelySaveMode)
+			_, err := q.Add(context.Background(), []byte("test text"), int64(i)+1, 0, "", 0, SaveImmediatelySaveMode)
 			if err != nil {
 				t.Error(err)
 			}
@@ -151,7 +151,7 @@ func TestSimpleQueue_SaveMarkSaveMode_full(t *testing.T) {
 	// Add msgs
 	{
 		for i := 0; i < 10; i++ {
-			_, err := q.Add(context.Background(), []byte("test text"), int64(i)+1, 0, "", SaveMarkSaveMode)
+			_, err := q.Add(context.Background(), []byte("test text"), int64(i)+1, 0, "", 0, SaveMarkSaveMode)
 			if err != nil {
 				t.Error(err)
 			}
@@ -245,7 +245,7 @@ func TestSimpleQueue_SaveWaitSaveMode_full(t *testing.T) {
 			go func() {
 				waitMsgs++
 				mx.Unlock()
-				_, err := q.Add(context.Background(), []byte("test text"), int64(iIx)+1, 0, "", SaveWaitSaveMode)
+				_, err := q.Add(context.Background(), []byte("test text"), int64(iIx)+1, 0, "", 0, SaveWaitSaveMode)
 				if err != nil {
 					t.Error(err)
 				}
@@ -357,7 +357,7 @@ func TestSimpleQueue_SaveMarkSaveMode_Size(t *testing.T) {
 	// Add msgs
 	{
 		for i := 0; i < 10000; i++ {
-			_, err := q.Add(context.Background(), []byte("test text"), int64(i)+1, 0, "", SaveMarkSaveMode)
+			_, err := q.Add(context.Background(), []byte("test text"), int64(i)+1, 0, "", 0, SaveMarkSaveMode)
 			if err != nil {
 				t.Error(err)
 			}
@@ -391,7 +391,7 @@ func TestSimpleQueue_SaveMarkSaveMode_unload_and_load(t *testing.T) {
 	// Add msgs
 	{
 		for i := 0; i < 10; i++ {
-			_, err := q.Add(context.Background(), []byte("test text"), int64(i)+1, 0, "", SaveMarkSaveMode)
+			_, err := q.Add(context.Background(), []byte("test text"), int64(i)+1, 0, "", 0, SaveMarkSaveMode)
 			if err != nil {
 				t.Error(err)
 			}
@@ -508,7 +508,7 @@ func TestSimpleQueue_SaveMarkSaveMode_delete(t *testing.T) {
 	// Add msgs
 	{
 		for i := 0; i < 100; i++ {
-			_, err := q.Add(context.Background(), []byte("test text"), int64(i)+1, 0, "", SaveMarkSaveMode)
+			_, err := q.Add(context.Background(), []byte("test text"), int64(i)+1, 0, "", 0, SaveMarkSaveMode)
 			if err != nil {
 				t.Error(err)
 			}
@@ -624,7 +624,7 @@ func TestSimpleQueue_SaveMarkSaveMode_moveStorage(t *testing.T) {
 	// Add msgs
 	{
 		for i := 0; i < 100; i++ {
-			_, err := q.Add(context.Background(), []byte("test text"), int64(i)+1, 0, "", SaveMarkSaveMode)
+			_, err := q.Add(context.Background(), []byte("test text"), int64(i)+1, 0, "", 0, SaveMarkSaveMode)
 			if err != nil {
 				t.Error(err)
 			}
@@ -842,7 +842,7 @@ func TestSimpleQueue_SaveMarkSaveMode_saveUnique(t *testing.T) {
 			if i%3 == 1 {
 				source = "B"
 			}
-			_, err := q.AddUnique(context.Background(), []byte("test text"), int64(i)+1, 0, source, SaveMarkSaveMode)
+			_, err := q.AddUnique(context.Background(), []byte("test text"), int64(i)+1, 0, source, 0, SaveMarkSaveMode)
 			if err != nil {
 				t.Error(err)
 			}
@@ -889,7 +889,7 @@ func TestSimpleQueue_SaveMarkSaveMode_saveUnique(t *testing.T) {
 	{
 		for i := 0; i < 100; i++ {
 			source := "A"
-			_, err := q.AddUnique(context.Background(), []byte("test text"), int64(i)+1, 0, source, SaveMarkSaveMode)
+			_, err := q.AddUnique(context.Background(), []byte("test text"), int64(i)+1, 0, source, 0, SaveMarkSaveMode)
 			if err != nil {
 				t.Error(err)
 			}
@@ -913,7 +913,7 @@ func TestSimpleQueue_SaveMarkSaveMode_load(t *testing.T) {
 	// Add msgs
 	{
 		for i := 0; i < 10; i++ {
-			_, err := q.Add(context.Background(), []byte("test text"), int64(i)+1, 0, "", SaveMarkSaveMode)
+			_, err := q.Add(context.Background(), []byte("test text"), int64(i)+1, 0, "", 0, SaveMarkSaveMode)
 			if err != nil {
 				t.Error(err)
 			}

@@ -1,6 +1,7 @@
 package cluster
 
 import (
+	"context"
 	"encoding/json"
 	"time"
 
@@ -166,21 +167,66 @@ func (sc *SimpleCluster) LoadFullStruct(user ClusterUser, data json.RawMessage) 
 }
 func (sc *SimpleCluster) LoadFullStructRaw(data json.RawMessage) (err *mft.Error) {
 	sc.mx.Lock()
-	defer sc.mx.Unlock()
 
 	eru := json.Unmarshal(data, sc)
 
 	if eru != nil {
+		sc.mx.Unlock()
 		return GenerateErrorE(10103001, eru)
 	}
 
 	sc.IDGenerator = &mft.G{AddValue: sc.RvGeneratorPart}
+	sc.mx.Unlock()
 
+	ctx := context.Background()
 	// Load and run queue
+	for name, load := range sc.Queues {
+		_, loadGen, ok := sc.QueueGenerator.GetGenerator(load.Type)
+		if !ok {
+			return GenerateError(10103002, name, load.Type)
+		}
+		queue, err := loadGen(ctx, sc.StorageGenerator, load, sc.IDGenerator)
+		if err != nil {
+			return GenerateErrorE(10103003, err, name, load.Type)
+		}
+
+		load.Queue = queue
+	}
 
 	// Load and run external cluster
+	for name, load := range sc.ExternalClusters {
+		_, loadGen, ok := sc.ExternalClusterGenerator.GetGenerator(load.Type)
+		if !ok {
+			return GenerateError(10103004, name, load.Type)
+		}
+		cluster, err := loadGen(ctx, sc.Compressor, load, sc.IDGenerator)
+		if err != nil {
+			return GenerateErrorE(10103005, err, name, load.Type)
+		}
+
+		load.Cluster = cluster
+	}
 
 	// Load and run handler
+	for name, load := range sc.Handlers {
+		_, loadGen, ok := sc.HandlerGenerator.GetGenerator(load.Type)
+		if !ok {
+			return GenerateError(10103006, name, load.Type)
+		}
+		handler, err := loadGen(ctx, sc, load, sc.IDGenerator)
+		if err != nil {
+			return GenerateErrorE(10103007, err, name, load.Type)
+		}
+
+		load.Handler = handler
+
+		if load.Start {
+			err = handler.Start(ctx)
+			if err != nil {
+				return GenerateErrorE(10103008, err, name, load.Type)
+			}
+		}
+	}
 
 	return nil
 }

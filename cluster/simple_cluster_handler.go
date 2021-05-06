@@ -11,6 +11,9 @@ import (
 const (
 	RegularlySaveHandlerType = "regularly_save"
 	CopyUniqueHandlerType    = "copy_unique"
+	BlockDeleteHandlerType   = "block_delete"
+	BlockUnloadHandlerType   = "block_unload"
+	BlockMarkHandlerType     = "block_mark"
 )
 
 type HNewGenerator func(
@@ -229,6 +232,9 @@ func HandlerGeneratorCreate() *HandlerGenerator {
 
 	res.AddGenerator(RegularlySaveHandlerType, RegularlySaveNewGenerator, RegularlySaveLoadGenerator)
 	res.AddGenerator(CopyUniqueHandlerType, CopyUniqueNewGenerator, CopyUniqueLoadGenerator)
+	res.AddGenerator(BlockDeleteHandlerType, BlockDeleteNewGenerator, BlockDeleteLoadGenerator)
+	res.AddGenerator(BlockUnloadHandlerType, BlockUnloadNewGenerator, BlockUnloadLoadGenerator)
+	res.AddGenerator(BlockMarkHandlerType, BlockMarkNewGenerator, BlockMarkLoadGenerator)
 
 	return res
 }

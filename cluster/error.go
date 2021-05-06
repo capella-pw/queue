@@ -24,6 +24,13 @@ var Errors map[int]string = map[int]string{
 
 	10103000: "SimpleCluster.LoadFullStruct: Permission denied",
 	10103001: "SimpleCluster.LoadFullStruct: unmarshal fail",
+	10103002: "SimpleCluster.LoadFullStruct: load queue `%v` fail. Type `%v` is not exists.",
+	10103003: "SimpleCluster.LoadFullStruct: load queue `%v` fail. Type `%v`.",
+	10103004: "SimpleCluster.LoadFullStruct: load external cluster `%v` fail. Type `%v` is not exists.",
+	10103005: "SimpleCluster.LoadFullStruct: load external cluster `%v` fail. Type `%v`.",
+	10103006: "SimpleCluster.LoadFullStruct: load handler `%v` fail. Type `%v` is not exists.",
+	10103007: "SimpleCluster.LoadFullStruct: load handler `%v` fail. Type `%v`.",
+	10103008: "SimpleCluster.LoadFullStruct: load handler `%v` RUN fail. Type `%v`.",
 
 	10104000: "SimpleCluster.AddQueue: Permission denied",
 	10104001: "SimpleCluster.AddQueue: not exists queue type: %v",
@@ -129,6 +136,69 @@ var Errors map[int]string = map[int]string{
 
 	10118100: "CopyUniqueLoadGenerator: len(QueueNames): %v != 2",
 	10118101: "CopyUniqueLoadGenerator: unmarhal params error",
+
+	10118200: "BlockDeleteHandler.Start.go: Queue `%v` get error",
+	10118201: "BlockDeleteHandler.Start.go: Queue `%v` does not exists",
+	10118202: "BlockDeleteHandler.Start.go: Queue `%v` queue is not queue.SimpleQueue",
+	10118203: "BlockDeleteHandler.Start.go: Queue `%v` SetDelete fail",
+	10118204: "BlockDeleteHandler.Start.go: Queue `%v` DeleteBlocks fail",
+	10118205: "BlockDeleteHandler.Start: Save cluster fail on %v",
+	10118206: "BlockDeleteHandler.Stop: Save cluster fail on %v",
+
+	10118220: "BlockDeleteHandler: len(QueueNames): %v != 1",
+	10118221: "BlockDeleteHandler: unmarhal params error",
+	10118222: "BlockDeleteHandler: Interval: %v should be >0",
+	10118223: "BlockDeleteHandler: WaitMark: %v should be >0",
+	10118224: "BlockDeleteHandler: WaitDelete: %v should be >0",
+	10118225: "BlockDeleteHandler: LimitDelete: %v should be >0",
+	10118226: "BlockDeleteHandler: StorageTime: %v should be >0",
+
+	10118240: "BlockDeleteHandler: len(QueueNames): %v != 1",
+	10118241: "BlockDeleteHandler: unmarhal params error",
+
+	10118260: "BlockDeleteHandler.ToJson: marshal error",
+
+	10118300: "BlockUnloadHandler.Start.go: Queue `%v` get error",
+	10118301: "BlockUnloadHandler.Start.go: Queue `%v` does not exists",
+	10118302: "BlockUnloadHandler.Start.go: Queue `%v` queue is not queue.SimpleQueue",
+	10118303: "BlockUnloadHandler.Start.go: Queue `%v` SetUnload fail",
+	10118304: "BlockUnloadHandler.Start: Save cluster fail on %v",
+	10118305: "BlockUnloadHandler.Stop: Save cluster fail on %v",
+
+	10118320: "BlockUnloadHandler: len(QueueNames): %v != 1",
+	10118321: "BlockUnloadHandler: unmarhal params error",
+	10118322: "BlockUnloadHandler: Interval: %v should be >0",
+	10118323: "BlockUnloadHandler: Wait: %v should be >0",
+	10118324: "BlockUnloadHandler: StorageMemoryTime: %v should be >0",
+	10118325: "BlockUnloadHandler: StorageLastLoadTime: %v should be >0",
+
+	10118340: "BlockUnloadHandler: len(QueueNames): %v != 1",
+	10118341: "BlockUnloadHandler: unmarhal params error",
+
+	10118360: "BlockUnloadHandler.ToJson: marshal error",
+
+	10118400: "BlockMarkHandler.Start.go: Queue `%v` get error",
+	10118401: "BlockMarkHandler.Start.go: Queue `%v` does not exists",
+	10118402: "BlockMarkHandler.Start.go: Queue `%v` queue is not queue.SimpleQueue",
+	10118403: "BlockMarkHandler.Start.go: Queue `%v` SetMarks fail",
+	10118404: "BlockMarkHandler.Start.go: Queue `%v` UpdateMarks fail",
+	10118405: "BlockMarkHandler.Start: Save cluster fail on %v",
+	10118406: "BlockMarkHandler.Stop: Save cluster fail on %v",
+
+	10118420: "BlockMarkHandler: len(QueueNames): %v != 1",
+	10118421: "BlockMarkHandler: unmarhal params error",
+	10118422: "BlockMarkHandler: Interval: %v should be >0",
+	10118423: "BlockMarkHandler: WaitMark: %v should be >0",
+	10118424: "BlockMarkHandler: WaitUpdate: %v should be >0",
+	10118425: "BlockMarkHandler: LimitUpdateBlocks: %v should be >0",
+	10118426: "BlockMarkHandler: len(rshp.Conditions): 0 should be >0",
+	10118427: "BlockMarkHandler: [%v] Mark: %v: Condition.FromTime: %v should be >=0",
+	10118428: "BlockMarkHandler: [%v] Mark: %v: should be Condition.FromTime (%v) < Condition.ToTime (%v)",
+
+	10118440: "BlockMarkHandler: len(QueueNames): %v != 1",
+	10118441: "BlockMarkHandler: unmarhal params error",
+
+	10118460: "BlockMarkHandler.ToJson: marshal error",
 
 	// ----
 	10120000: "ClusterService.Call: Current server time less then client time. Server:%v client:%v",

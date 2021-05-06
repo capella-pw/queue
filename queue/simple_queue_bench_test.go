@@ -13,7 +13,7 @@ func BenchmarkSimpleQueue_SaveMarkSaveMode(b *testing.B) {
 	q := CreateSimpleQueue(5, 0, 0, stor, nil, nil, nil)
 
 	for i := 0; i < b.N; i++ {
-		_, err := q.Add(ctx, []byte("test  text"), int64(i)+1, 0, "", SaveMarkSaveMode)
+		_, err := q.Add(ctx, []byte("test  text"), int64(i)+1, 0, "", 0, SaveMarkSaveMode)
 		if err != nil {
 			b.Error(err)
 		}
@@ -26,7 +26,7 @@ func BenchmarkSimpleQueue_SaveImmediatelySaveMode(b *testing.B) {
 	q := CreateSimpleQueue(5, 0, 0, stor, nil, nil, nil)
 
 	for i := 0; i < b.N; i++ {
-		_, err := q.Add(ctx, []byte("test  text"), int64(i)+1, 0, "", SaveImmediatelySaveMode)
+		_, err := q.Add(ctx, []byte("test  text"), int64(i)+1, 0, "", 0, SaveImmediatelySaveMode)
 		if err != nil {
 			b.Error(err)
 		}
@@ -39,7 +39,7 @@ func BenchmarkSimpleQueue_SaveMarkSaveMode_and_Save_500(b *testing.B) {
 	q := CreateSimpleQueue(500, 0, 0, stor, nil, nil, nil)
 
 	for i := 0; i < b.N; i++ {
-		_, err := q.Add(ctx, []byte("test  text"), int64(i)+1, 0, "", SaveMarkSaveMode)
+		_, err := q.Add(ctx, []byte("test  text"), int64(i)+1, 0, "", 0, SaveMarkSaveMode)
 		if err != nil {
 			b.Error(err)
 		}
@@ -56,7 +56,7 @@ func BenchmarkSimpleQueue_SaveMarkSaveMode_and_Save_50(b *testing.B) {
 	q := CreateSimpleQueue(50, 0, 0, stor, nil, nil, nil)
 
 	for i := 0; i < b.N; i++ {
-		_, err := q.Add(ctx, []byte("test  text"), int64(i)+1, 0, "", SaveMarkSaveMode)
+		_, err := q.Add(ctx, []byte("test  text"), int64(i)+1, 0, "", 0, SaveMarkSaveMode)
 		if err != nil {
 			b.Error(err)
 		}
@@ -78,7 +78,7 @@ func BenchmarkSimpleQueue_SaveMarkSaveMode_and_Save_50_lage(b *testing.B) {
 	}
 
 	for i := 0; i < b.N; i++ {
-		_, err := q.Add(ctx, []byte(t), int64(i)+1, 0, "", SaveMarkSaveMode)
+		_, err := q.Add(ctx, []byte(t), int64(i)+1, 0, "", 0, SaveMarkSaveMode)
 		if err != nil {
 			b.Error(err)
 		}
@@ -100,7 +100,7 @@ func BenchmarkSimpleQueue_SaveMarkSaveMode_and_Save_5_lage(b *testing.B) {
 	}
 
 	for i := 0; i < b.N; i++ {
-		_, err := q.Add(ctx, []byte(t), int64(i)+1, 0, "", SaveMarkSaveMode)
+		_, err := q.Add(ctx, []byte(t), int64(i)+1, 0, "", 0, SaveMarkSaveMode)
 		if err != nil {
 			b.Error(err)
 		}

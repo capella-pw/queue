@@ -48,6 +48,7 @@ func main() {
 		return
 	}
 
+	// Direct copy
 	err = cl.AddHandler(nil, cluster.HandlerDescription{
 		Name:     "test_queue_to_test_queue_2_copy_unique",
 		UserName: "",
@@ -63,6 +64,33 @@ func main() {
 			SaveModeSrc:    queue.SaveMarkSaveMode,
 			SaveModeDst:    queue.SaveMarkSaveMode,
 			SubscriberName: "test_subscr",
+			CntLimit:       100,
+			DoSaveDst:      true,
+		}.ToJson(),
+	})
+
+	if err != nil {
+		log.Fatalln(err)
+		os.Exit(1)
+		return
+	}
+
+	// Back copy
+	err = cl.AddHandler(nil, cluster.HandlerDescription{
+		Name:     "test_queue_2_to_test_queue_copy_unique",
+		UserName: "",
+		Type:     cluster.CopyUniqueHandlerType,
+		QueueNames: []string{
+			"test_queue_2", // from
+			"test_queue",   // to
+		},
+		Params: cluster.CopyUniqueHandlerParams{
+			Interval: time.Millisecond * 300, // interval between call
+			Wait:     time.Second * 5,        // wait save timeout
+
+			SaveModeSrc:    queue.SaveMarkSaveMode,
+			SaveModeDst:    queue.SaveMarkSaveMode,
+			SubscriberName: "test_subscr2",
 			CntLimit:       100,
 			DoSaveDst:      true,
 		}.ToJson(),

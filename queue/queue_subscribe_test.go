@@ -34,7 +34,7 @@ func TestSubscribeCopy_base(t *testing.T) {
 	// Add msgs
 	{
 		for i := 0; i < 10; i++ {
-			_, err := q1.Add(context.Background(), []byte("test text"), int64(i)+1, 0, "", NotSaveSaveMode)
+			_, err := q1.Add(context.Background(), []byte("test text"), int64(i)+1, 0, "", 0, NotSaveSaveMode)
 			if err != nil {
 				t.Error(err)
 			}
