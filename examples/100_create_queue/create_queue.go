@@ -27,7 +27,7 @@ func main() {
 		Name: "test_queue",
 		Type: cluster.SimpleQueueType,
 		Params: cluster.SimpleQueueParams{
-			CntLimit:                   100,
+			CntLimit:                   10000,
 			TimeLimit:                  time.Second * 10,
 			LenLimit:                   1e7,
 			MetaStorageMountName:       "default", // ../../config/stor.config.json

@@ -497,7 +497,7 @@ func (block *SimpleQueueBlock) canAppend(ctx context.Context, cntLimit int, time
 		ok = false
 	}
 
-	if ok && timeLimit > 0 && block.Dt.Sub(time.Now()) >= timeLimit {
+	if ok && timeLimit > 0 && time.Since(block.Dt) >= timeLimit {
 		ok = false
 	}
 

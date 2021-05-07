@@ -9,7 +9,10 @@ import (
 // Errors codes and description
 var Errors map[int]string = map[int]string{
 	10190000: "ConnectionFromJson: Unmarshal fail",
-	10190001: "Connection.DoRawQuery: send error server: %v",
+
+	10190001: "Connection.DoRawQuery: request create error server: %v",
+	10190002: "Connection.DoRawQuery: send request error server: %v",
+	10190003: "Connection.DoRawQuery: send request read body fail server: %v",
 
 	10190100: "ClusterConnection.CallFunc: Marshal request fail",
 	10190101: "ClusterConnection.CallFunc: Compress request fail",

@@ -28,8 +28,8 @@ func main() {
 		Name: "test_queue_2",
 		Type: cluster.SimpleQueueType,
 		Params: cluster.SimpleQueueParams{
-			CntLimit:                   100,
-			TimeLimit:                  time.Second * 10,
+			CntLimit:                   30000,
+			TimeLimit:                  time.Second * 50,
 			LenLimit:                   1e7,
 			MetaStorageMountName:       "default", // ../../config/stor.config.json
 			SubscriberStorageMountName: "default", // ../../config/stor.config.json
@@ -58,8 +58,8 @@ func main() {
 			"test_queue_2", // to
 		},
 		Params: cluster.CopyUniqueHandlerParams{
-			Interval: time.Millisecond * 300, // interval between call
-			Wait:     time.Second * 5,        // wait save timeout
+			Interval: time.Millisecond * 30, // interval between call
+			Wait:     time.Second * 5,       // wait save timeout
 
 			SaveModeSrc:    queue.SaveMarkSaveMode,
 			SaveModeDst:    queue.SaveMarkSaveMode,
@@ -85,8 +85,8 @@ func main() {
 			"test_queue",   // to
 		},
 		Params: cluster.CopyUniqueHandlerParams{
-			Interval: time.Millisecond * 300, // interval between call
-			Wait:     time.Second * 5,        // wait save timeout
+			Interval: time.Millisecond * 30, // interval between call
+			Wait:     time.Second * 5,       // wait save timeout
 
 			SaveModeSrc:    queue.SaveMarkSaveMode,
 			SaveModeDst:    queue.SaveMarkSaveMode,

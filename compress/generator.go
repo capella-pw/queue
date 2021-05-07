@@ -9,9 +9,10 @@ import (
 
 // Algs
 const (
-	Zip  = "gzip"
-	Zip1 = "gzip1"
-	Zip9 = "gzip9"
+	NoCompression = ""
+	Zip           = "gzip"
+	Zip1          = "gzip1"
+	Zip9          = "gzip9"
 )
 
 type CompressFunc func(ctx context.Context, algorithm string, body []byte, encryptKey []byte) (algorithmUsed string, result []byte, err *mft.Error)
