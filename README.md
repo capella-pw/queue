@@ -1,4 +1,4 @@
-# Capella.pw queue
+# Capella queue
 Message queue service.  
 
 ## Build prepare and run
