@@ -23,7 +23,7 @@ func GenerateError(key int, a ...interface{}) *mft.Error {
 	if text, ok := Errors[key]; ok {
 		return mft.ErrorCS(key, fmt.Sprintf(text, a...))
 	}
-	panic(fmt.Sprintf("queue.GenerateError, error not found code:%v", key))
+	panic(fmt.Sprintf("storage.GenerateError, error not found code:%v", key))
 }
 
 // GenerateErrorE -

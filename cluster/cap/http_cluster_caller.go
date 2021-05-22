@@ -19,10 +19,15 @@ type ClusterConnection struct {
 
 	Connection *Connection `json:"connection"`
 
-	AuthentificationType string          `json:"auth_type"`
-	AuthentificationInfo json.RawMessage `json:"auth_info"`
-	PreferContentType    string          `json:"prefer_content_type"`
-	SendContentType      string          `json:"send_content_type"`
+	AuthentificationType string `json:"auth_type"`
+	AuthentificationInfo []byte `json:"auth_info"`
+	UserName             string `json:"user_name"`
+	PreferContentType    string `json:"prefer_content_type"`
+	SendContentType      string `json:"send_content_type"`
+	// ReplaceNameForce: replace username in request to UserName
+	ReplaceNameForce bool `json:"replace_name_force"`
+
+	AuthentificationInfoDecrypt []byte `json:"-"`
 }
 
 func (cc *ClusterConnection) ToJson() json.RawMessage {
@@ -37,20 +42,30 @@ func (cc *ClusterConnection) ToJson() json.RawMessage {
 func CreateClusterConnection(compressor *compress.Generator,
 	connection *Connection,
 	authentificationType string,
+	userName string,
 	authentificationInfo json.RawMessage,
 	preferContentType string,
-	sendContentType string) (cc *ClusterConnection) {
+	sendContentType string,
+	replaceNameForce bool,
+) (cc *ClusterConnection) {
 	cc = &ClusterConnection{Compressor: compressor,
 
 		Connection: connection,
 
-		AuthentificationType: authentificationType,
-		AuthentificationInfo: authentificationInfo,
-		PreferContentType:    preferContentType,
-		SendContentType:      sendContentType,
+		AuthentificationType:        authentificationType,
+		UserName:                    userName,
+		AuthentificationInfo:        authentificationInfo,
+		AuthentificationInfoDecrypt: authentificationInfo,
+		PreferContentType:           preferContentType,
+		SendContentType:             sendContentType,
+		ReplaceNameForce:            replaceNameForce,
 	}
 
 	return cc
+}
+
+func (cc *ClusterConnection) GetName() string {
+	return cc.UserName
 }
 
 func (cc *ClusterConnection) Init() {
@@ -67,12 +82,15 @@ func (cc *ClusterConnection) CallFunc() func(ctx context.Context,
 
 		sreq := cluster.ServiceRequest{
 			AuthentificationType: cc.AuthentificationType,
-			AuthentificationInfo: cc.AuthentificationInfo,
+			AuthentificationInfo: cc.AuthentificationInfoDecrypt,
+			UserName:             cc.UserName,
 
 			WaitDuration: waitDuration,
 			CurrentTime:  currentTime.UnixNano(),
 
 			PreferContentType: cc.PreferContentType,
+
+			ReplaceNameForce: cc.ReplaceNameForce,
 
 			Request: request,
 		}

@@ -34,6 +34,8 @@ type SimpleCluster struct {
 	HandlerGenerator         *HandlerGenerator         `json:"-"`
 	Compressor               *compress.Generator       `json:"-"`
 
+	EncryptData *EncryptData `json:"-"`
+
 	// case nil then ignore
 	CheckPermissionFunc func(user ClusterUser, objectType string, action string, objectName string) (allowed bool, err *mft.Error) `json:"-"`
 	// case nil then ignore
@@ -199,7 +201,7 @@ func (sc *SimpleCluster) LoadFullStructRaw(data json.RawMessage) (err *mft.Error
 		if !ok {
 			return GenerateError(10103004, name, load.Type)
 		}
-		cluster, err := loadGen(ctx, sc.Compressor, load, sc.IDGenerator)
+		cluster, err := loadGen(ctx, sc.Compressor, load, sc.IDGenerator, sc.EncryptData)
 		if err != nil {
 			return GenerateErrorE(10103005, err, name, load.Type)
 		}

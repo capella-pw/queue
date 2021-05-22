@@ -14,15 +14,22 @@ const (
 )
 
 type ServiceRequest struct {
-	AuthentificationType string          `json:"auth_type"`
-	AuthentificationInfo json.RawMessage `json:"auth_info"`
+	AuthentificationType string `json:"auth_type"`
+	UserName             string `json:"user_name"`
+	AuthentificationInfo []byte `json:"auth_info"`
 
 	WaitDuration time.Duration `json:"wait"`
 	CurrentTime  int64         `json:"current_time"`
 
 	PreferContentType string `json:"prefer_content_type"`
 
+	ReplaceNameForce bool `json:"replace_name_force"`
+
 	Request *RequestBody `json:"request"`
+}
+
+func (sr *ServiceRequest) GetName() string {
+	return sr.UserName
 }
 
 type ServiceResponce struct {
@@ -109,7 +116,9 @@ func ClusterServiceJsonCreate(checkAuth CheckAuthFunc, cluster Cluster, compress
 	return sc
 }
 
-func (sc *ClusterService) Call(prepareCtx context.Context, contentType string, bodyIn []byte) (bodyOut []byte, outContentType string, htmlCode int) {
+func (sc *ClusterService) Call(prepareCtx context.Context,
+	contentType string, bodyIn []byte, addFunc []AdditionalCallFuncInClusterFunc,
+) (bodyOut []byte, outContentType string, htmlCode int) {
 	startTime := time.Now()
 	sr := ServiceResponce{TimeStart: startTime.UnixNano()}
 
@@ -147,7 +156,7 @@ func (sc *ClusterService) Call(prepareCtx context.Context, contentType string, b
 		return sc.Marshal(ctx, "", sr)
 	}
 
-	clusterResponce := CallFuncInCluster(ctx, sc.Cluster, serviceRequest.Request)
+	clusterResponce := CallFuncInCluster(ctx, sc.Cluster, serviceRequest.Request, addFunc)
 
 	sr.TimeFinish = time.Now().UnixNano()
 	sr.Responce = *clusterResponce

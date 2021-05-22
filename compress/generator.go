@@ -13,6 +13,9 @@ const (
 	Zip           = "gzip"
 	Zip1          = "gzip1"
 	Zip9          = "gzip9"
+
+	// Aes - AES 256 alg
+	Aes = "aes"
 )
 
 type CompressFunc func(ctx context.Context, algorithm string, body []byte, encryptKey []byte) (algorithmUsed string, result []byte, err *mft.Error)
@@ -48,6 +51,7 @@ func GeneratorCreate(gzipDefaultLevel int) *Generator {
 	g.Add(Zip, GZipCompressGenerator(gzipDefaultLevel), GZipRestore)
 	g.Add(Zip1, GZipCompressGenerator(1), GZipRestore)
 	g.Add(Zip9, GZipCompressGenerator(9), GZipRestore)
+	g.Add(Aes, AesEncrypt, AesDecrypt)
 
 	return g
 }

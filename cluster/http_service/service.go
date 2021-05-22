@@ -11,6 +11,7 @@ import (
 // FastHTTPHandler - fasthttp fast http handler
 func FastHTTPHandler(sc *cluster.ClusterService,
 	prepareCtxGenerator func() (ctx context.Context, doOnCompete func()),
+	addFunc []cluster.AdditionalCallFuncInClusterFunc,
 ) func(ctx *fasthttp.RequestCtx) {
 	return func(ctx *fasthttp.RequestCtx) {
 		decompressAlg := ""
@@ -22,7 +23,8 @@ func FastHTTPHandler(sc *cluster.ClusterService,
 
 		ctxPrep, doOnCompete := prepareCtxGenerator()
 		defer doOnCompete()
-		bodyOut, outContentType, htmlCode := sc.Call(ctxPrep, decompressAlg, ctx.Request.Body())
+
+		bodyOut, outContentType, htmlCode := sc.Call(ctxPrep, decompressAlg, ctx.Request.Body(), addFunc)
 
 		ctx.Response.SetStatusCode(htmlCode)
 		ctx.Response.Header.Add(cap.CompressTypeHeader, outContentType)

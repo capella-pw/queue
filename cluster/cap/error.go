@@ -27,9 +27,13 @@ var Errors map[int]string = map[int]string{
 	10190301: "HttpExternalClusterNewGenerator: connection should be set (ClusterConnection.Connection) ec.name: %v",
 	10190302: "HttpExternalClusterNewGenerator: Connection.QueryWait should be > 0 ec.name: %v value: %v",
 	10190303: "HttpExternalClusterNewGenerator: Connection.Server should be set ec.name: %v",
+	10190304: "HttpExternalClusterNewGenerator: encrypt AuthentificationInfo fail ec.name: %v",
+	10190305: "HttpExternalClusterNewGenerator: DecryptAlg ia not correct ec.name: %v. Actual %v != Expired %v",
+	10190306: "HttpExternalClusterNewGenerator: params marshal fail ec.name: %v",
 
 	10190400: "HttpExternalClusterLoadGenerator: unmarshal error ec.name: %v",
 	10190401: "HttpExternalClusterLoadGenerator: connection should be set (ClusterConnection.Connection) ec.name: %v",
+	10190402: "HttpExternalClusterLoadGenerator: decrypt AuthentificationInfo fail ec.name: %v",
 }
 
 // GenerateError -
@@ -37,7 +41,7 @@ func GenerateError(key int, a ...interface{}) *mft.Error {
 	if text, ok := Errors[key]; ok {
 		return mft.ErrorCS(key, fmt.Sprintf(text, a...))
 	}
-	panic(fmt.Sprintf("queue.GenerateError, error not found code:%v", key))
+	panic(fmt.Sprintf("cap.GenerateError, error not found code:%v", key))
 }
 
 // GenerateErrorE -
@@ -45,5 +49,5 @@ func GenerateErrorE(key int, err error, a ...interface{}) *mft.Error {
 	if text, ok := Errors[key]; ok {
 		return mft.ErrorCSE(key, fmt.Sprintf(text, a...), err)
 	}
-	panic(fmt.Sprintf("queue.GenerateErrorE, error not found code:%v error:%v", key, err))
+	panic(fmt.Sprintf("cap.GenerateErrorE, error not found code:%v error:%v", key, err))
 }

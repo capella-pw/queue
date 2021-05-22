@@ -14,6 +14,12 @@ type ClusterUser interface {
 	GetName() string
 }
 
+type ClusterUserName string
+
+func (cun ClusterUserName) GetName() string {
+	return string(cun)
+}
+
 // QueueDescription description of queue
 type QueueDescription struct {
 	Name         string          `json:"name"`

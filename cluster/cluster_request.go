@@ -174,7 +174,11 @@ func UnmarshalInnerObjectAndFindHandler(cluster Cluster, request *RequestBody, v
 	return handler, responce, true
 }
 
-func CallFuncInCluster(ctx context.Context, cluster Cluster, request *RequestBody) (responce *ResponceBody) {
+type AdditionalCallFuncInClusterFunc func(ctx context.Context,
+	cluster Cluster, request *RequestBody) (responce *ResponceBody, ok bool)
+
+func CallFuncInCluster(ctx context.Context, cluster Cluster, request *RequestBody,
+	addFunc []AdditionalCallFuncInClusterFunc) (responce *ResponceBody) {
 	if request.Action == OpGetName {
 		name, err := cluster.GetName(request)
 
@@ -598,9 +602,15 @@ func CallFuncInCluster(ctx context.Context, cluster Cluster, request *RequestBod
 			return responce
 		}
 
-		responce = CallFuncInCluster(ctx, clusterNext, requestNest)
-
+		responce = CallFuncInCluster(ctx, clusterNext, requestNest, addFunc)
 		return responce
+	}
+
+	for _, f := range addFunc {
+		responce, ok := f(ctx, cluster, request)
+		if ok {
+			return responce
+		}
 	}
 
 	responce.Err = GenerateError(10107100, request.Action)

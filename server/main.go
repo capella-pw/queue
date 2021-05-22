@@ -18,6 +18,8 @@ import (
 	"github.com/capella-pw/queue/cluster/cap"
 	"github.com/capella-pw/queue/cluster/http_service"
 	"github.com/capella-pw/queue/compress"
+	"github.com/capella-pw/queue/security/authentication/basic"
+	"github.com/capella-pw/queue/security/authorization"
 	"github.com/capella-pw/queue/storage"
 
 	log "github.com/sirupsen/logrus"
@@ -28,12 +30,32 @@ var fDebug = flag.String("log_level", "info",
 
 var fConfigFile = flag.String("cfg", "stor.config.json",
 	"Sets storage config file path")
+var fConfigEncrypt = flag.String("cfge", "encrypt.json",
+	"Sets encrypt config file path")
 
 var fClusterMountName = flag.String("cmn", "default",
 	"Cluster storage mount name")
 
 var fClusterRelativePath = flag.String("crp", "",
 	"Cluster storage replative path")
+
+var fAuthorizationMountName = flag.String("amn", "default",
+	"Authorization storage mount name")
+
+var fAuthorizationRelativePath = flag.String("arp", "",
+	"Authorization storage replative path")
+
+var fAuthorizationFileName = flag.String("arfn", "",
+	"Authentication Basic file name use `authorization.json`")
+
+var fAuthenticationBasicMountName = flag.String("abmn", "default",
+	"Authentication Basic storage mount name")
+
+var fAuthenticationBasicRelativePath = flag.String("abrp", "",
+	"Authentication Basic storage replative path")
+
+var fAuthenticationBasicFileName = flag.String("abfn", "",
+	"Authentication Basic file name use `basic_auth.json`")
 
 var fLoadTimeout = flag.Duration("ct", time.Second*5,
 	"Cluster load and save timeout")
@@ -51,6 +73,26 @@ var clusterFastHTTPHandler func(ctx *fasthttp.RequestCtx)
 
 func createCompressGenerator() {
 	compressor = compress.GeneratorCreate(*fCompressDefaultLevel)
+}
+
+func createEncryptData() (encryptData cluster.EncryptData, err error) {
+	path := filepath.FromSlash(*fConfigEncrypt)
+
+	if path == "" {
+		return encryptData, nil
+	}
+
+	data, err := ioutil.ReadFile(path)
+	if err != nil {
+		return encryptData, err
+	}
+
+	err = json.Unmarshal(data, &encryptData)
+	if err != nil {
+		return encryptData, err
+	}
+
+	return encryptData, nil
 }
 
 func createStorageGenerator() error {
@@ -85,15 +127,20 @@ func main() {
 
 	createCompressGenerator()
 
+	encryptData, er0 := createEncryptData()
+	if er0 != nil {
+		log.Fatal(er0)
+	}
+
 	if err := createStorageGenerator(); err != nil {
-		log.Fatal(err)
+		log.Fatalf("StorageGenerator load fail %v", err)
 	}
 
 	data, err := cluster.LoadClusterData(*fLoadTimeout,
 		storageGenerator,
 		*fClusterMountName, *fClusterRelativePath)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("LoadClusterData fail %v", err)
 	}
 
 	onChangeFunc, err := cluster.OnChangeFuncGenerate(*fLoadTimeout,
@@ -103,17 +150,54 @@ func main() {
 		log.Fatal(err)
 	}
 
+	var checkPermissionFunc func(user cluster.ClusterUser, objectType string, action string, objectName string) (allowed bool, err *mft.Error)
+	var checkAuth cluster.CheckAuthFunc
+	addFunc := []cluster.AdditionalCallFuncInClusterFunc{}
+
+	checkAuth = cluster.CheckAuthFuncEmpty
+
+	if *fAuthorizationFileName != "" {
+		authorizationStor, err := storageGenerator.Create(context.Background(), *fAuthorizationMountName, *fAuthorizationRelativePath)
+		if err != nil {
+			log.Fatalf("Authentication storage get fail %v", err)
+		}
+
+		securityATRZ, err := authorization.StorageLoad(authorizationStor, *fAuthorizationFileName)
+
+		checkPermissionFunc = securityATRZ.CheckPermission
+
+		addFunc = append(addFunc, securityATRZ.AdditionalCallFuncInClusterFunc)
+
+		if *fAuthenticationBasicFileName != "" {
+
+			authenticationBasicStor, err := storageGenerator.Create(context.Background(), *fAuthenticationBasicMountName, *fAuthenticationBasicRelativePath)
+			if err != nil {
+				log.Fatalf("Authentication basic storage get fail %v", err)
+			}
+
+			securityATCB, err := basic.StorageLoad(authenticationBasicStor, *fAuthenticationBasicFileName, checkPermissionFunc)
+			if err != nil {
+				log.Fatalf("Authentication basic load fail %v", err)
+			}
+
+			checkAuth = securityATCB.CheckAuthFunc
+
+			addFunc = append(addFunc, securityATCB.AdditionalCallFuncInClusterFunc)
+		}
+	}
+
 	cl := cluster.SimpleClusterCreate(storageGenerator,
 		func(err *mft.Error) bool {
 			log.Errorln(err)
 			return true
 		},
-		onChangeFunc,
-		nil, // checkPermissionFunc
+		onChangeFunc,        // onChangeFunc
+		checkPermissionFunc, // checkPermissionFunc
 		cluster.QueueGeneratorCreate(),
 		cluster.ExternalClusterGeneratorCreate(),
 		cluster.HandlerGeneratorCreate(),
 		compressor,
+		encryptData,
 	)
 
 	err = cl.LoadFullStructRaw(data)
@@ -125,10 +209,11 @@ func main() {
 	c = cl
 
 	clusterFastHTTPHandler = http_service.FastHTTPHandler(
-		cluster.ClusterServiceJsonCreate(cluster.CheckAuthFuncEmpty, c, compressor),
+		cluster.ClusterServiceJsonCreate(checkAuth, c, compressor),
 		func() (ctx context.Context, doOnCompete func()) {
 			return context.WithTimeout(context.Background(), time.Second*5)
 		},
+		addFunc,
 	)
 
 	// start API

@@ -22,6 +22,7 @@ func SimpleClusterCreate(storageGenerator *storage.Generator,
 	externalClusterGenerator *ExternalClusterGenerator,
 	handlerGenerator *HandlerGenerator,
 	compressor *compress.Generator,
+	encryptData EncryptData,
 ) *SimpleCluster {
 	sc := &SimpleCluster{}
 
@@ -38,6 +39,7 @@ func SimpleClusterCreate(storageGenerator *storage.Generator,
 	sc.CheckPermissionFunc = checkPermissionFunc
 	sc.ObjectCreateDuration = SimpleClusterObjectCreateDuration
 	sc.Compressor = compressor
+	sc.EncryptData = &encryptData
 
 	return sc
 }

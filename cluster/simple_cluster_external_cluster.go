@@ -20,6 +20,7 @@ type EcNewGenerator func(
 	compressor *compress.Generator,
 	ecDescription ExternalClusterDescription,
 	idGenerator *mft.G,
+	encryptData *EncryptData,
 ) (*ExternalClusterLoadDescription, *mft.Error)
 
 type EcLoadGenerator func(
@@ -27,6 +28,7 @@ type EcLoadGenerator func(
 	compressor *compress.Generator,
 	ecDescription *ExternalClusterLoadDescription,
 	idGenerator *mft.G,
+	encryptData *EncryptData,
 ) (Cluster, *mft.Error)
 
 type ExternalClusterGenerator struct {
@@ -101,12 +103,12 @@ func (sc *SimpleCluster) AddExternalCluster(user ClusterUser,
 		return GenerateError(10112001, clusterParams.Type)
 	}
 
-	ecld, err := cr(ctx, sc.Compressor, clusterParams, sc.IDGenerator)
+	ecld, err := cr(ctx, sc.Compressor, clusterParams, sc.IDGenerator, sc.EncryptData)
 	if err != nil {
 		return err
 	}
 
-	ec, err := ld(ctx, sc.Compressor, ecld, sc.IDGenerator)
+	ec, err := ld(ctx, sc.Compressor, ecld, sc.IDGenerator, sc.EncryptData)
 	if err != nil {
 		return err
 	}

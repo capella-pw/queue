@@ -215,7 +215,7 @@ func GenerateError(key int, a ...interface{}) *mft.Error {
 	if text, ok := Errors[key]; ok {
 		return mft.ErrorCS(key, fmt.Sprintf(text, a...))
 	}
-	panic(fmt.Sprintf("queue.GenerateError, error not found code:%v", key))
+	panic(fmt.Sprintf("cluster.GenerateError, error not found code:%v", key))
 }
 
 // GenerateError -
@@ -227,7 +227,7 @@ func GenerateErrorForClusterUser(user ClusterUser, key int, a ...interface{}) *m
 	if text, ok := Errors[key]; ok {
 		return mft.ErrorCS(key, "[user:"+userName+"] "+fmt.Sprintf(text, a...))
 	}
-	panic(fmt.Sprintf("queue.GenerateErrorForClusterUser, error not found code:%v", key))
+	panic(fmt.Sprintf("cluster.GenerateErrorForClusterUser, error not found code:%v", key))
 }
 
 // GenerateErrorE -
@@ -235,7 +235,7 @@ func GenerateErrorE(key int, err error, a ...interface{}) *mft.Error {
 	if text, ok := Errors[key]; ok {
 		return mft.ErrorCSE(key, fmt.Sprintf(text, a...), err)
 	}
-	panic(fmt.Sprintf("queue.GenerateErrorE, error not found code:%v error:%v", key, err))
+	panic(fmt.Sprintf("cluster.GenerateErrorE, error not found code:%v error:%v", key, err))
 }
 
 // GenerateError -
@@ -247,5 +247,5 @@ func GenerateErrorForClusterUserE(user ClusterUser, key int, err error, a ...int
 	if text, ok := Errors[key]; ok {
 		return mft.ErrorCSE(key, "[user:"+userName+"] "+fmt.Sprintf(text, a...), err)
 	}
-	panic(fmt.Sprintf("queue.GenerateErrorForClusterUserE, error not found code:%v", key))
+	panic(fmt.Sprintf("cluster.GenerateErrorForClusterUserE, error not found code:%v", key))
 }

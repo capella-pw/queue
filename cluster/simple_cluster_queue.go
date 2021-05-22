@@ -196,7 +196,7 @@ func (sc *SimpleCluster) GetQueuesList(user ClusterUser) (names []string, err *m
 }
 
 func (sc *SimpleCluster) GetQueue(user ClusterUser, name string) (queue queue.Queue, exists bool, err *mft.Error) {
-	allowed, err := sc.CheckPermission(user, ClusterSelfObjectType, GetQueueAction, "")
+	allowed, err := sc.CheckPermission(user, ClusterSelfObjectType, GetQueueAction, name)
 	if idxSp := strings.LastIndex(name, ClusterNameSplitter); idxSp >= 0 {
 		subName := name[0:idxSp]
 		nextName := name[idxSp+1:]

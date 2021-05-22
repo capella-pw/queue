@@ -10,20 +10,32 @@ tcompf:
 tq: tqf tqb
 
 build:
-	cd server && CGO_ENABLED=0 go build -o ../app/server.app
+	CGO_ENABLED=0 go build -o ./app/server.app ./server
+
+build_encrypt_tool:
+	CGO_ENABLED=0 go build -o ./app/encrypt_data_generator ./tools/encrypt_data_generator/
+
+tool: build_encrypt_tool
 
 cp_sc:
 	cp config/stor.config.json app/
 cp_cc:
 	cp config/cluster.json tmp/
+cp_ba:
+	cp config/basic_auth.json tmp/
+cp_autht:
+	cp config/authorization.json tmp/
 
 mkdt:
 	mkdir -pv tmp
 
-run:
-	app/server.app -cfg "app/stor.config.json" -log_level trace
+generate_encrypt:
+	app/encrypt_data_generator -cfge "app/encrypt.json"
 
-br: build mkdt cp_sc cp_cc run
+run:
+	app/server.app -cfg "app/stor.config.json" -cfge "app/encrypt.json" -abfn "basic_auth.json" -arfn "authorization.json" -log_level trace
+
+br: build mkdt cp_sc cp_cc cp_ba cp_autht generate_encrypt run
 
 e_cq:
 	go run ./examples/100_create_queue
@@ -50,7 +62,12 @@ e_hcsm:
 e_hle:
 	go run ./examples/111_get_handler_last_error
 
-tbe: e_cq e_smtq e_gmfq e_chrs e_hrss e_cec e_chcu e_hcus e_hcsu e_hcsd e_hcsm e_hle
+e_uac:
+	go run ./examples/130_user_admin_create
+e_utc:
+	go run ./examples/131_user_tech_create
+
+tbe: e_cq e_smtq e_gmfq e_chrs e_hrss e_cec e_chcu e_hcus e_hcsu e_hcsd e_hcsm e_hle e_uac e_utc
 
 e_sns:
 	go run ./examples/200_send_messages_to_queue_non_stop

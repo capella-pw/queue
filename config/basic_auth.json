@@ -1,0 +1,9 @@
+{
+    "users":{
+        "":{
+            "name":"",
+            "is_enable":true,
+            "pwd_hash":""
+        }
+    }
+}

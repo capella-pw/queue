@@ -205,7 +205,7 @@ func (sc *SimpleCluster) GetHandlersList(user ClusterUser) (names []string, err 
 }
 
 func (sc *SimpleCluster) GetHandler(user ClusterUser, name string) (handler Handler, exists bool, err *mft.Error) {
-	allowed, err := sc.CheckPermission(user, ClusterSelfObjectType, GetQueueAction, "")
+	allowed, err := sc.CheckPermission(user, ClusterSelfObjectType, GetHandlerAction, "")
 	if err != nil {
 		return nil, false, err
 	}
