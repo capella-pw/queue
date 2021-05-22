@@ -232,6 +232,7 @@ func LoadSimpleQueue(ctx context.Context, metaStorage storage.Storage, subscribe
 	q.ChangesRv = q.SaveRv
 
 	for i := 0; i < len(q.Blocks); i++ {
+		q.Blocks[i].IsUnload = true
 		q.Blocks[i].SaveRv = q.SaveRv
 		q.Blocks[i].ChangesRv = q.SaveRv
 	}

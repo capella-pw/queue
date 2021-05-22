@@ -27,7 +27,7 @@ func main() {
 	compressor := compress.GeneratorCreate(7)
 
 	cc := cap.CreateClusterConnection(compressor,
-		cap.CreateConnection("http://localhost:8676", true, time.Second*5, 5000, 5),
+		cap.CreateConnection("https://localhost:8676", true, time.Second*5, 5000, 5),
 		"", "", nil, compress.Zip, compress.Zip, false)
 
 	cc.Init()

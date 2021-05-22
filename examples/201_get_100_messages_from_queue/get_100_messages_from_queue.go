@@ -16,7 +16,7 @@ func main() {
 	compressor := compress.GeneratorCreate(7)
 
 	cc := cap.CreateClusterConnection(compressor,
-		cap.CreateConnection("http://localhost:8676", true, time.Second*5, 5, 5),
+		cap.CreateConnection("https://localhost:8676", true, time.Second*5, 5, 5),
 		"", "", nil, compress.Zip, compress.Zip, false)
 
 	cc.Init()
@@ -46,8 +46,8 @@ func main() {
 		return
 	}
 	if string(msgs[0].Message) != message {
-		log.Fatalf("Queue `test_queue` queue message: `%v` != `%v` \n",
-			string(msgs[0].Message), message)
+		log.Fatalf("Queue `test_queue` queue message: `%v` != `%v; msg ext id : %v` \n",
+			string(msgs[0].Message), message, msgs[0].ExternalID)
 		os.Exit(1)
 		return
 	}

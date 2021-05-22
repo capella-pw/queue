@@ -66,6 +66,12 @@ var fCompressDefaultLevel = flag.Int("cl", 7,
 var fListenAddress = flag.String("l", ":8676",
 	"Listen address and port for example :8080 localhost:8989 etc")
 
+var fTlsKey = flag.String("tls_key", "",
+	"tls key; example `app/key.pem`")
+
+var fTlsCert = flag.String("tls_cert", "",
+	"tls certificate; example `app/cert.pem`")
+
 var storageGenerator *storage.Generator
 var compressor *compress.Generator
 
@@ -224,8 +230,14 @@ func main() {
 
 	serverErrors := make(chan error, 1)
 	go func() {
-		log.Infof("Listen and serve %v", *fListenAddress)
-		serverErrors <- api.ListenAndServe(*fListenAddress)
+		if *fTlsKey != "" {
+			log.Infof("Listen and serve TLS %v", *fListenAddress)
+			serverErrors <- api.ListenAndServeTLS(*fListenAddress,
+				*fTlsCert, *fTlsKey)
+		} else {
+			log.Infof("Listen and serve %v", *fListenAddress)
+			serverErrors <- api.ListenAndServe(*fListenAddress)
+		}
 	}()
 
 	osSignals := make(chan os.Signal, 1)

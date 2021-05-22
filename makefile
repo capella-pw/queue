@@ -17,6 +17,9 @@ build_encrypt_tool:
 
 tool: build_encrypt_tool
 
+ssl_gen:
+	openssl req -x509 -newkey rsa:4096 -keyout ./app/key.pem -out ./app/cert.pem -days 3660 -nodes -subj '/CN=localhost'
+
 cp_sc:
 	cp config/stor.config.json app/
 cp_cc:
@@ -34,6 +37,9 @@ generate_encrypt:
 
 run:
 	app/server.app -cfg "app/stor.config.json" -cfge "app/encrypt.json" -abfn "basic_auth.json" -arfn "authorization.json" -log_level trace
+run_tls:
+	app/server.app -cfg "app/stor.config.json" -cfge "app/encrypt.json" -abfn "basic_auth.json" -arfn "authorization.json" -tls_key "app/key.pem" -tls_cert "app/cert.pem" -log_level trace
+
 
 br: build mkdt cp_sc cp_cc cp_ba cp_autht generate_encrypt run
 
