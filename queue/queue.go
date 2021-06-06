@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/myfantasy/mft"
+	"github.com/myfantasy/segment"
 )
 
 // MessageWithMeta one message with meta
@@ -49,6 +50,14 @@ type Queue interface {
 	// Get - gets messages from queue not more then cntLimit count and id more idStart
 	// returns messages == nil when no elements
 	Get(ctx context.Context, idStart int64, cntLimit int) (messages []*MessageWithMeta, err *mft.Error)
+
+	// GetSegment - gets messages from queue not more then cntLimit count and id more idStart
+	// returns messages == nil when no elements
+	// message should be in segment
+	// lastId last readed message ID from queue
+	GetSegment(ctx context.Context, idStart int64, cntLimit int,
+		segments *segment.Segments,
+	) (messages []*MessageWithMeta, lastId int64, err *mft.Error)
 
 	// SaveAll save all waiting for save block and metadata and else
 	SaveAll(ctx context.Context) (err *mft.Error)

@@ -17,7 +17,7 @@ func TestSubscribeCopy_base(t *testing.T) {
 	q1.Source = "55"
 	q2.Source = "66"
 
-	copy := SubscribeCopyUnique(q1, q2, SaveMarkSaveMode, SaveMarkSaveMode, "q2_subscr", 3, false)
+	copy := SubscribeCopyUnique(q1, q2, SaveMarkSaveMode, SaveMarkSaveMode, "q2_subscr", 3, false, nil)
 
 	ctx := context.Background()
 

@@ -9,6 +9,7 @@ import (
 
 	"github.com/capella-pw/queue/cluster/cap"
 	"github.com/capella-pw/queue/compress"
+	"github.com/myfantasy/segment"
 )
 
 func main() {
@@ -53,6 +54,32 @@ func main() {
 	if string(msgs[0].Message) != message {
 		log.Fatalf("Queue `test_queue` queue message: `%v` != `%v` \n",
 			string(msgs[0].Message), message)
+		os.Exit(1)
+		return
+	}
+	if msgs[0].Segment != 1 {
+		log.Fatalf("Queue `test_queue` queue message segment: `%v` != `%v` \n",
+			msgs[0].Segment, 1)
+		os.Exit(1)
+		return
+	}
+
+	checkLastId := msgs[0].ID
+
+	msgs, lastId, err := q.GetSegment(context.Background(), 0, 1, segment.MakeSegments())
+	if err != nil {
+		log.Fatalf("GetSegment err: %v\n", err)
+		os.Exit(1)
+		return
+	}
+	if len(msgs) > 0 {
+		log.Fatalf("Queue `test_queue` have msgs (GetSegment with empty segments) %v != 0 \n", len(msgs))
+		os.Exit(1)
+		return
+	}
+
+	if checkLastId != lastId {
+		log.Fatalf("Queue `test_queue` last id != last check id %v != %v \n", lastId, checkLastId)
 		os.Exit(1)
 		return
 	}

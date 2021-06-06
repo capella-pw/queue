@@ -10,6 +10,7 @@ import (
 	"github.com/capella-pw/queue/storage"
 	"github.com/myfantasy/mfs"
 	"github.com/myfantasy/mft"
+	"github.com/myfantasy/segment"
 )
 
 const (
@@ -567,15 +568,18 @@ func (q *SimpleQueue) getBlockForNext(ctx context.Context, idStart int64) (block
 
 // getItemsAfter gets items from block where id > idStart
 // returns messages == nil when no elements
-func (block *SimpleQueueBlock) getItemsAfter(ctx context.Context, q *SimpleQueue, idStart int64, cntLimit int, queueSaveRv int64) (messages []*MessageWithMeta, err *mft.Error) {
+func (block *SimpleQueueBlock) getItemsAfter(ctx context.Context,
+	q *SimpleQueue, idStart int64, cntLimit int, queueSaveRv int64,
+	segments *segment.Segments,
+) (messages []*MessageWithMeta, lastId int64, err *mft.Error) {
 	if !block.mx.RTryLock(ctx) {
-		return nil, GenerateError(10011001)
+		return nil, lastId, GenerateError(10011001)
 	}
 
 	if block.IsUnload {
 		err = block.load(ctx, q)
 		if err != nil {
-			return nil, err
+			return nil, lastId, err
 		}
 	} else {
 		block.LastGet = time.Now()
@@ -583,32 +587,51 @@ func (block *SimpleQueueBlock) getItemsAfter(ctx context.Context, q *SimpleQueue
 
 	if len(block.Data) == 0 {
 		block.mx.RUnlock()
-		return nil, nil
+		return nil, lastId, nil
 	}
 
 	idx := sort.Search(len(block.Data), func(i int) bool {
 		return block.Data[i].ID > idStart
 	})
 
-	for i := 0; (i+idx) < len(block.Data) && i < cntLimit; i++ {
+	added := 0
+	for i := 0; (i+idx) < len(block.Data) && added < cntLimit; i++ {
 		if block.Data[i+idx].ID > idStart {
-			msg := block.Data[i+idx].CopyWM()
-			msg.IsSaved = block.ID <= queueSaveRv && msg.ID <= block.SaveRv
-			messages = append(messages, msg)
+			lastId = block.Data[i+idx].ID
+			if segments.In(block.Data[i+idx].Segment) {
+				msg := block.Data[i+idx].CopyWM()
+				msg.IsSaved = block.ID <= queueSaveRv && msg.ID <= block.SaveRv
+				messages = append(messages, msg)
+				added++
+			}
 		}
 	}
 
 	block.mx.RUnlock()
 
-	return messages, nil
+	return messages, lastId, nil
 }
 
 // Get - gets messages from queue not more then cntLimit count and id more idStart
 // returns messages == nil when no elements
 func (q *SimpleQueue) Get(ctx context.Context, idStart int64, cntLimit int) (messages []*MessageWithMeta, err *mft.Error) {
+	messages, _, err = q.GetSegment(ctx, idStart, cntLimit, nil)
+
+	return messages, err
+}
+
+// GetSegment - gets messages from queue not more then cntLimit count and id more idStart
+// returns messages == nil when no elements
+// message should be in segment
+// lastId last readed message ID from queue
+func (q *SimpleQueue) GetSegment(ctx context.Context, idStart int64, cntLimit int,
+	segments *segment.Segments,
+) (messages []*MessageWithMeta, lastId int64, err *mft.Error) {
+
+	lastId = idStart
 
 	if !q.mx.RTryLock(ctx) {
-		return nil, GenerateError(10011002)
+		return nil, lastId, GenerateError(10011002)
 	}
 
 	blocks, err := q.getBlockForNext(ctx, idStart)
@@ -616,28 +639,34 @@ func (q *SimpleQueue) Get(ctx context.Context, idStart int64, cntLimit int) (mes
 	q.mx.RUnlock()
 
 	if err != nil {
-		return nil, err
+		return nil, lastId, err
 	}
 
 	if len(blocks) == 0 {
-		return nil, nil
+		return nil, lastId, nil
 	}
 
 	for i := 0; i < len(blocks); i++ {
-		msgs, err := blocks[i].getItemsAfter(ctx, q, idStart, cntLimit-len(messages), queueSaveRv)
+		msgs, lastIdB, err := blocks[i].getItemsAfter(ctx, q, idStart, cntLimit-len(messages), queueSaveRv, segments)
 
 		if err != nil {
-			return messages, err
+			return messages, lastId, err
 		}
 
-		messages = append(messages, msgs...)
+		if msgs != nil {
+			messages = append(messages, msgs...)
+		}
+
+		if lastIdB > lastId {
+			lastId = lastIdB
+		}
 
 		if len(messages) >= cntLimit {
 			break
 		}
 	}
 
-	return messages, nil
+	return messages, lastId, nil
 }
 
 // Save save meta info of queue
@@ -1725,7 +1754,7 @@ func (q *SimpleQueue) SubscriberGetLastRead(ctx context.Context, subscriber stri
 	return v.LastID, nil
 }
 
-// SubscriberGetLastRead - get last read info
+// SubscriberAddReplicaMember - add replication subscriber member
 func (q *SimpleQueue) SubscriberAddReplicaMember(ctx context.Context, subscriber string) (err *mft.Error) {
 
 	if !q.Subscribers.mx.TryLock(ctx) {
@@ -1745,7 +1774,7 @@ func (q *SimpleQueue) SubscriberAddReplicaMember(ctx context.Context, subscriber
 	return err
 }
 
-// SubscriberGetLastRead - get last read info
+// SubscriberRemoveReplicaMember - remove replication subscriber member
 func (q *SimpleQueue) SubscriberRemoveReplicaMember(ctx context.Context, subscriber string) (err *mft.Error) {
 
 	if !q.Subscribers.mx.TryLock(ctx) {
@@ -1765,7 +1794,7 @@ func (q *SimpleQueue) SubscriberRemoveReplicaMember(ctx context.Context, subscri
 	return err
 }
 
-// SubscriberGetLastRead - get last read info
+// SubscriberGetReplicaCount - get count of replication subscriber member
 func (q *SimpleQueue) SubscriberGetReplicaCount(ctx context.Context, id int64) (cnt int, err *mft.Error) {
 
 	if !q.Subscribers.mx.RTryLock(ctx) {

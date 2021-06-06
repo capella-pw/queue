@@ -7,6 +7,7 @@ import (
 
 	"github.com/capella-pw/queue/queue"
 	"github.com/myfantasy/mft"
+	"github.com/myfantasy/segment"
 )
 
 // RequestBody request
@@ -58,6 +59,7 @@ const (
 	OpQueueAdd           = "q_add"
 	OpQueueAddList       = "q_add_list"
 	OpQueueGet           = "q_get"
+	OpQueueGetSegment    = "q_get_segment"
 	OpQueueSaveAll       = "q_save_all"
 	OpQueueAddUnique     = "q_add_unique"
 	OpQueueAddUniqueList = "q_add_unique_list"
@@ -424,6 +426,23 @@ func CallFuncInCluster(ctx context.Context, cluster Cluster, request *RequestBod
 		messages, err := queue.Get(ctx, qReq.IdStart, qReq.CntLimit)
 
 		responce = MarshalResponceMust(messages, err)
+		return responce
+	}
+
+	if request.Action == OpQueueGetSegment {
+		var qReq QueueGetSegmentRequest
+
+		queue, responce, ok := UnmarshalInnerObjectAndFindQueue(cluster, request, &qReq)
+		if !ok {
+			return responce
+		}
+
+		messages, lastId, err := queue.GetSegment(ctx, qReq.IdStart, qReq.CntLimit, qReq.Segments)
+
+		responce = MarshalResponceMust(QueueGetSegmentResponce{
+			Messages: messages,
+			LastId:   lastId,
+		}, err)
 		return responce
 	}
 
@@ -874,8 +893,8 @@ func (eac *ExternalAbstractQueue) AddList(ctx context.Context, messages []queue.
 }
 
 type QueueGetRequest struct {
-	IdStart  int64 `json:"msg"`
-	CntLimit int   `json:"sm"`
+	IdStart  int64 `json:"id_start"`
+	CntLimit int   `json:"cnt_limit"`
 }
 
 func (eac *ExternalAbstractQueue) Get(ctx context.Context, idStart int64, cntLimit int) (messages []*queue.MessageWithMeta, err *mft.Error) {
@@ -888,6 +907,34 @@ func (eac *ExternalAbstractQueue) Get(ctx context.Context, idStart int64, cntLim
 	err = responce.UnmarshalInnerObject(&messages)
 
 	return messages, err
+}
+
+type QueueGetSegmentRequest struct {
+	IdStart  int64             `json:"id_start"`
+	CntLimit int               `json:"cnt_limit"`
+	Segments *segment.Segments `json:"segments"`
+}
+
+type QueueGetSegmentResponce struct {
+	Messages []*queue.MessageWithMeta `json:"msgs"`
+	LastId   int64                    `json:"last_id"`
+}
+
+func (eac *ExternalAbstractQueue) GetSegment(ctx context.Context, idStart int64, cntLimit int,
+	segments *segment.Segments,
+) (messages []*queue.MessageWithMeta, lastId int64, err *mft.Error) {
+	var resp QueueGetSegmentResponce
+
+	request := eac.MarshalRequestMust(OpQueueGetSegment, QueueGetSegmentRequest{
+		IdStart:  idStart,
+		CntLimit: cntLimit,
+		Segments: segments,
+	})
+	responce := eac.CallFunc(ctx, request)
+
+	err = responce.UnmarshalInnerObject(&resp)
+
+	return resp.Messages, resp.LastId, err
 }
 
 func (eac *ExternalAbstractQueue) SaveAll(ctx context.Context) (err *mft.Error) {

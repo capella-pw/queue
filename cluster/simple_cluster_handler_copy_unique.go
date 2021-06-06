@@ -8,6 +8,7 @@ import (
 	"github.com/capella-pw/queue/queue"
 	"github.com/myfantasy/mfs"
 	"github.com/myfantasy/mft"
+	"github.com/myfantasy/segment"
 )
 
 func CopyUniqueNewGenerator(
@@ -74,6 +75,7 @@ func CopyUniqueLoadGenerator(
 		SubscriberName: rshp.SubscriberName,
 		CntLimit:       rshp.CntLimit,
 		DoSaveDst:      rshp.DoSaveDst,
+		Segments:       rshp.Segments,
 	}
 
 	return rsh, nil
@@ -85,11 +87,12 @@ type CopyUniqueHandlerParams struct {
 	// Wait - wait save timeout
 	Wait time.Duration `json:"wait"`
 
-	SaveModeSrc    int    `json:"src_save_mode"`
-	SaveModeDst    int    `json:"dst_save_mode"`
-	SubscriberName string `json:"subscribe_name"`
-	CntLimit       int    `json:"cnt_limit"`
-	DoSaveDst      bool   `json:"do_save_dst"`
+	SaveModeSrc    int               `json:"src_save_mode"`
+	SaveModeDst    int               `json:"dst_save_mode"`
+	SubscriberName string            `json:"subscribe_name"`
+	CntLimit       int               `json:"cnt_limit"`
+	DoSaveDst      bool              `json:"do_save_dst"`
+	Segments       *segment.Segments `json:"segments"`
 }
 
 func (hp CopyUniqueHandlerParams) ToJson() json.RawMessage {
@@ -116,6 +119,7 @@ type CopyUniqueHandler struct {
 	SubscriberName string
 	CntLimit       int
 	DoSaveDst      bool
+	Segments       *segment.Segments
 
 	mx           mfs.PMutex
 	chStop       chan bool
@@ -161,7 +165,8 @@ func (rsh *CopyUniqueHandler) Start(ctx context.Context) (err *mft.Error) {
 			rsh.SaveModeDst,
 			rsh.SubscriberName,
 			rsh.CntLimit,
-			rsh.DoSaveDst)
+			rsh.DoSaveDst,
+			rsh.Segments)
 		go func() {
 			for {
 				ctxInternal, cancel := context.WithTimeout(context.Background(), rsh.Wait)

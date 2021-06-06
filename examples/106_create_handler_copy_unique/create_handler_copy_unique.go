@@ -66,6 +66,8 @@ func main() {
 			SubscriberName: "test_subscr",
 			CntLimit:       100,
 			DoSaveDst:      true,
+
+			Segments: nil,
 		}.ToJson(),
 	})
 
@@ -93,6 +95,8 @@ func main() {
 			SubscriberName: "test_subscr2",
 			CntLimit:       100,
 			DoSaveDst:      true,
+
+			Segments: nil,
 		}.ToJson(),
 	})
 
