@@ -11,6 +11,7 @@ import (
 	"github.com/capella-pw/queue/storage"
 	"github.com/myfantasy/mfs"
 	"github.com/myfantasy/mft"
+	"github.com/myfantasy/segment"
 )
 
 // SimpleQueueType - simple queue type
@@ -256,6 +257,9 @@ type SimpleQueueParams struct {
 	MetaStorageMountName            string            `json:"meta_mount_name"`
 	SubscriberStorageMountName      string            `json:"subscriber_mount_name"`
 	MarkerBlockDataStorageMountName map[string]string `json:"marker_block_mount_name"`
+	Segments                        *segment.Segments `json:"segments,omitempty"`
+	DefaultSaveMode                 int               `json:"default_save_mod,omitempty"`
+	UseDefaultSaveModeForce         bool              `json:"use_default_save_mod_force,omitempty"`
 }
 
 func (sqp SimpleQueueParams) ToJson() json.RawMessage {
@@ -316,6 +320,9 @@ func SimppleQueueNewGenerator(ctx context.Context, storageGenerator *storage.Gen
 
 	sq := queue.CreateSimpleQueue(sqp.CntLimit, sqp.TimeLimit,
 		sqp.LenLimit, metaStorage, subscriberStorage, mbs, idGenerator)
+	sq.Segments = sqp.Segments
+	sq.DefaultSaveMode = sqp.DefaultSaveMode
+	sq.UseDefaultSaveModeForce = sqp.UseDefaultSaveModeForce
 
 	err = sq.SaveAll(ctx)
 	if err != nil {

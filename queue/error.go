@@ -17,6 +17,8 @@ var Errors map[int]string = map[int]string{
 	10010006: "SimpleQueue.Add: chWaitBlockSave fail wait",
 	10010007: "SimpleQueueBlock.add: block IsUnload !!!!",
 	10010008: "SimpleQueueBlock.add: externat time in future ext time: %v now:%v",
+	10010009: "SimpleQueue.Add: segment %v is out of valid segments",
+	10010010: "SimpleQueue.Add: save mode %v is not allowed",
 
 	10011000: "SimpleQueue.getBlockForNext: block RLock fail wait",
 	10011001: "SimpleQueueBlock.getItemsAfter: block RLock fail wait",
@@ -98,6 +100,7 @@ var Errors map[int]string = map[int]string{
 
 	10032000: "SimpleQueue.SubscriberSetLastRead: queue subscribers Lock fail wait",
 	10032001: "SimpleQueue.SubscriberSetLastRead: chWait fail wait",
+	10032002: "SimpleQueue.SubscriberSetLastRead: save mode %v is not allowed",
 
 	10033000: "SimpleQueue.SubscriberGetLastRead: queue subscribers RLock fail wait",
 

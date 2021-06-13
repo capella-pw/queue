@@ -9,6 +9,8 @@ import (
 	"github.com/capella-pw/queue/cluster"
 	"github.com/capella-pw/queue/cluster/cap"
 	"github.com/capella-pw/queue/compress"
+	"github.com/capella-pw/queue/queue"
+	"github.com/myfantasy/segment"
 )
 
 func main() {
@@ -38,6 +40,8 @@ func main() {
 				"b": "compress",
 				"c": "compress9",
 			},
+			Segments:        segment.MakeSegments().AddSegment(segment.Segment{From: -100000000, To: 100000000}),
+			DefaultSaveMode: queue.SaveMarkSaveMode,
 		}.ToJson(),
 	})
 

@@ -22,6 +22,8 @@ const (
 	SaveMarkSaveMode = 2
 	// SaveWaitSaveMode - wait save message after add element (saving do on schedule)
 	SaveWaitSaveMode = 3
+	// QueueSetDefaultMode - save mode setted in queue as DefaultSaveMode
+	QueueSetDefaultMode = 4
 )
 
 // MetaDataFileName - file name with metadata queue info
@@ -73,6 +75,11 @@ type SimpleQueue struct {
 	Subscribers *SimpleQueueSubscribers `json:"-"`
 
 	Source string `json:"-"`
+
+	Segments *segment.Segments `json:"segments,omitempty"`
+
+	DefaultSaveMode         int  `json:"default_save_mod,omitempty"`
+	UseDefaultSaveModeForce bool `json:"use_default_save_mod_force,omitempty"`
 }
 
 // SimpleQueueBlock block with data
@@ -340,6 +347,24 @@ func (q *SimpleQueue) Add(ctx context.Context, message []byte, externalID int64,
 	if !q.mx.RTryLock(ctx) {
 		return id, GenerateError(10010000)
 	}
+
+	if q.UseDefaultSaveModeForce {
+		saveMode = q.DefaultSaveMode
+	} else if saveMode == QueueSetDefaultMode {
+		saveMode = q.DefaultSaveMode
+	}
+
+	if saveMode != NotSaveSaveMode &&
+		saveMode != SaveImmediatelySaveMode &&
+		saveMode != SaveMarkSaveMode &&
+		saveMode != SaveWaitSaveMode {
+		return id, GenerateError(10010010, saveMode)
+	}
+
+	if !q.Segments.In(segment) {
+		return id, GenerateError(10010009, segment)
+	}
+
 	block, chWaitSaveMeta, err := q.currentBlockForWrite(ctx, saveMode)
 	if err != nil {
 		return id, err
@@ -405,6 +430,7 @@ func (q *SimpleQueue) Add(ctx context.Context, message []byte, externalID int64,
 
 	return id, nil
 }
+
 func (q *SimpleQueue) AddList(ctx context.Context, messages []Message, saveMode int) (ids []int64, err *mft.Error) {
 	baseSaveMode := SaveMarkSaveMode
 	if saveMode == NotSaveSaveMode {
@@ -1678,6 +1704,19 @@ func (q *SimpleQueue) SubscriberSetLastRead(ctx context.Context, subscriber stri
 
 	if !q.Subscribers.mx.TryLock(ctx) {
 		return GenerateError(10032000)
+	}
+
+	if q.UseDefaultSaveModeForce {
+		saveMode = q.DefaultSaveMode
+	} else if saveMode == QueueSetDefaultMode {
+		saveMode = q.DefaultSaveMode
+	}
+
+	if saveMode != NotSaveSaveMode &&
+		saveMode != SaveImmediatelySaveMode &&
+		saveMode != SaveMarkSaveMode &&
+		saveMode != SaveWaitSaveMode {
+		return GenerateError(10032002, saveMode)
 	}
 
 	isChanged := false
