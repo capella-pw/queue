@@ -10,12 +10,15 @@ tcompf:
 tq: tqf tqb
 
 build:
-	CGO_ENABLED=0 go build -o ./app/server.app ./server
+	CGO_ENABLED=0 go build -o ./app/capserver.app ./capserver
 
 build_encrypt_tool:
 	CGO_ENABLED=0 go build -o ./app/encrypt_data_generator ./tools/encrypt_data_generator/
 
-tool: build_encrypt_tool
+build_capsec:
+	CGO_ENABLED=0 go build -o ./app/capsec ./tools/capsec/
+
+tool: build_encrypt_tool build_capsec
 
 ssl_gen:
 	openssl req -x509 -newkey rsa:4096 -keyout ./app/key.pem -out ./app/cert.pem -days 3660 -nodes -subj '/CN=localhost'
@@ -28,6 +31,8 @@ cp_ba:
 	cp config/basic_auth.json tmp/
 cp_autht:
 	cp config/authorization.json tmp/
+cp_con:
+	cp config/connection.json app/
 
 mkdt:
 	mkdir -pv tmp
@@ -36,12 +41,14 @@ generate_encrypt:
 	app/encrypt_data_generator -cfge "app/encrypt.json"
 
 run:
-	app/server.app -cfg "app/stor.config.json" -cfge "app/encrypt.json" -abfn "basic_auth.json" -arfn "authorization.json" -log_level trace
+	app/capserver.app -cfg "app/stor.config.json" -cfge "app/encrypt.json" -abfn "basic_auth.json" -arfn "authorization.json" -log_level trace
 run_tls:
-	app/server.app -cfg "app/stor.config.json" -cfge "app/encrypt.json" -abfn "basic_auth.json" -arfn "authorization.json" -tls_key "app/key.pem" -tls_cert "app/cert.pem" -log_level trace
-
+	app/capserver.app -cfg "app/stor.config.json" -cfge "app/encrypt.json" -abfn "basic_auth.json" -arfn "authorization.json" -tls_key "app/key.pem" -tls_cert "app/cert.pem" -log_level trace
 
 br: build mkdt cp_sc cp_cc cp_ba cp_autht generate_encrypt run
+
+
+b_capsec: build_capsec cp_con
 
 e_cq:
 	go run ./examples/100_create_queue

@@ -8,8 +8,8 @@ github.com/klauspost/compress v1.13.0 h1:2T7tUoQrQT+fQWdaY5rjWztFGAFwbGD04iPJg90
 github.com/klauspost/compress v1.13.0/go.mod h1:8dP1Hq4DHOhN9w426knH3Rhby4rFm6D8eO+e+Dq5Gzg=
 github.com/myfantasy/mfs v0.1.4 h1:AhiUqDw3DpBHlRmPOFx+W7fAePgh3iFg/DvaXcjdsQs=
 github.com/myfantasy/mfs v0.1.4/go.mod h1:VzrpsffCc+o2mGUMJrO07YSbHrGfZ4PbbENQbNssecA=
-github.com/myfantasy/mft v0.0.10 h1:v01DwipEvqvx2Wm0/5/2U5dJMXQAQHrv2cWpAWnmKWc=
-github.com/myfantasy/mft v0.0.10/go.mod h1:0Z5dKFlkM9T5IjF6fj+lfsnc29g0FQ+zgzqQDK9/5sw=
+github.com/myfantasy/mft v0.0.12 h1:goF1qfKqFoXaI9LvuQdSiVhTOhU9FsmG6TdNR5pGzJA=
+github.com/myfantasy/mft v0.0.12/go.mod h1:0Z5dKFlkM9T5IjF6fj+lfsnc29g0FQ+zgzqQDK9/5sw=
 github.com/myfantasy/segment v0.0.5 h1:jAKYkjhbLcCgJgDC0kG9ZZ6cd64vV5UNshGtnmxOUAo=
 github.com/myfantasy/segment v0.0.5/go.mod h1:YjEf5rqHUYq9Dsy/q8mzU0urujUiYiFCCtoZJRwpjFk=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=

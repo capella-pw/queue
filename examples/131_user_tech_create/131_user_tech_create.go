@@ -42,7 +42,7 @@ func main() {
 
 	err = authorization.AddUserUseCluster(cl, cc, "tech_user", false)
 	if err != nil {
-		log.Fatalf("Fail to set `tech_user` user as admin %v\n", err)
+		log.Fatalf("Fail to create `tech_user` user as no admin %v\n", err)
 		os.Exit(1)
 		return
 	}
