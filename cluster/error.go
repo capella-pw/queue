@@ -40,14 +40,14 @@ var Errors map[int]string = map[int]string{
 
 	10104000: "SimpleCluster.AddQueue: Permission denied",
 	10104001: "SimpleCluster.AddQueue: not exists queue type: %v",
-	10104002: "SimpleCluster.AddQueue: queue with name %v already exists",
+	10104002: "SimpleCluster.AddQueue: queue with name `%v` already exists",
 
 	10105000: "SimppleQueueNewGenerator: queue name is not set",
 	10105001: "SimppleQueueNewGenerator: fail to unmarshal params",
 	10105002: "SimppleQueueNewGenerator: meta storage create error queue:%v",
 	10105003: "SimppleQueueNewGenerator: subscriber storage create error queue:%v",
 	10105004: "SimppleQueueNewGenerator: block storage create error queue:%v block:%v",
-	10105005: "SimppleQueueNewGenerator: queue first save error queue:%v",
+	10105005: "SimppleQueueNewGenerator: queue first save error queue: %v",
 
 	10105100: "SimpleQueueParams.ToJson: marshal error",
 
@@ -73,7 +73,7 @@ var Errors map[int]string = map[int]string{
 	10108000: "SimpleCluster.DropQueue: Permission denied",
 
 	10109000: "SimpleCluster.GetQueueDescription: Permission denied",
-	10109001: "SimpleCluster.GetQueueDescription: Queue is not exists",
+	10109001: "SimpleCluster.GetQueueDescription: Queue `%v` does not exists",
 
 	10110000: "SimpleCluster.GetQueuesList: Permission denied",
 
@@ -84,6 +84,7 @@ var Errors map[int]string = map[int]string{
 
 	10112000: "SimpleCluster.AddExternalCluster: Permission denied",
 	10112001: "SimpleCluster.AddExternalCluster: not exists external cluster type: %v",
+	10112002: "SimpleCluster.AddExternalCluster: cluster with name `%v` already exists",
 
 	10113000: "SimpleCluster.DropExternalCluster: Permission denied",
 
@@ -99,7 +100,7 @@ var Errors map[int]string = map[int]string{
 
 	10117000: "SimpleCluster.AddHandler: Permission denied",
 	10117001: "SimpleCluster.AddHandler: not exists hanler type: %v",
-	10117002: "SimpleCluster.AddHandler: handler with name %v already exists",
+	10117002: "SimpleCluster.AddHandler: handler with name `%v` already exists",
 
 	10117100: "SimpleCluster.DropHandler: Permission denied",
 	10117101: "SimpleCluster.DropHandler: Stop fail",

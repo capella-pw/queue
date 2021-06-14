@@ -1,0 +1,19 @@
+{
+    "name": "example_external_cluster",
+    "type": "http_cluster",
+    "params": {
+        "connection": {
+            "server": "http://localhost:8676",
+            "ignore_ssql_validation": true,
+            "query_wait": 5000000000,
+            "max_conn": 5,
+            "max_idle_duration": 5
+        },
+        "auth_type": "basic",
+        "auth_info": "IlBhJCR3MHJkIg==",
+        "user_name": "example_tech_user",
+        "prefer_content_type": "gzip",
+        "send_content_type": "gzip",
+        "replace_name_force": true
+    }
+}

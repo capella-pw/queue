@@ -95,6 +95,13 @@ func (sc *SimpleCluster) AddExternalCluster(user ClusterUser,
 		return GenerateErrorForClusterUser(user, 10112000)
 	}
 
+	sc.mx.Lock()
+	_, ok := sc.ExternalClusters[clusterParams.Name]
+	sc.mx.Unlock()
+	if ok {
+		return GenerateErrorForClusterUser(user, 10112002, clusterParams.Name)
+	}
+
 	ctx, cancel := context.WithTimeout(context.Background(), sc.ObjectCreateDuration)
 	defer cancel()
 
@@ -108,16 +115,16 @@ func (sc *SimpleCluster) AddExternalCluster(user ClusterUser,
 		return err
 	}
 
+	sc.mx.Lock()
+	sc.ExternalClusters[ecld.Name] = ecld
+	sc.mx.Unlock()
+
 	ec, err := ld(ctx, sc.Compressor, ecld, sc.IDGenerator, sc.EncryptData)
 	if err != nil {
 		return err
 	}
 
 	ecld.Cluster = ec
-
-	sc.mx.Lock()
-	sc.ExternalClusters[ecld.Name] = ecld
-	sc.mx.Unlock()
 
 	err = sc.OnChange()
 	if err != nil {

@@ -18,7 +18,10 @@ build_encrypt_tool:
 build_capsec:
 	CGO_ENABLED=0 go build -o ./app/capsec ./tools/capsec/
 
-tool: build_encrypt_tool build_capsec
+build_cap:
+	CGO_ENABLED=0 go build -o ./app/cap ./tools/cap/
+
+tool: build_encrypt_tool build_capsec build_cap
 
 ssl_gen:
 	openssl req -x509 -newkey rsa:4096 -keyout ./app/key.pem -out ./app/cert.pem -days 3660 -nodes -subj '/CN=localhost'
@@ -34,6 +37,10 @@ cp_autht:
 cp_con:
 	cp config/connection.json app/
 
+cp_example:
+	cp config/examples/new_queue.json app/
+	cp config/examples/new_external_cluster.json app/
+
 mkdt:
 	mkdir -pv tmp
 
@@ -48,7 +55,7 @@ run_tls:
 br: build mkdt cp_sc cp_cc cp_ba cp_autht generate_encrypt run
 
 
-b_capsec: build_capsec cp_con
+bt: tool cp_con cp_example
 
 e_cq:
 	go run ./examples/100_create_queue

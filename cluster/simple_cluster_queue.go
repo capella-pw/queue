@@ -172,7 +172,7 @@ func (sc *SimpleCluster) GetQueueDescription(user ClusterUser, name string) (que
 	sc.mx.RUnlock()
 
 	if !ok {
-		return queueDescription, GenerateError(10109001)
+		return queueDescription, GenerateError(10109001, name)
 	}
 
 	return qld.QueueDescription(), nil
@@ -257,13 +257,13 @@ type SimpleQueueParams struct {
 	MetaStorageMountName            string            `json:"meta_mount_name"`
 	SubscriberStorageMountName      string            `json:"subscriber_mount_name"`
 	MarkerBlockDataStorageMountName map[string]string `json:"marker_block_mount_name"`
-	Segments                        *segment.Segments `json:"segments,omitempty"`
-	DefaultSaveMode                 int               `json:"default_save_mod,omitempty"`
-	UseDefaultSaveModeForce         bool              `json:"use_default_save_mod_force,omitempty"`
+	Segments                        *segment.Segments `json:"segments"`
+	DefaultSaveMode                 int               `json:"default_save_mod"`
+	UseDefaultSaveModeForce         bool              `json:"use_default_save_mod_force"`
 }
 
 func (sqp SimpleQueueParams) ToJson() json.RawMessage {
-	msg, er0 := json.Marshal(sqp)
+	msg, er0 := json.MarshalIndent(sqp, "", "  ")
 	if er0 != nil {
 		panic(GenerateErrorE(10105100, er0))
 	}
