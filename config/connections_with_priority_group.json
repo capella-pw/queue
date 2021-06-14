@@ -1,0 +1,106 @@
+{
+    "connections": {
+        "ok1": {
+            "connection": {
+                "server": "http://localhost:8676",
+                "ignore_ssql_validation": true,
+                "query_wait": 5000000000,
+                "max_conn": 5,
+                "max_idle_duration": 5
+            },
+            "auth_type": "basic",
+            "auth_info": "IlBhJCR3MHJkIg==",
+            "user_name": "admin",
+            "prefer_content_type": "gzip",
+            "send_content_type": "gzip",
+            "replace_name_force": false
+        },
+        "fail1": {
+            "connection": {
+                "server": "http://localhost:18676",
+                "ignore_ssql_validation": true,
+                "query_wait": 5000000000,
+                "max_conn": 5,
+                "max_idle_duration": 5
+            },
+            "auth_type": "",
+            "auth_info": null,
+            "user_name": "",
+            "prefer_content_type": "gzip",
+            "send_content_type": "gzip",
+            "replace_name_force": false
+        },
+        "fail2": {
+            "connection": {
+                "server": "http://localhost:28676",
+                "ignore_ssql_validation": true,
+                "query_wait": 5000000000,
+                "max_conn": 5,
+                "max_idle_duration": 5
+            },
+            "auth_type": "",
+            "auth_info": null,
+            "user_name": "",
+            "prefer_content_type": "gzip",
+            "send_content_type": "gzip",
+            "replace_name_force": false
+        },
+        "ok2": {
+            "connection": {
+                "server": "http://localhost:8676",
+                "ignore_ssql_validation": true,
+                "query_wait": 5000000000,
+                "max_conn": 5,
+                "max_idle_duration": 5
+            },
+            "auth_type": "",
+            "auth_info": null,
+            "user_name": "",
+            "prefer_content_type": "gzip",
+            "send_content_type": "gzip",
+            "replace_name_force": false
+        }
+    },
+    "priority_groups": {
+        "test": {
+            "min_success": 2,
+            "step": [
+                {
+                    "call_count": 1,
+                    "ignore_health_check": true,
+                    "con_names": [
+                        "fail1",
+                        "fail2",
+                        "ok1"
+                    ]
+                },
+                {
+                    "call_count": 3,
+                    "ignore_health_check": true,
+                    "con_names": [
+                        "fail1",
+                        "fail2",
+                        "ok1"
+                    ]
+                },
+                {
+                    "call_count": 2,
+                    "ignore_health_check": true,
+                    "con_names": [
+                        "fail1",
+                        "ok2",
+                        "ok1"
+                    ]
+                },
+                {
+                    "call_count": 2,
+                    "ignore_health_check": true,
+                    "con_names": [
+                        "ok1",
+                        "ok1"
+                    ]
+                }
+            ]
+        }
+    }
+}

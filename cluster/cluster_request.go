@@ -34,6 +34,10 @@ const (
 	OpGetName = "get_name"
 	OpSetName = "set_name"
 
+	OpPing       = "ping"
+	OpGetNextId  = "get_next_id"
+	OpGetNextIds = "get_next_ids"
+
 	OpAddQueue            = "add_q"
 	OpDropQueue           = "drop_q"
 	OpGetQueueDescription = "gd_q"
@@ -201,6 +205,34 @@ func CallFuncInCluster(ctx context.Context, cluster Cluster, request *RequestBod
 		responce = MarshalResponceMust(nil, err)
 		return responce
 	}
+
+	if request.Action == OpPing {
+		err := cluster.Ping(request)
+
+		responce = MarshalResponceMust(nil, err)
+		return responce
+	}
+	if request.Action == OpGetNextId {
+		id, err := cluster.GetNextId(request)
+
+		responce = MarshalResponceMust(id, err)
+		return responce
+	}
+	if request.Action == OpGetNextIds {
+		var cnt int
+
+		err := request.UnmarshalInnerObject(&cnt)
+		if err != nil {
+			responce = MarshalResponceMust(nil, err)
+			return responce
+		}
+
+		ids, err := cluster.GetNextIds(request, cnt)
+
+		responce = MarshalResponceMust(ids, err)
+		return responce
+	}
+
 	if request.Action == OpAddQueue {
 		var queueDescription QueueDescription
 
@@ -674,6 +706,29 @@ func (eac *ExternalAbstractCluster) SetName(user ClusterUser, name string) (err 
 	responce := eac.Call(request)
 	return responce.Err
 }
+
+func (eac *ExternalAbstractCluster) Ping(user ClusterUser) (err *mft.Error) {
+	request := MarshalRequestMust(user, OpPing, nil)
+	responce := eac.Call(request)
+	return responce.Err
+}
+func (eac *ExternalAbstractCluster) GetNextId(user ClusterUser) (id int64, err *mft.Error) {
+	request := MarshalRequestMust(user, OpGetNextId, nil)
+	responce := eac.Call(request)
+
+	err = responce.UnmarshalInnerObject(&id)
+
+	return id, err
+}
+func (eac *ExternalAbstractCluster) GetNextIds(user ClusterUser, cnt int) (ids []int64, err *mft.Error) {
+	request := MarshalRequestMust(user, OpGetNextIds, cnt)
+	responce := eac.Call(request)
+
+	err = responce.UnmarshalInnerObject(&ids)
+
+	return ids, err
+}
+
 func (eac *ExternalAbstractCluster) ThrowError(err *mft.Error) bool {
 	if eac.ThrowErrorFunc != nil {
 		return eac.ThrowErrorFunc(err)

@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
@@ -114,6 +115,22 @@ func main() {
 		os.Exit(1)
 		return
 	}
+
+	users, err := basic.GetUseCluster(cl, nil)
+	if err != nil {
+		log.Fatalf("Fail to get user bye new User `admin` %v\n", err)
+		os.Exit(1)
+		return
+	}
+
+	b, er0 := json.MarshalIndent(users, "", "  ")
+	if er0 != nil {
+		log.Fatalf("Fail to marshal User %v\n", er0)
+		os.Exit(1)
+		return
+	}
+
+	fmt.Println(string(b))
 
 	fmt.Println("OK")
 

@@ -55,6 +55,10 @@ const (
 	GetNameAction = "GET_NAME"
 	SetNameAction = "SET_NAME"
 
+	PingAction       = "PING"
+	GetNextIdAction  = "GET_NEXT_ID"
+	GetNextIdsAction = "GET_NEXT_IDS"
+
 	AddQueueAction      = "ADD_QUEUE"
 	DropQueueAction     = "DROP_QUEUE"
 	GetQueueDescrAction = "GET_QUEUE_DESCR"
@@ -108,6 +112,10 @@ type Cluster interface {
 	GetValueInternal(string) (string, bool)
 
 	OnChange() (err *mft.Error)
+
+	Ping(user ClusterUser) (err *mft.Error)
+	GetNextId(user ClusterUser) (id int64, err *mft.Error)
+	GetNextIds(user ClusterUser, cnt int) (ids []int64, err *mft.Error)
 }
 
 // Handler - handler

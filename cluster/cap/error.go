@@ -34,6 +34,26 @@ var Errors map[int]string = map[int]string{
 	10190400: "HttpExternalClusterLoadGenerator: unmarshal error ec.name: %v",
 	10190401: "HttpExternalClusterLoadGenerator: connection should be set (ClusterConnection.Connection) ec.name: %v",
 	10190402: "HttpExternalClusterLoadGenerator: decrypt AuthentificationInfo fail ec.name: %v",
+
+	10191000: "ConGroup.ToJson: marshal error",
+
+	10191010: "ConGroupFromJson: unmarshal error",
+
+	10191100: "ConGroup.FuncDO: send fail %v of %v",
+	10191101: "ConGroup.FuncDO: Acquire semaphore send fail %v of %v",
+	10191102: "ConGroup.FuncDO: Execute on cluser %v failed",
+	10191103: "ConGroup.FuncDO: Priority Group with name %v does not exists",
+	10191104: "ConGroup.FuncDO: Cluster with name %v does not exists; done %v of %v",
+
+	10191130: "ConGroup.FuncDOName: Cluster with name %v does not exists",
+
+	10191200: "QueueAddUnique: Queue `%v` does not exists",
+	10191201: "QueueAddUnique: Queue `%v` get error",
+	10191202: "QueueAddUnique: Queue `%v` AddUnique error",
+
+	10191210: "QueueAddUniqueList: Queue `%v` does not exists",
+	10191211: "QueueAddUniqueList: Queue `%v` get error",
+	10191212: "QueueAddUniqueList: Queue `%v` AddUnique error",
 }
 
 // GenerateError -

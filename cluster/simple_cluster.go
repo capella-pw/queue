@@ -116,6 +116,43 @@ func (sc *SimpleCluster) SetName(user ClusterUser, name string) (err *mft.Error)
 	return err
 }
 
+func (sc *SimpleCluster) Ping(user ClusterUser) (err *mft.Error) {
+	allowed, err := sc.CheckPermission(user, ClusterSelfObjectType, PingAction, "")
+	if err != nil {
+		return err
+	}
+	if !allowed {
+		return GenerateErrorForClusterUser(user, 10101010)
+	}
+
+	return nil
+}
+func (sc *SimpleCluster) GetNextId(user ClusterUser) (id int64, err *mft.Error) {
+	allowed, err := sc.CheckPermission(user, ClusterSelfObjectType, GetNextIdAction, "")
+	if err != nil {
+		return id, err
+	}
+	if !allowed {
+		return id, GenerateErrorForClusterUser(user, 10101020)
+	}
+
+	return sc.IDGenerator.RvGetPart(), nil
+}
+func (sc *SimpleCluster) GetNextIds(user ClusterUser, cnt int) (ids []int64, err *mft.Error) {
+	allowed, err := sc.CheckPermission(user, ClusterSelfObjectType, GetNextIdAction, "")
+	if err != nil {
+		return ids, err
+	}
+	if !allowed {
+		return ids, GenerateErrorForClusterUser(user, 10101030)
+	}
+
+	for i := 0; i < cnt; i++ {
+		ids = append(ids, sc.IDGenerator.RvGetPart())
+	}
+	return ids, nil
+}
+
 func (sc *SimpleCluster) GetFullStruct(user ClusterUser) (data json.RawMessage, err *mft.Error) {
 	allowed, err := sc.CheckPermission(user, ClusterSelfObjectType, GetNameAction, "")
 	if err != nil {

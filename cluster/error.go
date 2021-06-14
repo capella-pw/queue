@@ -12,6 +12,12 @@ var Errors map[int]string = map[int]string{
 
 	10101000: "SimpleCluster.SetName: Permission denied",
 
+	10101010: "SimpleCluster.Ping: Permission denied",
+
+	10101020: "SimpleCluster.GetNextId: Permission denied",
+
+	10101030: "SimpleCluster.GetNextIds: Permission denied",
+
 	10101100: "SimpleCluster.SetValueInternal: save error",
 
 	10101200: "ExternalAbstractCluster.SetValueInternal: not allowed",

@@ -14,12 +14,12 @@ import (
 
 // Connection - to host
 type Connection struct {
-	Server              string        `json:"server,omitempty"`
-	IgnoreSSLValidation bool          `json:"ignore_ssql_validation,omitempty"`
-	QueryWait           time.Duration `json:"query_wait,omitempty"`
+	Server              string        `json:"server"`
+	IgnoreSSLValidation bool          `json:"ignore_ssql_validation"`
+	QueryWait           time.Duration `json:"query_wait"`
 
-	MaxConnsPerHost     int           `json:"max_conn,omitempty"`
-	MaxIdleConnDuration time.Duration `json:"max_idle_duration,omitempty"`
+	MaxConnsPerHost     int           `json:"max_conn"`
+	MaxIdleConnDuration time.Duration `json:"max_idle_duration"`
 
 	client *http.Client `json:"-"`
 }

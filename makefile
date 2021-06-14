@@ -73,7 +73,10 @@ e_uac:
 e_utc:
 	go run ./examples/131_user_tech_create
 
-tbe: e_cq e_smtq e_gmfq e_chrs e_hrss e_cec e_chcu e_hcus e_hcsu e_hcsd e_hcsm e_hle e_uac e_utc
+e_cg:
+	go run ./examples/140_con_group
+
+tbe: e_cq e_smtq e_gmfq e_chrs e_hrss e_cec e_chcu e_hcus e_hcsu e_hcsd e_hcsm e_hle e_uac e_utc e_cg
 
 e_sns:
 	go run ./examples/200_send_messages_to_queue_non_stop

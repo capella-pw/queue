@@ -31,12 +31,16 @@ type ClusterConnection struct {
 }
 
 func (cc *ClusterConnection) ToJson() json.RawMessage {
-	msg, er0 := json.Marshal(cc)
+	msg, er0 := json.MarshalIndent(cc, "", " ")
 	if er0 != nil {
 		panic(GenerateErrorE(10190200, er0))
 	}
 
 	return msg
+}
+
+func (cc *ClusterConnection) CPAuthentificationInfo() {
+	cc.AuthentificationInfoDecrypt = cc.AuthentificationInfo
 }
 
 func CreateClusterConnection(compressor *compress.Generator,

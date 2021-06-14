@@ -1,0 +1,35 @@
+{
+    "connections": {
+        "admin": {
+            "connection": {
+                "server": "http://localhost:8676",
+                "ignore_ssql_validation": true,
+                "query_wait": 5000000000,
+                "max_conn": 5,
+                "max_idle_duration": 5
+            },
+            "auth_type": "basic",
+            "__auth_info_is_base64_from__": "\"Pa$$w0rd\"",
+            "auth_info": "IlBhJCR3MHJkIg==",
+            "user_name": "admin",
+            "prefer_content_type": "gzip",
+            "send_content_type": "gzip",
+            "replace_name_force": false
+        },
+        "empty": {
+            "connection": {
+                "server": "http://localhost:8676",
+                "ignore_ssql_validation": true,
+                "query_wait": 5000000000,
+                "max_conn": 5,
+                "max_idle_duration": 5
+            },
+            "auth_type": "",
+            "auth_info": null,
+            "user_name": "",
+            "prefer_content_type": "gzip",
+            "send_content_type": "gzip",
+            "replace_name_force": false
+        }
+    }
+}
