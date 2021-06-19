@@ -124,4 +124,5 @@ type Handler interface {
 	Stop(ctx context.Context) (err *mft.Error)
 	LastComplete(ctx context.Context) (lastComplete time.Time, err *mft.Error)
 	LastError(ctx context.Context) (err *mft.Error)
+	IsStarted(ctx context.Context) (isStarted bool, err *mft.Error)
 }

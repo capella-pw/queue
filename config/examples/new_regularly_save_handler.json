@@ -1,0 +1,12 @@
+{
+    "name": "example_queue_regularly_save",
+    "user_name": "example_tech_user",
+    "type": "regularly_save",
+    "queue_names": [
+        "example_queue"
+    ],
+    "params": {
+        "interval": 300000000,
+        "wait": 5000000000
+    }
+}

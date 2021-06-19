@@ -1,0 +1,14 @@
+{
+    "name": "example_queue_unload",
+    "user_name": "example_tech_user",
+    "type": "block_unload",
+    "queue_names": [
+        "example_queue"
+    ],
+    "params": {
+        "interval": 1000000000,
+        "wait": 50000000000,
+        "storage_memory_time": 600000000000,
+        "storage_last_load_time": 10000000000
+    }
+}

@@ -1,0 +1,31 @@
+{
+    "name": "example_queue_mark",
+    "user_name": "example_tech_user",
+    "type": "block_mark",
+    "queue_names": [
+      "example_queue"
+    ],
+    "params": {
+      "interval": 30000000000,
+      "wait_mark": 300000000000,
+      "wait_update_mark": 300000000000,
+      "conditions": [
+        {
+          "mark": "a",
+          "from_time": 600000000000,
+          "to_time": 7200000000000
+        },
+        {
+          "mark": "b",
+          "from_time": 7200000000000,
+          "to_time": 259200000000000
+        },
+        {
+          "mark": "c",
+          "from_time": 259200000000000,
+          "to_time": 2764800000000000
+        }
+      ],
+      "limit_update_block": 1000
+    }
+  }

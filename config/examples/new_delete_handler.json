@@ -1,0 +1,15 @@
+{
+    "name": "example_queue_delete",
+    "user_name": "example_tech_user",
+    "type": "block_delete",
+    "queue_names": [
+        "example_queue"
+    ],
+    "params": {
+        "interval": 30000000000,
+        "wait_mark": 300000000000,
+        "wait_delete": 300000000000,
+        "storage_time": 2764800000000000,
+        "limit_delete": 1000
+    }
+}

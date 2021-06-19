@@ -175,3 +175,6 @@ func (rsh *RegularlySaveHandler) LastComplete(ctx context.Context) (time.Time, *
 func (rsh *RegularlySaveHandler) LastError(ctx context.Context) (err *mft.Error) {
 	return rsh.lastError
 }
+func (rsh *RegularlySaveHandler) IsStarted(ctx context.Context) (isStarted bool, err *mft.Error) {
+	return rsh.HDescription.Start, nil
+}

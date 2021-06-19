@@ -71,6 +71,7 @@ var Errors map[int]string = map[int]string{
 	10107103: "UnmarshalInnerObjectAndFindHandler: Handler is not exists %v",
 
 	10108000: "SimpleCluster.DropQueue: Permission denied",
+	10108001: "SimpleCluster.DropQueue: Queue `%v` does not exists",
 
 	10109000: "SimpleCluster.GetQueueDescription: Permission denied",
 	10109001: "SimpleCluster.GetQueueDescription: Queue `%v` does not exists",
@@ -87,9 +88,10 @@ var Errors map[int]string = map[int]string{
 	10112002: "SimpleCluster.AddExternalCluster: cluster with name `%v` already exists",
 
 	10113000: "SimpleCluster.DropExternalCluster: Permission denied",
+	10113001: "SimpleCluster.DropExternalCluster: External cluster `%v` does not exists",
 
 	10114000: "SimpleCluster.GetExternalClusterDescription: Permission denied",
-	10114001: "SimpleCluster.GetExternalClusterDescription: External cluster is not exists",
+	10114001: "SimpleCluster.GetExternalClusterDescription: External cluster `%v` does not exists",
 
 	10115000: "SimpleCluster.GetExternalClustersList: Permission denied",
 
@@ -104,17 +106,18 @@ var Errors map[int]string = map[int]string{
 
 	10117100: "SimpleCluster.DropHandler: Permission denied",
 	10117101: "SimpleCluster.DropHandler: Stop fail",
+	10117102: "SimpleCluster.DropHandler: Handler `%v` does not exists",
 
 	10117200: "SimpleCluster.GetHandlerDescription: Permission denied",
-	10117201: "SimpleCluster.GetHandlerDescription: Handler is not exists %v",
+	10117201: "SimpleCluster.GetHandlerDescription: Handler `%v` does not exists",
 
 	10117300: "SimpleCluster.GetHandlersList: Permission denied",
 
 	10117400: "RegularlySaveHandler.Start.go: Queue `%v` get error",
 	10117401: "RegularlySaveHandler.Start.go: Queue `%v` does not exists",
 	10117402: "RegularlySaveHandler.Start.go: Queue `%v` save fail",
-	10117403: "RegularlySaveHandler.Start: Save cluster fail on %v",
-	10117404: "RegularlySaveHandler.Stop: Save cluster fail on %v",
+	10117403: "RegularlySaveHandler.Start: Save cluster fail on `%v`",
+	10117404: "RegularlySaveHandler.Stop: Save cluster fail on `%v`",
 
 	10117500: "RegularlySaveNewGenerator: len(QueueNames): %v != 1",
 	10117501: "RegularlySaveNewGenerator: unmarhal params error",
@@ -135,8 +138,8 @@ var Errors map[int]string = map[int]string{
 
 	10118000: "CopyUniqueHandler.Start: SRC Queue `%v` get error",
 	10118001: "CopyUniqueHandler.Start: SRC Queue `%v` does not exists",
-	10118003: "CopyUniqueHandler.Start: DST Queue `%v` get error",
-	10118004: "CopyUniqueHandler.Start: DST Queue `%v` does not exists",
+	10118002: "CopyUniqueHandler.Start: DST Queue `%v` get error",
+	10118003: "CopyUniqueHandler.Start: DST Queue `%v` does not exists",
 	10118005: "CopyUniqueHandler.Start.go: Copy error SrcQueue `%v` DstQueue `%v` Name `%v`",
 	10118006: "CopyUniqueHandler.Start: Save cluster fail on %v",
 	10118007: "CopyUniqueHandler.Stop: Save cluster fail on %v",

@@ -1,0 +1,19 @@
+{
+    "name": "example_queue_2_to_queue_copy_unique",
+    "user_name": "example_tech_user",
+    "type": "copy_unique",
+    "queue_names": [
+        "example_external_cluster/example_queue2",
+        "example_queue"
+    ],
+    "params": {
+        "interval": 30000000,
+        "wait": 5000000000,
+        "src_save_mode": 2,
+        "dst_save_mode": 2,
+        "subscribe_name": "example_queue_2_to_queue_copy_unique_subscr",
+        "cnt_limit": 1000,
+        "do_save_dst": true,
+        "segments": null
+    }
+}

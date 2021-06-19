@@ -232,3 +232,6 @@ func (rsh *CopyUniqueHandler) LastComplete(ctx context.Context) (time.Time, *mft
 func (rsh *CopyUniqueHandler) LastError(ctx context.Context) (err *mft.Error) {
 	return rsh.lastError
 }
+func (rsh *CopyUniqueHandler) IsStarted(ctx context.Context) (isStarted bool, err *mft.Error) {
+	return rsh.HDescription.Start, nil
+}

@@ -78,6 +78,7 @@ const (
 	OpHandlerStop         = "h_stop"
 	OpHandlerLastComplete = "h_last_complete"
 	OpHandlerLastError    = "h_last_error"
+	OpHandlerIsStarted    = "h_is_started"
 )
 
 func (responce *ResponceBody) UnmarshalInnerObject(v interface{}) (err *mft.Error) {
@@ -633,6 +634,17 @@ func CallFuncInCluster(ctx context.Context, cluster Cluster, request *RequestBod
 		responce = MarshalResponceMust(lastComplete, err)
 		return responce
 	}
+	if request.Action == OpHandlerIsStarted {
+		handler, responce, ok := UnmarshalInnerObjectAndFindHandler(cluster, request, nil)
+		if !ok {
+			return responce
+		}
+
+		isStarted, err := handler.IsStarted(ctx)
+
+		responce = MarshalResponceMust(isStarted, err)
+		return responce
+	}
 
 	if request.Action == OpNestedCall {
 		var requestNest *RequestBody
@@ -1120,4 +1132,12 @@ func (eah *ExternalAbstractHandler) LastError(ctx context.Context) (err *mft.Err
 	responce := eah.CallFunc(ctx, request)
 
 	return responce.Err
+}
+func (eah *ExternalAbstractHandler) IsStarted(ctx context.Context) (isStarted bool, err *mft.Error) {
+	request := eah.MarshalRequestMust(OpHandlerIsStarted, nil)
+	responce := eah.CallFunc(ctx, request)
+
+	err = responce.UnmarshalInnerObject(&isStarted)
+
+	return isStarted, err
 }

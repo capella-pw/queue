@@ -1,0 +1,21 @@
+{
+    "name": "example_queue2",
+    "type": "simple_queue",
+    "create_on_load": false,
+    "params": {
+        "cnt_limit": 10000,
+        "time_limit": 10000000000,
+        "len_limit": 100000000,
+        "meta_mount_name": "default",
+        "subscriber_mount_name": "default",
+        "marker_block_mount_name": {
+            "": "fast",
+            "a": "compress1",
+            "b": "compress",
+            "c": "compress9"
+        },
+        "segments": null,
+        "default_save_mod": 2,
+        "use_default_save_mod_force": false
+    }
+}

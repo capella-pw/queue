@@ -224,3 +224,6 @@ func (rsh *BlockDeleteHandler) LastComplete(ctx context.Context) (time.Time, *mf
 func (rsh *BlockDeleteHandler) LastError(ctx context.Context) (err *mft.Error) {
 	return rsh.lastError
 }
+func (rsh *BlockDeleteHandler) IsStarted(ctx context.Context) (isStarted bool, err *mft.Error) {
+	return rsh.HDescription.Start, nil
+}

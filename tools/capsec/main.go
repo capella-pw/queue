@@ -31,7 +31,7 @@ var fConnectionName = flag.String("cn", "admin",
 	`Connection name`)
 
 var fIsAdmin = flag.Bool("is_admin", false,
-	`Sets user as "ADMIN"`)
+	`Sets user as "ADMIN" (false if flag is not set)`)
 
 var fCmd = flag.String("cmd", "",
 	`Command
@@ -61,8 +61,8 @@ var fUserPwd = flag.String("pwd", "",
 var fUserPwdFlag = flag.Bool("pwd_flag", false,
 	`Enable User Password from flags`)
 
-var fAllowed = flag.Bool("a", true,
-	`Permission is alloweds`)
+var fAllowed = flag.Bool("a", false,
+	`Permission is alloweds (false if flag is not set)`)
 var fObjectType = flag.String("ot", "*",
 	`Object type`)
 var fAction = flag.String("act", "*",

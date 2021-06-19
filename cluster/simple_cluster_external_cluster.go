@@ -145,6 +145,13 @@ func (sc *SimpleCluster) DropExternalCluster(user ClusterUser,
 	}
 
 	sc.mx.Lock()
+	_, ok := sc.ExternalClusters[name]
+	sc.mx.Unlock()
+	if !ok {
+		return GenerateError(10113001, name)
+	}
+
+	sc.mx.Lock()
 	delete(sc.ExternalClusters, name)
 	sc.mx.Unlock()
 
@@ -171,7 +178,7 @@ func (sc *SimpleCluster) GetExternalClusterDescription(user ClusterUser,
 	sc.mx.RUnlock()
 
 	if !ok {
-		return clusterParams, GenerateError(10114001)
+		return clusterParams, GenerateError(10114001, name)
 	}
 
 	return ecld.ExternalClusterDescription(), nil

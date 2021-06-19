@@ -148,6 +148,13 @@ func (sc *SimpleCluster) DropQueue(user ClusterUser, name string) (err *mft.Erro
 	}
 
 	sc.mx.Lock()
+	_, ok := sc.Queues[name]
+	sc.mx.Unlock()
+	if !ok {
+		return GenerateError(10108001, name)
+	}
+
+	sc.mx.Lock()
 	delete(sc.Queues, name)
 	sc.mx.Unlock()
 

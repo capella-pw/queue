@@ -87,9 +87,9 @@ type BlockUnloadHandlerParams struct {
 	// Wait - wait save timeout
 	Wait time.Duration `json:"wait"`
 	// StorageMemoryTime - wait timeout to remove block from memory from create
-	StorageMemoryTime time.Duration
+	StorageMemoryTime time.Duration `json:"storage_memory_time"`
 	// StorageLastLoadTime - wait tiomeou to remove block from last use
-	StorageLastLoadTime time.Duration
+	StorageLastLoadTime time.Duration `json:"storage_last_load_time"`
 }
 
 func (hp BlockUnloadHandlerParams) ToJson() json.RawMessage {
@@ -211,4 +211,7 @@ func (rsh *BlockUnloadHandler) LastComplete(ctx context.Context) (time.Time, *mf
 }
 func (rsh *BlockUnloadHandler) LastError(ctx context.Context) (err *mft.Error) {
 	return rsh.lastError
+}
+func (rsh *BlockUnloadHandler) IsStarted(ctx context.Context) (isStarted bool, err *mft.Error) {
+	return rsh.HDescription.Start, nil
 }

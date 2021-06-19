@@ -50,9 +50,11 @@ type HandlerLoadDescription struct {
 
 func (qld *HandlerLoadDescription) HandlerDescription() HandlerDescription {
 	qd := HandlerDescription{
-		Name:   qld.Name,
-		Type:   qld.Type,
-		Params: qld.Params,
+		Name:       qld.Name,
+		Type:       qld.Type,
+		Params:     qld.Params,
+		UserName:   qld.UserName,
+		QueueNames: qld.QueueNames,
 	}
 
 	return qd
@@ -143,6 +145,13 @@ func (sc *SimpleCluster) DropHandler(user ClusterUser,
 	}
 	if !allowed {
 		return GenerateErrorForClusterUser(user, 10117100)
+	}
+
+	sc.mx.Lock()
+	_, ok := sc.Handlers[name]
+	sc.mx.Unlock()
+	if !ok {
+		return GenerateError(10117102, name)
 	}
 
 	sc.mx.Lock()

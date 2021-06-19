@@ -244,3 +244,6 @@ func (rsh *BlockMarkHandler) LastComplete(ctx context.Context) (time.Time, *mft.
 func (rsh *BlockMarkHandler) LastError(ctx context.Context) (err *mft.Error) {
 	return rsh.lastError
 }
+func (rsh *BlockMarkHandler) IsStarted(ctx context.Context) (isStarted bool, err *mft.Error) {
+	return rsh.HDescription.Start, nil
+}

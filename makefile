@@ -40,6 +40,18 @@ cp_con:
 cp_example:
 	cp config/examples/new_queue.json app/
 	cp config/examples/new_external_cluster.json app/
+	cp config/examples/new_copy_handler.json app/
+	cp config/examples/new_copy_handler2.json app/
+	cp config/examples/new_delete_handler.json app/
+	cp config/examples/new_external_cluster.json app/
+	cp config/examples/new_mark_handler.json app/
+	cp config/examples/new_queue.json app/
+	cp config/examples/new_queue2.json app/
+	cp config/examples/new_regularly_save_handler.json app/
+	cp config/examples/new_regularly_save_handler2.json app/
+	cp config/examples/new_unload_handler.json app/
+	cp config/examples/new_messages.json app/
+	cp config/examples/new_messages2.json app/
 
 mkdt:
 	mkdir -pv tmp
@@ -53,7 +65,7 @@ run_tls:
 	app/capserver.app -cfg "app/stor.config.json" -cfge "app/encrypt.json" -abfn "basic_auth.json" -arfn "authorization.json" -tls_key "app/key.pem" -tls_cert "app/cert.pem" -log_level trace
 
 br: build mkdt cp_sc cp_cc cp_ba cp_autht generate_encrypt run
-
+rbr: build run
 
 bt: tool cp_con cp_example
 
