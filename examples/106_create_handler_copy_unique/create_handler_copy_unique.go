@@ -31,8 +31,8 @@ func main() {
 			CntLimit:                   30000,
 			TimeLimit:                  time.Second * 50,
 			LenLimit:                   1e7,
-			MetaStorageMountName:       "default", // ../../config/stor.config.json
-			SubscriberStorageMountName: "default", // ../../config/stor.config.json
+			MetaStorageMountName:       "meta", // ../../config/stor.config.json
+			SubscriberStorageMountName: "meta", // ../../config/stor.config.json
 			MarkerBlockDataStorageMountName: map[string]string{
 				"":  "fast",
 				"a": "compress1",

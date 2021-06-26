@@ -10,7 +10,7 @@ tcompf:
 tq: tqf tqb
 
 build:
-	CGO_ENABLED=0 go build -o ./app/capserver.app ./capserver
+	CGO_ENABLED=0 go build -o ./app/capserver ./capserver
 
 build_encrypt_tool:
 	CGO_ENABLED=0 go build -o ./app/encrypt_data_generator ./tools/encrypt_data_generator/
@@ -60,9 +60,9 @@ generate_encrypt:
 	app/encrypt_data_generator -cfge "app/encrypt.json"
 
 run:
-	app/capserver.app -cfg "app/stor.config.json" -cfge "app/encrypt.json" -abfn "basic_auth.json" -arfn "authorization.json" -log_level trace
+	app/capserver -cfg "app/stor.config.json" -cfge "app/encrypt.json" -abfn "basic_auth.json" -arfn "authorization.json" -log_level trace
 run_tls:
-	app/capserver.app -cfg "app/stor.config.json" -cfge "app/encrypt.json" -abfn "basic_auth.json" -arfn "authorization.json" -tls_key "app/key.pem" -tls_cert "app/cert.pem" -log_level trace
+	app/capserver -cfg "app/stor.config.json" -cfge "app/encrypt.json" -abfn "basic_auth.json" -arfn "authorization.json" -tls_key "app/key.pem" -tls_cert "app/cert.pem" -log_level trace
 
 br: build mkdt cp_sc cp_cc cp_ba cp_autht generate_encrypt run
 rbr: build run

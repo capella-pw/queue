@@ -5,6 +5,11 @@
             "home_path": "tmp/",
             "params": {}
         },
+        "meta": {
+            "provider": "file_dbl_save",
+            "home_path": "tmp/meta/",
+            "params": {}
+        },
         "fast": {
             "provider": "file_dbl_save",
             "home_path": "tmp/fast/",
@@ -21,7 +26,7 @@
         },
         "compress9": {
             "provider": "file_dbl_save_gzip",
-            "home_path": "tmp/zip/",
+            "home_path": "tmp/zip9/",
 
             "compress_alg" : "gzip9",
             "file_extention" : ".gz",
@@ -30,7 +35,7 @@
         },
         "compress1": {
             "provider": "file_dbl_save_gzip",
-            "home_path": "tmp/zip/",
+            "home_path": "tmp/zip1/",
 
             "compress_alg" : "gzip1",
             "file_extention" : ".gz",

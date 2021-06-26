@@ -6,8 +6,8 @@
         "cnt_limit": 10000,
         "time_limit": 10000000000,
         "len_limit": 100000000,
-        "meta_mount_name": "default",
-        "subscriber_mount_name": "default",
+        "meta_mount_name": "meta",
+        "subscriber_mount_name": "meta",
         "marker_block_mount_name": {
             "": "fast",
             "a": "compress1",

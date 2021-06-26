@@ -26,7 +26,7 @@ func main() {
 	}
 	encryptData.DecryptKey = encryptData.EncryptKey
 
-	body, err := json.Marshal(encryptData)
+	body, err := json.MarshalIndent(encryptData, "", "  ")
 	if err != nil {
 		log.Fatalf("Marshal EncryptData fail %v", err)
 		os.Exit(1)

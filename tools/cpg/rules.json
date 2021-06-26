@@ -1,0 +1,155 @@
+{
+    "cap": {
+        "connections": {
+            "example_tech_user": {
+                "connection": {
+                    "server": "http://localhost:8676",
+                    "ignore_ssql_validation": true,
+                    "query_wait": 5000000000,
+                    "max_conn": 5,
+                    "max_idle_duration": 5
+                },
+                "auth_type": "basic",
+                "__auth_info_is_base64_from__": "\"Pa$$w0rd\"",
+                "auth_info": "IlBhJCR3MHJkIg==",
+                "user_name": "example_tech_user",
+                "prefer_content_type": "gzip",
+                "send_content_type": "gzip",
+                "replace_name_force": false
+            },
+            "example_tech_user_test1": {
+                "connection": {
+                    "server": "http://localhost:8676",
+                    "ignore_ssql_validation": true,
+                    "query_wait": 5000000000,
+                    "max_conn": 5,
+                    "max_idle_duration": 5
+                },
+                "auth_type": "basic",
+                "__auth_info_is_base64_from__": "\"Pa$$w0rd\"",
+                "auth_info": "IlBhJCR3MHJkIg==",
+                "user_name": "example_tech_user",
+                "prefer_content_type": "gzip",
+                "send_content_type": "gzip",
+                "replace_name_force": false
+            },
+            "example_tech_user_test2": {
+                "connection": {
+                    "server": "http://localhost:8676",
+                    "ignore_ssql_validation": true,
+                    "query_wait": 5000000000,
+                    "max_conn": 5,
+                    "max_idle_duration": 5
+                },
+                "auth_type": "basic",
+                "__auth_info_is_base64_from__": "\"Pa$$w0rd\"",
+                "auth_info": "IlBhJCR3MHJkIg==",
+                "user_name": "example_tech_user",
+                "prefer_content_type": "gzip",
+                "send_content_type": "gzip",
+                "replace_name_force": false
+            },
+            "example_tech_user_test3": {
+                "connection": {
+                    "server": "http://localhost:8676",
+                    "ignore_ssql_validation": true,
+                    "query_wait": 5000000000,
+                    "max_conn": 5,
+                    "max_idle_duration": 5
+                },
+                "auth_type": "basic",
+                "__auth_info_is_base64_from__": "\"Pa$$w0rd\"",
+                "auth_info": "IlBhJCR3MHJkIg==",
+                "user_name": "example_tech_user",
+                "prefer_content_type": "gzip",
+                "send_content_type": "gzip",
+                "replace_name_force": false
+            }
+        },
+        "priority_groups": {
+            "test": {
+                "min_success": 2,
+                "step": [
+                    {
+                        "call_count": 2,
+                        "ignore_health_check": true,
+                        "con_names": [
+                            "example_tech_user_test2",
+                            "example_tech_user_test1",
+                            "example_tech_user_test3"
+                        ]
+                    },
+                    {
+                        "call_count": 1,
+                        "ignore_health_check": true,
+                        "con_names": [
+                            "example_tech_user",
+                            "example_tech_user_test1"
+                        ]
+                    }
+                ]
+            }
+        }
+    },
+    "pg": {
+        "example_pg": {
+            "connection_string": "host=localhost user=user_name password=123 dbname=db_name sslmode=disable port=5432",
+            "max_con": 3,
+            "max_idle_con": 2,
+            "max_idle_time": 300000000000
+        }
+    },
+    "transfers": {
+        "load_from_cap_to_pg_example": {
+            "from": {
+                "type":"cap",
+                "name":"example_tech_user",
+                "queue_name":"example_queue",
+                "subscribe_name":"example_subscribe_name",
+                "queue_save_mode":2,
+                "qty":1000,
+                "timeout":15000000000
+            },
+            "to": {
+                "type":"pg",
+                "name":"example_pg",
+                "set_query":"select candles.receive_example($1::json);",
+				"timeout":15000000000
+            },
+            "name": "load_to_pg_example",
+            "descr": "nice descr of load_to_pg_example",
+            "timeout_any": 50000000,
+            "timeout_empty": 1000000000,
+            "timeout_random_start_sleep": 10000000000
+        },
+        "load_to_cap_connection_example": {
+			"to": {
+				"type":"cap",
+				"name":"example_tech_user",
+				"queue_name":"example_queue_from_sql",
+				"subscribe_name":"from_sql_subscribe_name",
+				"queue_save_mode":3,
+				"qty":1000,
+				"timeout":15000000000
+			},
+			"from": {
+				"type":"pg",
+				"name":"example_pg",
+				"get_query":"select * from candles.example_queue_get(1000);",
+				"complete_query":"select candles.example_queue_complete($1::json);",
+				"timeout":15000000000
+			},
+			"name": "load_from_pg",
+			"descr": "nice descr",
+			"timeout_any": 50000000,
+			"timeout_empty": 1000000000,
+			"timeout_random_start_sleep": 10000000000
+		}
+    },
+    "actions": {
+    },
+
+    "run_pg_func_example": {},
+    "load_to_cap_connection_example": {},
+    "load_to_cap_group_example": {}
+}

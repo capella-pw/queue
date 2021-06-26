@@ -1,15 +1,132 @@
+# Capella queue
+## Install
+You can build the project 
+### Build
+#### Linux or Mac
+#### Windows
 
+## Init empty Capella cluster (CAP server)
+### 1. Config storage config
+Copy and fill the file [config/stor.config.json](config/stor.config.json) in to the work path (`work_path`).  
+The file contains storage mount points  
+``` json
+{
+    "mounts": {
+        "default": { // "default" is alias of mount point
+            "provider": "file_dbl_save", // type of storage provider
+            "home_path": "tmp/", // the path where files will be stored
+            "params": {}
+        },
+        "meta": {
+            "provider": "file_dbl_save",
+            "home_path": "tmp/meta/",
+            "params": {}
+        },
+        "fast": {
+            "provider": "file_dbl_save",
+            "home_path": "tmp/fast/",
+            "params": {}
+        },
+        "compress": {
+            "provider": "file_dbl_save_gzip",
+            "home_path": "tmp/zip/",
 
-### Create `admin` user and disable empty user 
+            "compress_alg" : "gzip", // compress algorithm
+            "file_extention" : ".gz", // file extention
+
+            "params": {}
+        }
+    }
+}
+```
+
+### 2. Run encrypt_data_generator
+- Windows: `encrypt_data_generator.exe -cfge "encrypt.json"`  
+- Linux|mac `./encrypt_data_generator -cfge "encrypt.json"`  
+This tool generates `encrypt.json`. The file contains server encrypt key for passwords. Copy this file in to the work path.  
+Example:  
+``` json
+{
+  "enc_alg": "aes",
+  "enc_key": "4S5H/Y/LjNUTBB5Bt+a4Xz3SjrTZ9ZEk2AzYW6jp478=",
+  "dec_alg": "aes",
+  "dec_key": "4S5H/Y/LjNUTBB5Bt+a4Xz3SjrTZ9ZEk2AzYW6jp478="
+}
+```
+
+### 3. Copy empty cluster files
+Copy files with empty cluster to the `default` path (Described in [config/stor.config.json](config/stor.config.json)).
+- [config/cluster.json](config/cluster.json)
+- [config/basic_auth.json](config/basic_auth.json)
+- [config/authorization.json](config/authorization.json)
+
+### 4. RUN Cluster
+Without tls:  
+- Linux|mac `./capserver -cfg "work_path/stor.config.json" -cfge "work_path/encrypt.json" -abfn "basic_auth.json" -arfn "authorization.json" -log_level info`
+- Windows: `capserver.exe -cfg "work_path/stor.config.json" -cfge "work_path/encrypt.json" -abfn "basic_auth.json" -arfn "authorization.json" -log_level info`
+
+With tls:  
+- Linux|mac `./capserver -cfg "work_path/stor.config.json" -cfge "work_path/encrypt.json" -abfn "basic_auth.json" -arfn "authorization.json" -tls_key "app/key.pem" -tls_cert "app/cert.pem" -log_level info`
+- Windows: `capserver.exe -cfg "work_path/stor.config.json" -cfge "work_path/encrypt.json" -abfn "basic_auth.json" -arfn "authorization.json" -tls_key "app/key.pem" -tls_cert "app/cert.pem" -log_level info`
+
+##### !!!Congratulations!!!
+Your Capella cluster is up and running now.  
+
+## Make the initial setup
+### 1. Prepre connection config file
+Copy and fill the file [config/connection.json](config/connection.json) in to the work path of admin tools.  
+``` json
+{
+    "connections": {
+        "admin": {
+            "connection": {
+                "server": "http://localhost:8676",
+                "ignore_ssql_validation": true,
+                "query_wait": 5000000000,
+                "max_conn": 5,
+                "max_idle_duration": 5
+            },
+            "auth_type": "basic",
+            "__auth_info_is_base64_from__": "\"Pa$$w0rd\"",
+            "auth_info": "IlBhJCR3MHJkIg==", // set there your password
+            "user_name": "admin",
+            "prefer_content_type": "gzip",
+            "send_content_type": "gzip",
+            "replace_name_force": false
+        },
+        "empty": {
+            "connection": {
+                "server": "http://localhost:8676",
+                "ignore_ssql_validation": true,
+                "query_wait": 5000000000,
+                "max_conn": 5,
+                "max_idle_duration": 5
+            },
+            "auth_type": "",
+            "auth_info": null,
+            "user_name": "",
+            "prefer_content_type": "gzip",
+            "send_content_type": "gzip",
+            "replace_name_force": false
+        }
+    }
+}
+```
+
+### 2. Create `admin` user and disable empty user 
+`$ ./capsec` for windows: `capsec.exe`  
+
 ``` bash
 $ ./capsec -cn empty -cmd create_user -un admin
 Enter your pwd: Pa$$w0rd
 OK
 $ ./capsec -cn empty -cmd enable_user -un admin
 OK
-$ ./capsec -cn empty -cmd add_sec_user -un admin -is_admin true
+$ ./capsec -cn empty -cmd add_sec_user -un admin -is_admin
 OK
 $ ./capsec -cmd disable_user -un ""
+OK
+$ ./capsec -cmd set_is_admin_sec_user
 OK
 $ ./capsec -cmd get_users
 [
@@ -24,7 +141,12 @@ $ ./capsec -cmd get_users
 ]
 ```
 
-### Create `example_tech_user` 
+Commands `$ ./capsec -cmd disable_user` and `$ ./capsec -cmd disable_user -un ""` are equal  
+
+## Let's create some objects in the cluster 
+`$ ./capsec` for windows: `capsec.exe`  
+
+### 1. Create `example_tech_user` 
 ``` bash
 $ ./capsec -cmd create_user -un example_tech_user
 Enter your pwd: Pa$$w0rd
@@ -57,7 +179,6 @@ $ ./capsec -cmd get_sec_users
   "users": {
     "": {
       "name": "",
-      "is_admin": true,
       "rule": null
     },
     "admin": {
@@ -82,20 +203,20 @@ $ ./capsec -cmd get_sec_users
 }
 ```
 
-### Create queue
+### 2. Create queue
 ``` bash
 $ ./cap -cmd q_add -pf new_queue.json
 OK
 $ ./cap -cmd q_add -pf new_queue2.json
 OK
 ```
-### Create link on external cluster (loop link in examples)
+### 3. Create link on external cluster (loop link in examples)
 ``` bash
 $ ./cap -cmd exc_add -pf new_external_cluster.json
 OK
 ```
 
-### Add copy handlers
+### 4. Add copy handlers
 ``` bash
 $ ./cap -cmd h_add -pf new_copy_handler.json
 OK
@@ -117,7 +238,7 @@ $ ./cap -cmd h_last_complete -name example_queue_2_to_queue_copy_unique
 ```
 
 
-### Add other handlers
+### 5. Add other handlers
 ``` bash
 $ ./cap -cmd h_add -pf new_delete_handler.json
 $ ./cap -cmd h_add -pf new_mark_handler.json
@@ -148,7 +269,7 @@ $ ./cap -cmd h_start -name example_queue_mark
 OK
 ```
 
-### Send test msg and get them
+### 6. Send test msg and get them
 ```
 $ ./cap -cmd q_au -name example_queue -pf new_messages.json -save_mode 2
 [

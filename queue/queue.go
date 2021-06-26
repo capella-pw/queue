@@ -2,6 +2,7 @@ package queue
 
 import (
 	"context"
+	"encoding/json"
 	"time"
 
 	"github.com/myfantasy/mft"
@@ -33,13 +34,24 @@ type MessageOnlyMeta struct {
 	Segment    int64     `json:"sg,omitempty"`
 }
 
-// MessageWithMeta one message with meta
+// Message one message
 type Message struct {
 	ExternalID int64  `json:"eid,omitempty"`
 	ExternalDt int64  `json:"s_dt,omitempty"`
 	Message    []byte `json:"msg"`
 	Source     string `json:"src,omitempty"`
 	Segment    int64  `json:"sg,omitempty"`
+}
+
+// MessageJsonBody with json body
+type MessageJsonBody struct {
+	ID         int64           `json:"id"`
+	Dt         time.Time       `json:"dt"`
+	ExternalID int64           `json:"external_id,omitempty"`
+	ExternalDt int64           `json:"message_ts,omitempty"`
+	Message    json.RawMessage `json:"message"`
+	Source     string          `json:"source,omitempty"`
+	Segment    int64           `json:"segment,omitempty"`
 }
 
 // Queue - queue of messages
@@ -124,5 +136,45 @@ func (msg *MessageWithMeta) ToMessage() Message {
 		Segment:    msg.Segment,
 	}
 
+	return out
+}
+
+func (msg *MessageWithMeta) ToMessageJB() MessageJsonBody {
+	out := MessageJsonBody{
+		ExternalID: msg.ExternalID,
+		ExternalDt: msg.ExternalDt,
+		Source:     msg.Source,
+		Message:    msg.Message,
+		Segment:    msg.Segment,
+		ID:         msg.ID,
+		Dt:         msg.Dt,
+	}
+
+	return out
+}
+
+func (msg *MessageJsonBody) ToMessage() Message {
+	out := Message{
+		ExternalID: msg.ExternalID,
+		ExternalDt: msg.ExternalDt,
+		Source:     msg.Source,
+		Message:    msg.Message,
+		Segment:    msg.Segment,
+	}
+
+	return out
+}
+
+func MWMToMessageJBList(msgs []*MessageWithMeta) (out []MessageJsonBody) {
+	for _, m := range msgs {
+		out = append(out, m.ToMessageJB())
+	}
+	return out
+}
+
+func MJBToMessageList(msgs []MessageJsonBody) (out []Message) {
+	for _, m := range msgs {
+		out = append(out, m.ToMessage())
+	}
 	return out
 }

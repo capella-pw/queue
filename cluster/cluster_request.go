@@ -676,7 +676,7 @@ func CallFuncInCluster(ctx context.Context, cluster Cluster, request *RequestBod
 		}
 	}
 
-	responce.Err = GenerateError(10107100, request.Action)
+	responce = MarshalResponceMust(nil, GenerateError(10107100, request.Action))
 	return responce
 }
 

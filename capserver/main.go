@@ -269,6 +269,9 @@ func fastHTTPHandler(ctx *fasthttp.RequestCtx) {
 		}
 		unknownInternalError(ctx)
 		return
+	} else if path == "/ping" {
+		ping(ctx)
+		return
 	}
 	notFound(ctx)
 }
@@ -281,4 +284,9 @@ func unknownInternalError(ctx *fasthttp.RequestCtx) {
 func notFound(ctx *fasthttp.RequestCtx) {
 	ctx.Response.SetStatusCode(404)
 	log.Tracef("notFound")
+}
+
+func ping(ctx *fasthttp.RequestCtx) {
+	ctx.Response.SetStatusCode(200)
+	log.Tracef("ping")
 }
