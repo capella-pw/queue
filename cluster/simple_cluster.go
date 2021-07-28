@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"time"
 
+	"github.com/capella-pw/queue/cn"
 	"github.com/capella-pw/queue/compress"
 	"github.com/capella-pw/queue/storage"
 	"github.com/myfantasy/mfs"
@@ -37,7 +38,7 @@ type SimpleCluster struct {
 	EncryptData *EncryptData `json:"-"`
 
 	// case nil then ignore
-	CheckPermissionFunc func(user ClusterUser, objectType string, action string, objectName string) (allowed bool, err *mft.Error) `json:"-"`
+	CheckPermissionFunc func(user cn.CapUser, objectType string, action string, objectName string) (allowed bool, err *mft.Error) `json:"-"`
 	// case nil then ignore
 	ThrowErrorFunc func(err *mft.Error) bool `json:"-"`
 
@@ -63,7 +64,7 @@ func (sc *SimpleCluster) OnChange() (err *mft.Error) {
 	return nil
 }
 
-func (sc *SimpleCluster) CheckPermission(user ClusterUser, objectType string, action string, objectName string) (allowed bool, err *mft.Error) {
+func (sc *SimpleCluster) CheckPermission(user cn.CapUser, objectType string, action string, objectName string) (allowed bool, err *mft.Error) {
 	if sc == nil {
 		return false, nil
 	}
@@ -86,8 +87,8 @@ func (sc *SimpleCluster) ThrowError(err *mft.Error) bool {
 }
 
 // GetName gets cluster name
-func (sc *SimpleCluster) GetName(user ClusterUser) (name string, err *mft.Error) {
-	allowed, err := sc.CheckPermission(user, ClusterSelfObjectType, GetNameAction, "")
+func (sc *SimpleCluster) GetName(user cn.CapUser) (name string, err *mft.Error) {
+	allowed, err := sc.CheckPermission(user, cn.ClusterSelfObjectType, cn.GetNameAction, "")
 	if err != nil {
 		return name, err
 	}
@@ -99,8 +100,8 @@ func (sc *SimpleCluster) GetName(user ClusterUser) (name string, err *mft.Error)
 }
 
 // SetName sets cluster name
-func (sc *SimpleCluster) SetName(user ClusterUser, name string) (err *mft.Error) {
-	allowed, err := sc.CheckPermission(user, ClusterSelfObjectType, SetNameAction, "")
+func (sc *SimpleCluster) SetName(user cn.CapUser, name string) (err *mft.Error) {
+	allowed, err := sc.CheckPermission(user, cn.ClusterSelfObjectType, cn.SetNameAction, "")
 	if err != nil {
 		return err
 	}
@@ -116,8 +117,8 @@ func (sc *SimpleCluster) SetName(user ClusterUser, name string) (err *mft.Error)
 	return err
 }
 
-func (sc *SimpleCluster) Ping(user ClusterUser) (err *mft.Error) {
-	allowed, err := sc.CheckPermission(user, ClusterSelfObjectType, PingAction, "")
+func (sc *SimpleCluster) Ping(user cn.CapUser) (err *mft.Error) {
+	allowed, err := sc.CheckPermission(user, cn.ClusterSelfObjectType, cn.PingAction, "")
 	if err != nil {
 		return err
 	}
@@ -127,8 +128,8 @@ func (sc *SimpleCluster) Ping(user ClusterUser) (err *mft.Error) {
 
 	return nil
 }
-func (sc *SimpleCluster) GetNextId(user ClusterUser) (id int64, err *mft.Error) {
-	allowed, err := sc.CheckPermission(user, ClusterSelfObjectType, GetNextIdAction, "")
+func (sc *SimpleCluster) GetNextId(user cn.CapUser) (id int64, err *mft.Error) {
+	allowed, err := sc.CheckPermission(user, cn.ClusterSelfObjectType, cn.GetNextIdAction, "")
 	if err != nil {
 		return id, err
 	}
@@ -138,8 +139,8 @@ func (sc *SimpleCluster) GetNextId(user ClusterUser) (id int64, err *mft.Error) 
 
 	return sc.IDGenerator.RvGetPart(), nil
 }
-func (sc *SimpleCluster) GetNextIds(user ClusterUser, cnt int) (ids []int64, err *mft.Error) {
-	allowed, err := sc.CheckPermission(user, ClusterSelfObjectType, GetNextIdAction, "")
+func (sc *SimpleCluster) GetNextIds(user cn.CapUser, cnt int) (ids []int64, err *mft.Error) {
+	allowed, err := sc.CheckPermission(user, cn.ClusterSelfObjectType, cn.GetNextIdAction, "")
 	if err != nil {
 		return ids, err
 	}
@@ -153,8 +154,8 @@ func (sc *SimpleCluster) GetNextIds(user ClusterUser, cnt int) (ids []int64, err
 	return ids, nil
 }
 
-func (sc *SimpleCluster) GetFullStruct(user ClusterUser) (data json.RawMessage, err *mft.Error) {
-	allowed, err := sc.CheckPermission(user, ClusterSelfObjectType, GetNameAction, "")
+func (sc *SimpleCluster) GetFullStruct(user cn.CapUser) (data json.RawMessage, err *mft.Error) {
+	allowed, err := sc.CheckPermission(user, cn.ClusterSelfObjectType, cn.GetNameAction, "")
 	if err != nil {
 		return data, err
 	}
@@ -193,8 +194,8 @@ func (sc *SimpleCluster) GetValueInternal(name string) (value string, ok bool) {
 	return value, ok
 }
 
-func (sc *SimpleCluster) LoadFullStruct(user ClusterUser, data json.RawMessage) (err *mft.Error) {
-	allowed, err := sc.CheckPermission(user, ClusterSelfObjectType, GetNameAction, "")
+func (sc *SimpleCluster) LoadFullStruct(user cn.CapUser, data json.RawMessage) (err *mft.Error) {
+	allowed, err := sc.CheckPermission(user, cn.ClusterSelfObjectType, cn.GetNameAction, "")
 	if err != nil {
 		return err
 	}

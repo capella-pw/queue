@@ -4,22 +4,14 @@ import (
 	"context"
 
 	"github.com/capella-pw/queue/cluster"
+	"github.com/capella-pw/queue/cn"
 	"github.com/myfantasy/mft"
-)
-
-const (
-	OpAddUseCluster     = "SecurityATCB_add_use_cluster"
-	OpUpdateUseCluster  = "SecurityATCB_update_use_cluster"
-	OpEnableUseCluster  = "SecurityATCB_enable_use_cluster"
-	OpDisableUseCluster = "SecurityATCB_disable_use_cluster"
-	OpDropUseCluster    = "SecurityATCB_drop_use_cluster"
-	OpGetUseCluster     = "SecurityATCB_get_use_cluster"
 )
 
 func (s *SecurityATCB) AdditionalCallFuncInClusterFunc(ctx context.Context,
 	cl cluster.Cluster, request *cluster.RequestBody) (responce *cluster.ResponceBody, ok bool) {
 
-	if request.Action == OpAddUseCluster {
+	if request.Action == cn.OpABAddUseCluster {
 		var us UserSend
 
 		err := request.UnmarshalInnerObject(&us)
@@ -33,7 +25,7 @@ func (s *SecurityATCB) AdditionalCallFuncInClusterFunc(ctx context.Context,
 		responce = cluster.MarshalResponceMust(nil, err)
 		return responce, true
 	}
-	if request.Action == OpUpdateUseCluster {
+	if request.Action == cn.OpABUpdateUseCluster {
 		var us UserSend
 
 		err := request.UnmarshalInnerObject(&us)
@@ -47,7 +39,7 @@ func (s *SecurityATCB) AdditionalCallFuncInClusterFunc(ctx context.Context,
 		responce = cluster.MarshalResponceMust(nil, err)
 		return responce, true
 	}
-	if request.Action == OpEnableUseCluster {
+	if request.Action == cn.OpABEnableUseCluster {
 		var name string
 
 		err := request.UnmarshalInnerObject(&name)
@@ -61,7 +53,7 @@ func (s *SecurityATCB) AdditionalCallFuncInClusterFunc(ctx context.Context,
 		responce = cluster.MarshalResponceMust(nil, err)
 		return responce, true
 	}
-	if request.Action == OpDisableUseCluster {
+	if request.Action == cn.OpABDisableUseCluster {
 		var name string
 
 		err := request.UnmarshalInnerObject(&name)
@@ -75,7 +67,7 @@ func (s *SecurityATCB) AdditionalCallFuncInClusterFunc(ctx context.Context,
 		responce = cluster.MarshalResponceMust(nil, err)
 		return responce, true
 	}
-	if request.Action == OpDropUseCluster {
+	if request.Action == cn.OpABDropUseCluster {
 		var name string
 
 		err := request.UnmarshalInnerObject(&name)
@@ -89,7 +81,7 @@ func (s *SecurityATCB) AdditionalCallFuncInClusterFunc(ctx context.Context,
 		responce = cluster.MarshalResponceMust(nil, err)
 		return responce, true
 	}
-	if request.Action == OpGetUseCluster {
+	if request.Action == cn.OpABGetUseCluster {
 		names, err := s.Get(request)
 
 		responce = cluster.MarshalResponceMust(names, err)
@@ -99,40 +91,40 @@ func (s *SecurityATCB) AdditionalCallFuncInClusterFunc(ctx context.Context,
 	return responce, false
 }
 
-func AddUseCluster(eac *cluster.ExternalAbstractCluster, user cluster.ClusterUser, us UserSend) (err *mft.Error) {
-	request := cluster.MarshalRequestMust(user, OpAddUseCluster, us)
+func AddUseCluster(eac *cluster.ExternalAbstractCluster, user cn.CapUser, us UserSend) (err *mft.Error) {
+	request := cluster.MarshalRequestMust(user, cn.OpABAddUseCluster, us)
 	responce := eac.Call(request)
 
 	return responce.Err
 }
 
-func UpdateUseCluster(eac *cluster.ExternalAbstractCluster, user cluster.ClusterUser, us UserSend) (err *mft.Error) {
-	request := cluster.MarshalRequestMust(user, OpUpdateUseCluster, us)
+func UpdateUseCluster(eac *cluster.ExternalAbstractCluster, user cn.CapUser, us UserSend) (err *mft.Error) {
+	request := cluster.MarshalRequestMust(user, cn.OpABUpdateUseCluster, us)
 	responce := eac.Call(request)
 
 	return responce.Err
 }
 
-func EnableUseCluster(eac *cluster.ExternalAbstractCluster, user cluster.ClusterUser, name string) (err *mft.Error) {
-	request := cluster.MarshalRequestMust(user, OpEnableUseCluster, name)
+func EnableUseCluster(eac *cluster.ExternalAbstractCluster, user cn.CapUser, name string) (err *mft.Error) {
+	request := cluster.MarshalRequestMust(user, cn.OpABEnableUseCluster, name)
 	responce := eac.Call(request)
 
 	return responce.Err
 }
-func DisableUseCluster(eac *cluster.ExternalAbstractCluster, user cluster.ClusterUser, name string) (err *mft.Error) {
-	request := cluster.MarshalRequestMust(user, OpDisableUseCluster, name)
+func DisableUseCluster(eac *cluster.ExternalAbstractCluster, user cn.CapUser, name string) (err *mft.Error) {
+	request := cluster.MarshalRequestMust(user, cn.OpABDisableUseCluster, name)
 	responce := eac.Call(request)
 
 	return responce.Err
 }
-func DropUseCluster(eac *cluster.ExternalAbstractCluster, user cluster.ClusterUser, name string) (err *mft.Error) {
-	request := cluster.MarshalRequestMust(user, OpDropUseCluster, name)
+func DropUseCluster(eac *cluster.ExternalAbstractCluster, user cn.CapUser, name string) (err *mft.Error) {
+	request := cluster.MarshalRequestMust(user, cn.OpABDropUseCluster, name)
 	responce := eac.Call(request)
 
 	return responce.Err
 }
-func GetUseCluster(eac *cluster.ExternalAbstractCluster, user cluster.ClusterUser) (users []UserCut, err *mft.Error) {
-	request := cluster.MarshalRequestMust(user, OpGetUseCluster, nil)
+func GetUseCluster(eac *cluster.ExternalAbstractCluster, user cn.CapUser) (users []UserCut, err *mft.Error) {
+	request := cluster.MarshalRequestMust(user, cn.OpABGetUseCluster, nil)
 	responce := eac.Call(request)
 
 	err = responce.UnmarshalInnerObject(&users)

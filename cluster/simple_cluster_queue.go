@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/capella-pw/queue/cn"
 	"github.com/capella-pw/queue/queue"
 	"github.com/capella-pw/queue/storage"
 	"github.com/myfantasy/mfs"
@@ -90,8 +91,8 @@ func (qg *QueueGenerator) GetGenerator(
 }
 
 // AddQueue add queue to cluster
-func (sc *SimpleCluster) AddQueue(user ClusterUser, queueDescription QueueDescription) (err *mft.Error) {
-	allowed, err := sc.CheckPermission(user, ClusterSelfObjectType, AddQueueAction, "")
+func (sc *SimpleCluster) AddQueue(user cn.CapUser, queueDescription QueueDescription) (err *mft.Error) {
+	allowed, err := sc.CheckPermission(user, cn.ClusterSelfObjectType, cn.AddQueueAction, "")
 	if err != nil {
 		return err
 	}
@@ -138,8 +139,8 @@ func (sc *SimpleCluster) AddQueue(user ClusterUser, queueDescription QueueDescri
 	return nil
 }
 
-func (sc *SimpleCluster) DropQueue(user ClusterUser, name string) (err *mft.Error) {
-	allowed, err := sc.CheckPermission(user, ClusterSelfObjectType, DropQueueAction, "")
+func (sc *SimpleCluster) DropQueue(user cn.CapUser, name string) (err *mft.Error) {
+	allowed, err := sc.CheckPermission(user, cn.ClusterSelfObjectType, cn.DropQueueAction, "")
 	if err != nil {
 		return err
 	}
@@ -165,8 +166,8 @@ func (sc *SimpleCluster) DropQueue(user ClusterUser, name string) (err *mft.Erro
 
 	return nil
 }
-func (sc *SimpleCluster) GetQueueDescription(user ClusterUser, name string) (queueDescription QueueDescription, err *mft.Error) {
-	allowed, err := sc.CheckPermission(user, ClusterSelfObjectType, GetQueueDescrAction, "")
+func (sc *SimpleCluster) GetQueueDescription(user cn.CapUser, name string) (queueDescription QueueDescription, err *mft.Error) {
+	allowed, err := sc.CheckPermission(user, cn.ClusterSelfObjectType, cn.GetQueueDescrAction, "")
 	if err != nil {
 		return queueDescription, err
 	}
@@ -184,8 +185,8 @@ func (sc *SimpleCluster) GetQueueDescription(user ClusterUser, name string) (que
 
 	return qld.QueueDescription(), nil
 }
-func (sc *SimpleCluster) GetQueuesList(user ClusterUser) (names []string, err *mft.Error) {
-	allowed, err := sc.CheckPermission(user, ClusterSelfObjectType, GetQueueDescrAction, "")
+func (sc *SimpleCluster) GetQueuesList(user cn.CapUser) (names []string, err *mft.Error) {
+	allowed, err := sc.CheckPermission(user, cn.ClusterSelfObjectType, cn.GetQueueDescrAction, "")
 	if err != nil {
 		return nil, err
 	}
@@ -203,8 +204,8 @@ func (sc *SimpleCluster) GetQueuesList(user ClusterUser) (names []string, err *m
 	return names, nil
 }
 
-func (sc *SimpleCluster) GetQueue(user ClusterUser, name string) (queue queue.Queue, exists bool, err *mft.Error) {
-	allowed, err := sc.CheckPermission(user, ClusterSelfObjectType, GetQueueAction, name)
+func (sc *SimpleCluster) GetQueue(user cn.CapUser, name string) (queue queue.Queue, exists bool, err *mft.Error) {
+	allowed, err := sc.CheckPermission(user, cn.ClusterSelfObjectType, cn.GetQueueAction, name)
 	if idxSp := strings.LastIndex(name, ClusterNameSplitter); idxSp >= 0 {
 		subName := name[0:idxSp]
 		nextName := name[idxSp+1:]

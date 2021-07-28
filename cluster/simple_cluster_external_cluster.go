@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"strings"
 
+	"github.com/capella-pw/queue/cn"
 	"github.com/capella-pw/queue/compress"
 	"github.com/myfantasy/mfs"
 	"github.com/myfantasy/mft"
@@ -85,9 +86,9 @@ func (ecg *ExternalClusterGenerator) GetGenerator(
 	return ng, ecg.ecLoadGenerator[name], true
 }
 
-func (sc *SimpleCluster) AddExternalCluster(user ClusterUser,
+func (sc *SimpleCluster) AddExternalCluster(user cn.CapUser,
 	clusterParams ExternalClusterDescription) (err *mft.Error) {
-	allowed, err := sc.CheckPermission(user, ClusterSelfObjectType, AddExternalClusterAction, "")
+	allowed, err := sc.CheckPermission(user, cn.ClusterSelfObjectType, cn.AddExternalClusterAction, "")
 	if err != nil {
 		return err
 	}
@@ -133,10 +134,10 @@ func (sc *SimpleCluster) AddExternalCluster(user ClusterUser,
 
 	return nil
 }
-func (sc *SimpleCluster) DropExternalCluster(user ClusterUser,
+func (sc *SimpleCluster) DropExternalCluster(user cn.CapUser,
 	name string) (err *mft.Error) {
 
-	allowed, err := sc.CheckPermission(user, ClusterSelfObjectType, DropExternalClusterAction, "")
+	allowed, err := sc.CheckPermission(user, cn.ClusterSelfObjectType, cn.DropExternalClusterAction, "")
 	if err != nil {
 		return err
 	}
@@ -162,10 +163,10 @@ func (sc *SimpleCluster) DropExternalCluster(user ClusterUser,
 
 	return nil
 }
-func (sc *SimpleCluster) GetExternalClusterDescription(user ClusterUser,
+func (sc *SimpleCluster) GetExternalClusterDescription(user cn.CapUser,
 	name string) (clusterParams ExternalClusterDescription, err *mft.Error) {
 
-	allowed, err := sc.CheckPermission(user, ClusterSelfObjectType, GetExternalClusterDescrAction, "")
+	allowed, err := sc.CheckPermission(user, cn.ClusterSelfObjectType, cn.GetExternalClusterDescrAction, "")
 	if err != nil {
 		return clusterParams, err
 	}
@@ -183,9 +184,9 @@ func (sc *SimpleCluster) GetExternalClusterDescription(user ClusterUser,
 
 	return ecld.ExternalClusterDescription(), nil
 }
-func (sc *SimpleCluster) GetExternalClustersList(user ClusterUser) (names []string, err *mft.Error) {
+func (sc *SimpleCluster) GetExternalClustersList(user cn.CapUser) (names []string, err *mft.Error) {
 
-	allowed, err := sc.CheckPermission(user, ClusterSelfObjectType, GetExternalClusterDescrAction, "")
+	allowed, err := sc.CheckPermission(user, cn.ClusterSelfObjectType, cn.GetExternalClusterDescrAction, "")
 	if err != nil {
 		return nil, err
 	}
@@ -203,7 +204,7 @@ func (sc *SimpleCluster) GetExternalClustersList(user ClusterUser) (names []stri
 	return names, nil
 }
 
-func (sc *SimpleCluster) GetExternalCluster(user ClusterUser,
+func (sc *SimpleCluster) GetExternalCluster(user cn.CapUser,
 	name string) (cluster Cluster, exists bool, err *mft.Error) {
 
 	if idxSp := strings.Index(name, ClusterNameSplitter); idxSp >= 0 {
@@ -227,7 +228,7 @@ func (sc *SimpleCluster) GetExternalCluster(user ClusterUser,
 		return cluster, exists, err
 	}
 
-	allowed, err := sc.CheckPermission(user, ClusterSelfObjectType, GetExternalClusterAction, "")
+	allowed, err := sc.CheckPermission(user, cn.ClusterSelfObjectType, cn.GetExternalClusterAction, "")
 	if err != nil {
 		return nil, false, err
 	}

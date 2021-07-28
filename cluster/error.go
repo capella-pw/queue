@@ -3,6 +3,7 @@ package cluster
 import (
 	"fmt"
 
+	"github.com/capella-pw/queue/cn"
 	"github.com/myfantasy/mft"
 )
 
@@ -229,7 +230,7 @@ func GenerateError(key int, a ...interface{}) *mft.Error {
 }
 
 // GenerateError -
-func GenerateErrorForClusterUser(user ClusterUser, key int, a ...interface{}) *mft.Error {
+func GenerateErrorForClusterUser(user cn.CapUser, key int, a ...interface{}) *mft.Error {
 	userName := "???"
 	if user != nil {
 		userName = "\"" + user.GetName() + "\""
@@ -249,7 +250,7 @@ func GenerateErrorE(key int, err error, a ...interface{}) *mft.Error {
 }
 
 // GenerateError -
-func GenerateErrorForClusterUserE(user ClusterUser, key int, err error, a ...interface{}) *mft.Error {
+func GenerateErrorForClusterUserE(user cn.CapUser, key int, err error, a ...interface{}) *mft.Error {
 	userName := "???"
 	if user != nil {
 		userName = "\"" + user.GetName() + "\""

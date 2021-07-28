@@ -10,6 +10,7 @@ import (
 
 	"github.com/capella-pw/queue/cluster"
 	"github.com/capella-pw/queue/cluster/cap"
+	"github.com/capella-pw/queue/cn"
 	"github.com/capella-pw/queue/compress"
 	"github.com/capella-pw/queue/security/authentication/basic"
 	"github.com/capella-pw/queue/security/authorization"
@@ -48,7 +49,7 @@ func main() {
 	}
 
 	err = authorization.UserRuleSetUseCluster(cl, cc, "tech_user",
-		cluster.ClusterSelfObjectType, cluster.GetQueueAction, "*", true)
+		cn.ClusterSelfObjectType, cn.GetQueueAction, "*", true)
 	if err != nil {
 		log.Fatalf("Fail to set `tech_user` object queue allow %v\n", err)
 		os.Exit(1)

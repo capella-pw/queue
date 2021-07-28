@@ -4,22 +4,14 @@ import (
 	"context"
 
 	"github.com/capella-pw/queue/cluster"
+	"github.com/capella-pw/queue/cn"
 	"github.com/myfantasy/mft"
-)
-
-const (
-	OpAddUserUseCluster      = "SecurityATRZ_add_user"
-	OpSetUserAdminUseCluster = "SecurityATRZ_set_user_admin"
-	OpDropUserUseCluster     = "SecurityATRZ_drop_user"
-	OpUserRuleUseCluster     = "SecurityATRZ_user_role_set"
-	OpUserRuleDropCluster    = "SecurityATRZ_user_role_drop"
-	OpGetUseCluster          = "SecurityATRZ_get"
 )
 
 func (s *SecurityATRZ) AdditionalCallFuncInClusterFunc(ctx context.Context,
 	cl cluster.Cluster, request *cluster.RequestBody) (responce *cluster.ResponceBody, ok bool) {
 
-	if request.Action == OpAddUserUseCluster {
+	if request.Action == cn.OpAAddUserUseCluster {
 		var rq AddUserRequest
 
 		err := request.UnmarshalInnerObject(&rq)
@@ -33,7 +25,7 @@ func (s *SecurityATRZ) AdditionalCallFuncInClusterFunc(ctx context.Context,
 		responce = cluster.MarshalResponceMust(nil, err)
 		return responce, true
 	}
-	if request.Action == OpSetUserAdminUseCluster {
+	if request.Action == cn.OpASetUserAdminUseCluster {
 		var rq SetUserAdminRequest
 
 		err := request.UnmarshalInnerObject(&rq)
@@ -47,7 +39,7 @@ func (s *SecurityATRZ) AdditionalCallFuncInClusterFunc(ctx context.Context,
 		responce = cluster.MarshalResponceMust(nil, err)
 		return responce, true
 	}
-	if request.Action == OpDropUserUseCluster {
+	if request.Action == cn.OpADropUserUseCluster {
 		var name string
 
 		err := request.UnmarshalInnerObject(&name)
@@ -61,7 +53,7 @@ func (s *SecurityATRZ) AdditionalCallFuncInClusterFunc(ctx context.Context,
 		responce = cluster.MarshalResponceMust(nil, err)
 		return responce, true
 	}
-	if request.Action == OpUserRuleUseCluster {
+	if request.Action == cn.OpAUserRuleUseCluster {
 		var rq UserRuleSetRequest
 
 		err := request.UnmarshalInnerObject(&rq)
@@ -75,7 +67,7 @@ func (s *SecurityATRZ) AdditionalCallFuncInClusterFunc(ctx context.Context,
 		responce = cluster.MarshalResponceMust(nil, err)
 		return responce, true
 	}
-	if request.Action == OpUserRuleDropCluster {
+	if request.Action == cn.OpAUserRuleDropCluster {
 		var rq UserRuleDropRequest
 
 		err := request.UnmarshalInnerObject(&rq)
@@ -89,7 +81,7 @@ func (s *SecurityATRZ) AdditionalCallFuncInClusterFunc(ctx context.Context,
 		responce = cluster.MarshalResponceMust(nil, err)
 		return responce, true
 	}
-	if request.Action == OpGetUseCluster {
+	if request.Action == cn.OpAGetUseCluster {
 		names, err := s.Get(request)
 
 		responce = cluster.MarshalResponceMust(names, err)
@@ -104,8 +96,8 @@ type AddUserRequest struct {
 	IsAdmin bool   `json:"is_admin"`
 }
 
-func AddUserUseCluster(eac *cluster.ExternalAbstractCluster, user cluster.ClusterUser, name string, isAdmin bool) (err *mft.Error) {
-	request := cluster.MarshalRequestMust(user, OpAddUserUseCluster, AddUserRequest{
+func AddUserUseCluster(eac *cluster.ExternalAbstractCluster, user cn.CapUser, name string, isAdmin bool) (err *mft.Error) {
+	request := cluster.MarshalRequestMust(user, cn.OpAAddUserUseCluster, AddUserRequest{
 		Name:    name,
 		IsAdmin: isAdmin,
 	})
@@ -119,8 +111,8 @@ type SetUserAdminRequest struct {
 	IsAdmin bool   `json:"is_admin"`
 }
 
-func SetUserAdminUseCluster(eac *cluster.ExternalAbstractCluster, user cluster.ClusterUser, name string, isAdmin bool) (err *mft.Error) {
-	request := cluster.MarshalRequestMust(user, OpSetUserAdminUseCluster, SetUserAdminRequest{
+func SetUserAdminUseCluster(eac *cluster.ExternalAbstractCluster, user cn.CapUser, name string, isAdmin bool) (err *mft.Error) {
+	request := cluster.MarshalRequestMust(user, cn.OpASetUserAdminUseCluster, SetUserAdminRequest{
 		Name:    name,
 		IsAdmin: isAdmin,
 	})
@@ -128,8 +120,8 @@ func SetUserAdminUseCluster(eac *cluster.ExternalAbstractCluster, user cluster.C
 
 	return responce.Err
 }
-func DropUserUseCluster(eac *cluster.ExternalAbstractCluster, user cluster.ClusterUser, name string) (err *mft.Error) {
-	request := cluster.MarshalRequestMust(user, OpDropUserUseCluster, name)
+func DropUserUseCluster(eac *cluster.ExternalAbstractCluster, user cn.CapUser, name string) (err *mft.Error) {
+	request := cluster.MarshalRequestMust(user, cn.OpADropUserUseCluster, name)
 	responce := eac.Call(request)
 
 	return responce.Err
@@ -143,8 +135,8 @@ type UserRuleSetRequest struct {
 	Allowed    bool   `json:"allowed"`
 }
 
-func UserRuleSetUseCluster(eac *cluster.ExternalAbstractCluster, user cluster.ClusterUser, name string, objectType string, action string, objectName string, allowed bool) (err *mft.Error) {
-	request := cluster.MarshalRequestMust(user, OpUserRuleUseCluster, UserRuleSetRequest{
+func UserRuleSetUseCluster(eac *cluster.ExternalAbstractCluster, user cn.CapUser, name string, objectType string, action string, objectName string, allowed bool) (err *mft.Error) {
+	request := cluster.MarshalRequestMust(user, cn.OpAUserRuleUseCluster, UserRuleSetRequest{
 		Name:       name,
 		ObjectType: objectType,
 		Action:     action,
@@ -163,8 +155,8 @@ type UserRuleDropRequest struct {
 	ObjectName string `json:"object_name"`
 }
 
-func UserRuleDropUseCluster(eac *cluster.ExternalAbstractCluster, user cluster.ClusterUser, name string, objectType string, action string, objectName string) (err *mft.Error) {
-	request := cluster.MarshalRequestMust(user, OpUserRuleDropCluster, UserRuleDropRequest{
+func UserRuleDropUseCluster(eac *cluster.ExternalAbstractCluster, user cn.CapUser, name string, objectType string, action string, objectName string) (err *mft.Error) {
+	request := cluster.MarshalRequestMust(user, cn.OpAUserRuleDropCluster, UserRuleDropRequest{
 		Name:       name,
 		ObjectType: objectType,
 		Action:     action,
@@ -174,11 +166,11 @@ func UserRuleDropUseCluster(eac *cluster.ExternalAbstractCluster, user cluster.C
 
 	return responce.Err
 }
-func GetUseCluster(eac *cluster.ExternalAbstractCluster, user cluster.ClusterUser) (sOut *SecurityATRZ, err *mft.Error) {
+func GetUseCluster(eac *cluster.ExternalAbstractCluster, user cn.CapUser) (sOut *SecurityATRZ, err *mft.Error) {
 	sOut = &SecurityATRZ{
 		Users: make(map[string]*User),
 	}
-	request := cluster.MarshalRequestMust(user, OpGetUseCluster, nil)
+	request := cluster.MarshalRequestMust(user, cn.OpAGetUseCluster, nil)
 	responce := eac.Call(request)
 
 	err = responce.UnmarshalInnerObject(&sOut)

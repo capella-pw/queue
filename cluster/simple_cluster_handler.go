@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 
+	"github.com/capella-pw/queue/cn"
 	"github.com/myfantasy/mfs"
 	"github.com/myfantasy/mft"
 )
@@ -88,9 +89,9 @@ func (ecg *HandlerGenerator) GetGenerator(
 	return ng, ecg.hLoadGenerator[name], true
 }
 
-func (sc *SimpleCluster) AddHandler(user ClusterUser,
+func (sc *SimpleCluster) AddHandler(user cn.CapUser,
 	handlerParams HandlerDescription) (err *mft.Error) {
-	allowed, err := sc.CheckPermission(user, ClusterSelfObjectType, AddHandlerAction, "")
+	allowed, err := sc.CheckPermission(user, cn.ClusterSelfObjectType, cn.AddHandlerAction, "")
 	if err != nil {
 		return err
 	}
@@ -136,10 +137,10 @@ func (sc *SimpleCluster) AddHandler(user ClusterUser,
 
 	return nil
 }
-func (sc *SimpleCluster) DropHandler(user ClusterUser,
+func (sc *SimpleCluster) DropHandler(user cn.CapUser,
 	name string) (err *mft.Error) {
 
-	allowed, err := sc.CheckPermission(user, ClusterSelfObjectType, DropHandlerAction, "")
+	allowed, err := sc.CheckPermission(user, cn.ClusterSelfObjectType, cn.DropHandlerAction, "")
 	if err != nil {
 		return err
 	}
@@ -172,10 +173,10 @@ func (sc *SimpleCluster) DropHandler(user ClusterUser,
 
 	return nil
 }
-func (sc *SimpleCluster) GetHandlerDescription(user ClusterUser,
+func (sc *SimpleCluster) GetHandlerDescription(user cn.CapUser,
 	name string) (handlerParams HandlerDescription, err *mft.Error) {
 
-	allowed, err := sc.CheckPermission(user, ClusterSelfObjectType, GetHandlerDescrAction, "")
+	allowed, err := sc.CheckPermission(user, cn.ClusterSelfObjectType, cn.GetHandlerDescrAction, "")
 	if err != nil {
 		return handlerParams, err
 	}
@@ -193,9 +194,9 @@ func (sc *SimpleCluster) GetHandlerDescription(user ClusterUser,
 
 	return ecld.HandlerDescription(), nil
 }
-func (sc *SimpleCluster) GetHandlersList(user ClusterUser) (names []string, err *mft.Error) {
+func (sc *SimpleCluster) GetHandlersList(user cn.CapUser) (names []string, err *mft.Error) {
 
-	allowed, err := sc.CheckPermission(user, ClusterSelfObjectType, GetHandlerDescrAction, "")
+	allowed, err := sc.CheckPermission(user, cn.ClusterSelfObjectType, cn.GetHandlerDescrAction, "")
 	if err != nil {
 		return nil, err
 	}
@@ -213,8 +214,8 @@ func (sc *SimpleCluster) GetHandlersList(user ClusterUser) (names []string, err 
 	return names, nil
 }
 
-func (sc *SimpleCluster) GetHandler(user ClusterUser, name string) (handler Handler, exists bool, err *mft.Error) {
-	allowed, err := sc.CheckPermission(user, ClusterSelfObjectType, GetHandlerAction, "")
+func (sc *SimpleCluster) GetHandler(user cn.CapUser, name string) (handler Handler, exists bool, err *mft.Error) {
+	allowed, err := sc.CheckPermission(user, cn.ClusterSelfObjectType, cn.GetHandlerAction, "")
 	if err != nil {
 		return nil, false, err
 	}
