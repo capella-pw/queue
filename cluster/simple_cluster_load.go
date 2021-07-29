@@ -18,7 +18,7 @@ const (
 func SimpleClusterCreate(storageGenerator *storage.Generator,
 	throwErrorFunc func(err *mft.Error) bool,
 	onChangeFunc func(sc *SimpleCluster) (err *mft.Error),
-	checkPermissionFunc func(user cn.CapUser, objectType string, action string, objectName string) (allowed bool, err *mft.Error),
+	checkPermissionFunc func(ctx context.Context, user cn.CapUser, objectType string, action string, objectName string) (allowed bool, err *mft.Error),
 	queueGenerator *QueueGenerator, // QueueGeneratorCreate()
 	externalClusterGenerator *ExternalClusterGenerator,
 	handlerGenerator *HandlerGenerator,

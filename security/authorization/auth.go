@@ -112,10 +112,10 @@ type SecurityATRZ struct {
 	mxFile       mfs.PMutex
 
 	// case nil then ignore
-	CheckPermissionFunc func(user cn.CapUser, objectType string, action string, objectName string) (allowed bool, err *mft.Error) `json:"-"`
+	CheckPermissionFunc func(ctx context.Context, user cn.CapUser, objectType string, action string, objectName string) (allowed bool, err *mft.Error) `json:"-"`
 }
 
-func (s *SecurityATRZ) CheckPermissionForInternal(user cn.CapUser, objectType string, action string, objectName string) (allowed bool, err *mft.Error) {
+func (s *SecurityATRZ) CheckPermissionForInternal(ctx context.Context, user cn.CapUser, objectType string, action string, objectName string) (allowed bool, err *mft.Error) {
 	if s == nil {
 		return false, nil
 	}
@@ -124,7 +124,7 @@ func (s *SecurityATRZ) CheckPermissionForInternal(user cn.CapUser, objectType st
 		return true, nil
 	}
 
-	return s.CheckPermissionFunc(user, objectType, action, objectName)
+	return s.CheckPermissionFunc(ctx, user, objectType, action, objectName)
 }
 
 func (s *SecurityATRZ) OnChange() (err *mft.Error) {
@@ -145,7 +145,7 @@ func (s *SecurityATRZ) OnChange() (err *mft.Error) {
 	return nil
 }
 
-func (s *SecurityATRZ) CheckPermission(user cn.CapUser, objectType string, action string, objectName string) (allowed bool, err *mft.Error) {
+func (s *SecurityATRZ) CheckPermission(ctx context.Context, user cn.CapUser, objectType string, action string, objectName string) (allowed bool, err *mft.Error) {
 
 	s.mx.RLock()
 	defer s.mx.RUnlock()
@@ -159,8 +159,8 @@ func (s *SecurityATRZ) CheckPermission(user cn.CapUser, objectType string, actio
 	return u.Allow(objectType, action, objectName), nil
 }
 
-func (s *SecurityATRZ) AddUser(user cn.CapUser, name string, isAdmin bool) (err *mft.Error) {
-	allowed, err := s.CheckPermissionForInternal(user, cn.AuthorizationSelfObjectType, cn.AAddUserAction, name)
+func (s *SecurityATRZ) AddUser(ctx context.Context, user cn.CapUser, name string, isAdmin bool) (err *mft.Error) {
+	allowed, err := s.CheckPermissionForInternal(ctx, user, cn.AuthorizationSelfObjectType, cn.AAddUserAction, name)
 
 	if err != nil {
 		return GenerateErrorForClusterUserE(user, 10310101, err)
@@ -188,8 +188,8 @@ func (s *SecurityATRZ) AddUser(user cn.CapUser, name string, isAdmin bool) (err 
 	return GenerateError(10310100, name)
 }
 
-func (s *SecurityATRZ) SetUserAdmin(user cn.CapUser, name string, isAdmin bool) (err *mft.Error) {
-	allowed, err := s.CheckPermissionForInternal(user, cn.AuthorizationSelfObjectType, cn.ASetUserAdminAction, name)
+func (s *SecurityATRZ) SetUserAdmin(ctx context.Context, user cn.CapUser, name string, isAdmin bool) (err *mft.Error) {
+	allowed, err := s.CheckPermissionForInternal(ctx, user, cn.AuthorizationSelfObjectType, cn.ASetUserAdminAction, name)
 
 	if err != nil {
 		return GenerateErrorForClusterUserE(user, 10310201, err)
@@ -215,8 +215,8 @@ func (s *SecurityATRZ) SetUserAdmin(user cn.CapUser, name string, isAdmin bool) 
 	return GenerateError(10310200, name)
 }
 
-func (s *SecurityATRZ) DropUser(user cn.CapUser, name string) (err *mft.Error) {
-	allowed, err := s.CheckPermissionForInternal(user, cn.AuthorizationSelfObjectType, cn.ADropUserAction, name)
+func (s *SecurityATRZ) DropUser(ctx context.Context, user cn.CapUser, name string) (err *mft.Error) {
+	allowed, err := s.CheckPermissionForInternal(ctx, user, cn.AuthorizationSelfObjectType, cn.ADropUserAction, name)
 
 	if err != nil {
 		return GenerateErrorForClusterUserE(user, 10310301, err)
@@ -242,8 +242,8 @@ func (s *SecurityATRZ) DropUser(user cn.CapUser, name string) (err *mft.Error) {
 	return GenerateError(10310300, name)
 }
 
-func (s *SecurityATRZ) UserRuleSet(user cn.CapUser, name string, objectType string, action string, objectName string, allowed bool) (err *mft.Error) {
-	allowedCheck, err := s.CheckPermissionForInternal(user, cn.AuthorizationSelfObjectType, cn.AUserRuleSetAction, name)
+func (s *SecurityATRZ) UserRuleSet(ctx context.Context, user cn.CapUser, name string, objectType string, action string, objectName string, allowed bool) (err *mft.Error) {
+	allowedCheck, err := s.CheckPermissionForInternal(ctx, user, cn.AuthorizationSelfObjectType, cn.AUserRuleSetAction, name)
 
 	if err != nil {
 		return GenerateErrorForClusterUserE(user, 10310401, err)
@@ -269,8 +269,8 @@ func (s *SecurityATRZ) UserRuleSet(user cn.CapUser, name string, objectType stri
 	return GenerateError(10310400, name)
 }
 
-func (s *SecurityATRZ) UserRuleDrop(user cn.CapUser, name string, objectType string, action string, objectName string) (err *mft.Error) {
-	allowed, err := s.CheckPermissionForInternal(user, cn.AuthorizationSelfObjectType, cn.AUserRuleDropAction, name)
+func (s *SecurityATRZ) UserRuleDrop(ctx context.Context, user cn.CapUser, name string, objectType string, action string, objectName string) (err *mft.Error) {
+	allowed, err := s.CheckPermissionForInternal(ctx, user, cn.AuthorizationSelfObjectType, cn.AUserRuleDropAction, name)
 
 	if err != nil {
 		return GenerateErrorForClusterUserE(user, 10310501, err)
@@ -296,8 +296,8 @@ func (s *SecurityATRZ) UserRuleDrop(user cn.CapUser, name string, objectType str
 	return GenerateError(10310500, name)
 }
 
-func (s *SecurityATRZ) Get(user cn.CapUser) (sOut *SecurityATRZ, err *mft.Error) {
-	allowed, err := s.CheckPermissionForInternal(user, cn.AuthorizationSelfObjectType, cn.AGetAction, "")
+func (s *SecurityATRZ) Get(ctx context.Context, user cn.CapUser) (sOut *SecurityATRZ, err *mft.Error) {
+	allowed, err := s.CheckPermissionForInternal(ctx, user, cn.AuthorizationSelfObjectType, cn.AGetAction, "")
 
 	if err != nil {
 		return nil, GenerateErrorForClusterUserE(user, 10310802, err)

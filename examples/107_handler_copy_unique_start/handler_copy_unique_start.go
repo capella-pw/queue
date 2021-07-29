@@ -24,8 +24,10 @@ func main() {
 
 	cl := cc.Cluster()
 
+	ctx := context.Background()
+
 	// Direct copy
-	h, exists, err := cl.GetHandler(nil, "test_queue_to_test_queue_2_copy_unique")
+	h, exists, err := cl.GetHandler(ctx, nil, "test_queue_to_test_queue_2_copy_unique")
 	if err != nil {
 		log.Fatalln(err)
 		os.Exit(1)
@@ -47,7 +49,7 @@ func main() {
 	}
 
 	// Back copy
-	h, exists, err = cl.GetHandler(nil, "test_queue_2_to_test_queue_copy_unique")
+	h, exists, err = cl.GetHandler(ctx, nil, "test_queue_2_to_test_queue_copy_unique")
 	if err != nil {
 		log.Fatalln(err)
 		os.Exit(1)
@@ -69,7 +71,7 @@ func main() {
 	}
 
 	// Send message to queue 2
-	q, exists, err := cl.GetQueue(nil, "test_queue_2")
+	q, exists, err := cl.GetQueue(ctx, nil, "test_queue_2")
 	if err != nil {
 		log.Fatalln(err)
 		os.Exit(1)

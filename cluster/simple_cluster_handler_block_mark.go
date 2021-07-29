@@ -156,7 +156,7 @@ func (rsh *BlockMarkHandler) Start(ctx context.Context) (err *mft.Error) {
 				var cancelUpdate func()
 				var ctxInternalUpdate context.Context
 				ctxInternalMark, cancelMark := context.WithTimeout(context.Background(), rsh.WaitMark)
-				q, exists, err := rsh.Cluster.GetQueue(rsh, rsh.QueueName)
+				q, exists, err := rsh.Cluster.GetQueue(ctx, rsh, rsh.QueueName)
 				if err != nil {
 					err = GenerateErrorForClusterUserE(rsh, 10118400, err, rsh.QueueName)
 				} else if !exists {

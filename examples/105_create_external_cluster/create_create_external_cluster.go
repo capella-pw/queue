@@ -24,7 +24,9 @@ func main() {
 
 	cl := cc.Cluster()
 
-	err := cl.AddExternalCluster(nil, cluster.ExternalClusterDescription{
+	ctx := context.Background()
+
+	err := cl.AddExternalCluster(ctx, nil, cluster.ExternalClusterDescription{
 		Name:   "ec_test_self",
 		Type:   cap.HttpExternalClusterType,
 		Params: cc.ToJson(),
@@ -36,7 +38,7 @@ func main() {
 		return
 	}
 
-	q, exists, err := cl.GetQueue(nil, "ec_test_self/test_queue")
+	q, exists, err := cl.GetQueue(ctx, nil, "ec_test_self/test_queue")
 	if err != nil {
 		log.Fatalln(err)
 		os.Exit(1)

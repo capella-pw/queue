@@ -36,45 +36,45 @@ type HandlerDescription struct {
 
 // Cluster - cluser for queue
 type Cluster interface {
-	GetName(user cn.CapUser) (name string, err *mft.Error)
-	SetName(user cn.CapUser, name string) (err *mft.Error)
+	GetName(ctx context.Context, user cn.CapUser) (name string, err *mft.Error)
+	SetName(ctx context.Context, user cn.CapUser, name string) (err *mft.Error)
 
 	ThrowError(err *mft.Error) bool
 
-	AddQueue(user cn.CapUser, queueDescription QueueDescription) (err *mft.Error)
-	DropQueue(user cn.CapUser, name string) (err *mft.Error)
-	GetQueueDescription(user cn.CapUser, name string) (queueDescription QueueDescription, err *mft.Error)
-	GetQueuesList(user cn.CapUser) (names []string, err *mft.Error)
+	AddQueue(ctx context.Context, user cn.CapUser, queueDescription QueueDescription) (err *mft.Error)
+	DropQueue(ctx context.Context, user cn.CapUser, name string) (err *mft.Error)
+	GetQueueDescription(ctx context.Context, user cn.CapUser, name string) (queueDescription QueueDescription, err *mft.Error)
+	GetQueuesList(ctx context.Context, user cn.CapUser) (names []string, err *mft.Error)
 
-	GetQueue(user cn.CapUser, name string) (queue queue.Queue, exists bool, err *mft.Error)
+	GetQueue(ctx context.Context, user cn.CapUser, name string) (queue queue.Queue, exists bool, err *mft.Error)
 
-	AddExternalCluster(user cn.CapUser, clusterParams ExternalClusterDescription) (err *mft.Error)
-	DropExternalCluster(user cn.CapUser, name string) (err *mft.Error)
-	GetExternalClusterDescription(user cn.CapUser, name string) (clusterParams ExternalClusterDescription, err *mft.Error)
-	GetExternalClustersList(user cn.CapUser) (names []string, err *mft.Error)
+	AddExternalCluster(ctx context.Context, user cn.CapUser, clusterParams ExternalClusterDescription) (err *mft.Error)
+	DropExternalCluster(ctx context.Context, user cn.CapUser, name string) (err *mft.Error)
+	GetExternalClusterDescription(ctx context.Context, user cn.CapUser, name string) (clusterParams ExternalClusterDescription, err *mft.Error)
+	GetExternalClustersList(ctx context.Context, user cn.CapUser) (names []string, err *mft.Error)
 
 	// GetExternalCluster - gets cluster. Use '/' for separate names.
-	GetExternalCluster(user cn.CapUser, name string) (cluster Cluster, exists bool, err *mft.Error)
+	GetExternalCluster(ctx context.Context, user cn.CapUser, name string) (cluster Cluster, exists bool, err *mft.Error)
 
-	AddHandler(user cn.CapUser, handlerParams HandlerDescription) (err *mft.Error)
-	DropHandler(user cn.CapUser, name string) (err *mft.Error)
-	GetHandlerDescription(user cn.CapUser, name string) (handlerParams HandlerDescription, err *mft.Error)
-	GetHandlersList(user cn.CapUser) (names []string, err *mft.Error)
-	GetHandler(user cn.CapUser, name string) (handler Handler, exists bool, err *mft.Error)
+	AddHandler(ctx context.Context, user cn.CapUser, handlerParams HandlerDescription) (err *mft.Error)
+	DropHandler(ctx context.Context, user cn.CapUser, name string) (err *mft.Error)
+	GetHandlerDescription(ctx context.Context, user cn.CapUser, name string) (handlerParams HandlerDescription, err *mft.Error)
+	GetHandlersList(ctx context.Context, user cn.CapUser) (names []string, err *mft.Error)
+	GetHandler(ctx context.Context, user cn.CapUser, name string) (handler Handler, exists bool, err *mft.Error)
 
-	CheckPermission(user cn.CapUser, objectType string, action string, objectName string) (allowed bool, err *mft.Error)
+	CheckPermission(ctx context.Context, user cn.CapUser, objectType string, action string, objectName string) (allowed bool, err *mft.Error)
 
-	GetFullStruct(user cn.CapUser) (data json.RawMessage, err *mft.Error)
-	LoadFullStruct(user cn.CapUser, data json.RawMessage) (err *mft.Error)
+	GetFullStruct(ctx context.Context, user cn.CapUser) (data json.RawMessage, err *mft.Error)
+	LoadFullStruct(ctx context.Context, user cn.CapUser, data json.RawMessage) (err *mft.Error)
 
 	SetValueInternal(string, string) (err *mft.Error)
 	GetValueInternal(string) (string, bool)
 
 	OnChange() (err *mft.Error)
 
-	Ping(user cn.CapUser) (err *mft.Error)
-	GetNextId(user cn.CapUser) (id int64, err *mft.Error)
-	GetNextIds(user cn.CapUser, cnt int) (ids []int64, err *mft.Error)
+	Ping(ctx context.Context, user cn.CapUser) (err *mft.Error)
+	GetNextId(ctx context.Context, user cn.CapUser) (id int64, err *mft.Error)
+	GetNextIds(ctx context.Context, user cn.CapUser, cnt int) (ids []int64, err *mft.Error)
 }
 
 // Handler - handler

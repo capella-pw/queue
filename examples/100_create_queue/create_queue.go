@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"os"
@@ -25,7 +26,9 @@ func main() {
 
 	cl := cc.Cluster()
 
-	err := cl.AddQueue(nil, cluster.QueueDescription{
+	ctx := context.Background()
+
+	err := cl.AddQueue(ctx, nil, cluster.QueueDescription{
 		Name: "test_queue",
 		Type: cluster.SimpleQueueType,
 		Params: cluster.SimpleQueueParams{

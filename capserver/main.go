@@ -157,7 +157,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	var checkPermissionFunc func(user cn.CapUser, objectType string, action string, objectName string) (allowed bool, err *mft.Error)
+	var checkPermissionFunc func(ctx context.Context, user cn.CapUser, objectType string, action string, objectName string) (allowed bool, err *mft.Error)
 	var checkAuth cluster.CheckAuthFunc
 	addFunc := []cluster.AdditionalCallFuncInClusterFunc{}
 

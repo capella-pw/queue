@@ -86,9 +86,9 @@ func (cg *ConGroup) AddConnection(name string, connection *ClusterConnection) *C
 	return cg
 }
 
-func (cg *ConGroup) Ping(errFunc func(err *mft.Error)) {
+func (cg *ConGroup) Ping(ctx context.Context, errFunc func(err *mft.Error)) {
 	for cn, c := range cg.Clusters {
-		err := c.Ping(nil)
+		err := c.Ping(ctx, nil)
 		if err != nil {
 			cg.mx.Lock()
 			cg.HealthCheck[cn] = false
@@ -258,7 +258,7 @@ func QueueAddUnique(queueName string,
 	doOnOk func(id int64),
 ) func(ctx context.Context, cl *cluster.ExternalAbstractCluster) (err *mft.Error) {
 	return func(ctx context.Context, cl *cluster.ExternalAbstractCluster) (err *mft.Error) {
-		q, exists, err := cl.GetQueue(nil, queueName)
+		q, exists, err := cl.GetQueue(ctx, nil, queueName)
 		if err != nil {
 			return GenerateErrorE(10191201, err, queueName)
 		}
@@ -286,7 +286,7 @@ func QueueAddUniqueList(queueName string,
 	doOnOk func(ids []int64),
 ) func(ctx context.Context, cl *cluster.ExternalAbstractCluster) (err *mft.Error) {
 	return func(ctx context.Context, cl *cluster.ExternalAbstractCluster) (err *mft.Error) {
-		q, exists, err := cl.GetQueue(nil, queueName)
+		q, exists, err := cl.GetQueue(ctx, nil, queueName)
 		if err != nil {
 			return GenerateErrorE(10191211, err, queueName)
 		}

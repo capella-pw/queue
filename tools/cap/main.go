@@ -146,7 +146,7 @@ func main() {
 	if *fCmd == "ping" {
 		err = cg.FuncDOName(ctx, *fConnectionName,
 			func(ctx context.Context, c *cluster.ExternalAbstractCluster) (err *mft.Error) {
-				err = c.Ping(nil)
+				err = c.Ping(ctx, nil)
 				return err
 			})
 		if err != nil {
@@ -158,7 +158,7 @@ func main() {
 	} else if *fCmd == "cluster_name_set" {
 		err = cg.FuncDOName(ctx, *fConnectionName,
 			func(ctx context.Context, c *cluster.ExternalAbstractCluster) (err *mft.Error) {
-				err = c.SetName(nil, *fName)
+				err = c.SetName(ctx, nil, *fName)
 				return err
 			})
 		if err != nil {
@@ -171,7 +171,7 @@ func main() {
 		var name string
 		err = cg.FuncDOName(ctx, *fConnectionName,
 			func(ctx context.Context, c *cluster.ExternalAbstractCluster) (err *mft.Error) {
-				name, err = c.GetName(nil)
+				name, err = c.GetName(ctx, nil)
 				return err
 			})
 		if err != nil {
@@ -184,7 +184,7 @@ func main() {
 		var id int64
 		err = cg.FuncDOName(ctx, *fConnectionName,
 			func(ctx context.Context, c *cluster.ExternalAbstractCluster) (err *mft.Error) {
-				id, err = c.GetNextId(nil)
+				id, err = c.GetNextId(ctx, nil)
 				return err
 			})
 		if err != nil {
@@ -197,7 +197,7 @@ func main() {
 		var ids []int64
 		err = cg.FuncDOName(ctx, *fConnectionName,
 			func(ctx context.Context, c *cluster.ExternalAbstractCluster) (err *mft.Error) {
-				ids, err = c.GetNextIds(nil, *fQty)
+				ids, err = c.GetNextIds(ctx, nil, *fQty)
 				return err
 			})
 		if err != nil {
@@ -212,7 +212,7 @@ func main() {
 		GetParams(&qd)
 		err = cg.FuncDOName(ctx, *fConnectionName,
 			func(ctx context.Context, c *cluster.ExternalAbstractCluster) (err *mft.Error) {
-				err = c.AddQueue(nil, qd)
+				err = c.AddQueue(ctx, nil, qd)
 				return err
 			})
 		if err != nil {
@@ -224,7 +224,7 @@ func main() {
 	} else if *fCmd == "q_drop" {
 		err = cg.FuncDOName(ctx, *fConnectionName,
 			func(ctx context.Context, c *cluster.ExternalAbstractCluster) (err *mft.Error) {
-				err = c.DropQueue(nil, *fName)
+				err = c.DropQueue(ctx, nil, *fName)
 				return err
 			})
 		if err != nil {
@@ -237,7 +237,7 @@ func main() {
 		var queueDescription cluster.QueueDescription
 		err = cg.FuncDOName(ctx, *fConnectionName,
 			func(ctx context.Context, c *cluster.ExternalAbstractCluster) (err *mft.Error) {
-				queueDescription, err = c.GetQueueDescription(nil, *fName)
+				queueDescription, err = c.GetQueueDescription(ctx, nil, *fName)
 				return err
 			})
 		if err != nil {
@@ -254,7 +254,7 @@ func main() {
 		var names []string
 		err = cg.FuncDOName(ctx, *fConnectionName,
 			func(ctx context.Context, c *cluster.ExternalAbstractCluster) (err *mft.Error) {
-				names, err = c.GetQueuesList(nil)
+				names, err = c.GetQueuesList(ctx, nil)
 				return err
 			})
 		if err != nil {
@@ -273,7 +273,7 @@ func main() {
 		var messages []*queue.MessageWithMeta
 		err = cg.FuncDOName(ctx, *fConnectionName,
 			func(ctx context.Context, c *cluster.ExternalAbstractCluster) (err *mft.Error) {
-				q, exists, err = c.GetQueue(nil, *fName)
+				q, exists, err = c.GetQueue(ctx, nil, *fName)
 
 				if err != nil {
 					return err
@@ -307,7 +307,7 @@ func main() {
 		GetParams(&messages)
 		err = cg.FuncDOName(ctx, *fConnectionName,
 			func(ctx context.Context, c *cluster.ExternalAbstractCluster) (err *mft.Error) {
-				q, exists, err = c.GetQueue(nil, *fName)
+				q, exists, err = c.GetQueue(ctx, nil, *fName)
 
 				if err != nil {
 					return err
@@ -339,7 +339,7 @@ func main() {
 		GetParams(&ecd)
 		err = cg.FuncDOName(ctx, *fConnectionName,
 			func(ctx context.Context, c *cluster.ExternalAbstractCluster) (err *mft.Error) {
-				err = c.AddExternalCluster(nil, ecd)
+				err = c.AddExternalCluster(ctx, nil, ecd)
 				return err
 			})
 		if err != nil {
@@ -351,7 +351,7 @@ func main() {
 	} else if *fCmd == "exc_drop" {
 		err = cg.FuncDOName(ctx, *fConnectionName,
 			func(ctx context.Context, c *cluster.ExternalAbstractCluster) (err *mft.Error) {
-				err = c.DropExternalCluster(nil, *fName)
+				err = c.DropExternalCluster(ctx, nil, *fName)
 				return err
 			})
 		if err != nil {
@@ -364,7 +364,7 @@ func main() {
 		var clusterParams cluster.ExternalClusterDescription
 		err = cg.FuncDOName(ctx, *fConnectionName,
 			func(ctx context.Context, c *cluster.ExternalAbstractCluster) (err *mft.Error) {
-				clusterParams, err = c.GetExternalClusterDescription(nil, *fName)
+				clusterParams, err = c.GetExternalClusterDescription(ctx, nil, *fName)
 				return err
 			})
 		if err != nil {
@@ -381,7 +381,7 @@ func main() {
 		var names []string
 		err = cg.FuncDOName(ctx, *fConnectionName,
 			func(ctx context.Context, c *cluster.ExternalAbstractCluster) (err *mft.Error) {
-				names, err = c.GetExternalClustersList(nil)
+				names, err = c.GetExternalClustersList(ctx, nil)
 				return err
 			})
 		if err != nil {
@@ -399,7 +399,7 @@ func main() {
 		GetParams(&handlerParams)
 		err = cg.FuncDOName(ctx, *fConnectionName,
 			func(ctx context.Context, c *cluster.ExternalAbstractCluster) (err *mft.Error) {
-				err = c.AddHandler(nil, handlerParams)
+				err = c.AddHandler(ctx, nil, handlerParams)
 				return err
 			})
 		if err != nil {
@@ -411,7 +411,7 @@ func main() {
 	} else if *fCmd == "h_drop" {
 		err = cg.FuncDOName(ctx, *fConnectionName,
 			func(ctx context.Context, c *cluster.ExternalAbstractCluster) (err *mft.Error) {
-				err = c.DropHandler(nil, *fName)
+				err = c.DropHandler(ctx, nil, *fName)
 				return err
 			})
 		if err != nil {
@@ -424,7 +424,7 @@ func main() {
 		var handlerParams cluster.HandlerDescription
 		err = cg.FuncDOName(ctx, *fConnectionName,
 			func(ctx context.Context, c *cluster.ExternalAbstractCluster) (err *mft.Error) {
-				handlerParams, err = c.GetHandlerDescription(nil, *fName)
+				handlerParams, err = c.GetHandlerDescription(ctx, nil, *fName)
 				return err
 			})
 		if err != nil {
@@ -441,7 +441,7 @@ func main() {
 		var names []string
 		err = cg.FuncDOName(ctx, *fConnectionName,
 			func(ctx context.Context, c *cluster.ExternalAbstractCluster) (err *mft.Error) {
-				names, err = c.GetHandlersList(nil)
+				names, err = c.GetHandlersList(ctx, nil)
 				return err
 			})
 		if err != nil {
@@ -459,7 +459,7 @@ func main() {
 		var exists bool
 		err = cg.FuncDOName(ctx, *fConnectionName,
 			func(ctx context.Context, c *cluster.ExternalAbstractCluster) (err *mft.Error) {
-				handler, exists, err = c.GetHandler(nil, *fName)
+				handler, exists, err = c.GetHandler(ctx, nil, *fName)
 
 				if err != nil {
 					return err
@@ -487,7 +487,7 @@ func main() {
 		var exists bool
 		err = cg.FuncDOName(ctx, *fConnectionName,
 			func(ctx context.Context, c *cluster.ExternalAbstractCluster) (err *mft.Error) {
-				handler, exists, err = c.GetHandler(nil, *fName)
+				handler, exists, err = c.GetHandler(ctx, nil, *fName)
 
 				if err != nil {
 					return err
@@ -515,7 +515,7 @@ func main() {
 		var exists bool
 		err = cg.FuncDOName(ctx, *fConnectionName,
 			func(ctx context.Context, c *cluster.ExternalAbstractCluster) (err *mft.Error) {
-				handler, exists, err = c.GetHandler(nil, *fName)
+				handler, exists, err = c.GetHandler(ctx, nil, *fName)
 
 				if err != nil {
 					return err
@@ -544,7 +544,7 @@ func main() {
 		var lastComplete time.Time
 		err = cg.FuncDOName(ctx, *fConnectionName,
 			func(ctx context.Context, c *cluster.ExternalAbstractCluster) (err *mft.Error) {
-				handler, exists, err = c.GetHandler(nil, *fName)
+				handler, exists, err = c.GetHandler(ctx, nil, *fName)
 
 				if err != nil {
 					return err
@@ -573,7 +573,7 @@ func main() {
 		var isStarted bool
 		err = cg.FuncDOName(ctx, *fConnectionName,
 			func(ctx context.Context, c *cluster.ExternalAbstractCluster) (err *mft.Error) {
-				handler, exists, err = c.GetHandler(nil, *fName)
+				handler, exists, err = c.GetHandler(ctx, nil, *fName)
 
 				if err != nil {
 					return err

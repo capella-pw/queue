@@ -86,9 +86,9 @@ func (ecg *ExternalClusterGenerator) GetGenerator(
 	return ng, ecg.ecLoadGenerator[name], true
 }
 
-func (sc *SimpleCluster) AddExternalCluster(user cn.CapUser,
+func (sc *SimpleCluster) AddExternalCluster(ctx context.Context, user cn.CapUser,
 	clusterParams ExternalClusterDescription) (err *mft.Error) {
-	allowed, err := sc.CheckPermission(user, cn.ClusterSelfObjectType, cn.AddExternalClusterAction, "")
+	allowed, err := sc.CheckPermission(ctx, user, cn.ClusterSelfObjectType, cn.AddExternalClusterAction, "")
 	if err != nil {
 		return err
 	}
@@ -134,10 +134,10 @@ func (sc *SimpleCluster) AddExternalCluster(user cn.CapUser,
 
 	return nil
 }
-func (sc *SimpleCluster) DropExternalCluster(user cn.CapUser,
+func (sc *SimpleCluster) DropExternalCluster(ctx context.Context, user cn.CapUser,
 	name string) (err *mft.Error) {
 
-	allowed, err := sc.CheckPermission(user, cn.ClusterSelfObjectType, cn.DropExternalClusterAction, "")
+	allowed, err := sc.CheckPermission(ctx, user, cn.ClusterSelfObjectType, cn.DropExternalClusterAction, "")
 	if err != nil {
 		return err
 	}
@@ -163,10 +163,10 @@ func (sc *SimpleCluster) DropExternalCluster(user cn.CapUser,
 
 	return nil
 }
-func (sc *SimpleCluster) GetExternalClusterDescription(user cn.CapUser,
+func (sc *SimpleCluster) GetExternalClusterDescription(ctx context.Context, user cn.CapUser,
 	name string) (clusterParams ExternalClusterDescription, err *mft.Error) {
 
-	allowed, err := sc.CheckPermission(user, cn.ClusterSelfObjectType, cn.GetExternalClusterDescrAction, "")
+	allowed, err := sc.CheckPermission(ctx, user, cn.ClusterSelfObjectType, cn.GetExternalClusterDescrAction, "")
 	if err != nil {
 		return clusterParams, err
 	}
@@ -184,9 +184,9 @@ func (sc *SimpleCluster) GetExternalClusterDescription(user cn.CapUser,
 
 	return ecld.ExternalClusterDescription(), nil
 }
-func (sc *SimpleCluster) GetExternalClustersList(user cn.CapUser) (names []string, err *mft.Error) {
+func (sc *SimpleCluster) GetExternalClustersList(ctx context.Context, user cn.CapUser) (names []string, err *mft.Error) {
 
-	allowed, err := sc.CheckPermission(user, cn.ClusterSelfObjectType, cn.GetExternalClusterDescrAction, "")
+	allowed, err := sc.CheckPermission(ctx, user, cn.ClusterSelfObjectType, cn.GetExternalClusterDescrAction, "")
 	if err != nil {
 		return nil, err
 	}
@@ -204,14 +204,14 @@ func (sc *SimpleCluster) GetExternalClustersList(user cn.CapUser) (names []strin
 	return names, nil
 }
 
-func (sc *SimpleCluster) GetExternalCluster(user cn.CapUser,
+func (sc *SimpleCluster) GetExternalCluster(ctx context.Context, user cn.CapUser,
 	name string) (cluster Cluster, exists bool, err *mft.Error) {
 
 	if idxSp := strings.Index(name, ClusterNameSplitter); idxSp >= 0 {
 		subName := name[0:idxSp]
 		nextName := name[idxSp+1:]
 
-		subCluster, subExists, err := sc.GetExternalCluster(user, subName)
+		subCluster, subExists, err := sc.GetExternalCluster(ctx, user, subName)
 		if err != nil {
 			return nil, false, GenerateErrorForClusterUserE(user, 10116001, err, subName, nextName)
 		}
@@ -219,7 +219,7 @@ func (sc *SimpleCluster) GetExternalCluster(user cn.CapUser,
 			return nil, false, GenerateErrorForClusterUser(user, 10116002, subName, nextName)
 		}
 
-		cluster, exists, err = subCluster.GetExternalCluster(user, nextName)
+		cluster, exists, err = subCluster.GetExternalCluster(ctx, user, nextName)
 
 		if err != nil {
 			err = GenerateErrorForClusterUserE(user, 10116003, err, subName, nextName)
@@ -228,7 +228,7 @@ func (sc *SimpleCluster) GetExternalCluster(user cn.CapUser,
 		return cluster, exists, err
 	}
 
-	allowed, err := sc.CheckPermission(user, cn.ClusterSelfObjectType, cn.GetExternalClusterAction, "")
+	allowed, err := sc.CheckPermission(ctx, user, cn.ClusterSelfObjectType, cn.GetExternalClusterAction, "")
 	if err != nil {
 		return nil, false, err
 	}

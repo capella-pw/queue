@@ -39,7 +39,9 @@ func main() {
 func callCheck(cl cluster.Cluster, handlerName string) {
 	fmt.Printf("%v: check start\n", handlerName)
 
-	h, exists, err := cl.GetHandler(nil, handlerName)
+	ctx := context.Background()
+
+	h, exists, err := cl.GetHandler(ctx, nil, handlerName)
 	if err != nil {
 		log.Fatalln(err)
 		os.Exit(1)

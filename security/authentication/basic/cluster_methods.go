@@ -20,7 +20,7 @@ func (s *SecurityATCB) AdditionalCallFuncInClusterFunc(ctx context.Context,
 			return responce, true
 		}
 
-		err = s.Add(request, us)
+		err = s.Add(ctx, request, us)
 
 		responce = cluster.MarshalResponceMust(nil, err)
 		return responce, true
@@ -34,7 +34,7 @@ func (s *SecurityATCB) AdditionalCallFuncInClusterFunc(ctx context.Context,
 			return responce, true
 		}
 
-		err = s.Update(request, us)
+		err = s.Update(ctx, request, us)
 
 		responce = cluster.MarshalResponceMust(nil, err)
 		return responce, true
@@ -48,7 +48,7 @@ func (s *SecurityATCB) AdditionalCallFuncInClusterFunc(ctx context.Context,
 			return responce, true
 		}
 
-		err = s.Enable(request, name)
+		err = s.Enable(ctx, request, name)
 
 		responce = cluster.MarshalResponceMust(nil, err)
 		return responce, true
@@ -62,7 +62,7 @@ func (s *SecurityATCB) AdditionalCallFuncInClusterFunc(ctx context.Context,
 			return responce, true
 		}
 
-		err = s.Disable(request, name)
+		err = s.Disable(ctx, request, name)
 
 		responce = cluster.MarshalResponceMust(nil, err)
 		return responce, true
@@ -76,13 +76,13 @@ func (s *SecurityATCB) AdditionalCallFuncInClusterFunc(ctx context.Context,
 			return responce, true
 		}
 
-		err = s.Drop(request, name)
+		err = s.Drop(ctx, request, name)
 
 		responce = cluster.MarshalResponceMust(nil, err)
 		return responce, true
 	}
 	if request.Action == cn.OpABGetUseCluster {
-		names, err := s.Get(request)
+		names, err := s.Get(ctx, request)
 
 		responce = cluster.MarshalResponceMust(names, err)
 		return responce, true

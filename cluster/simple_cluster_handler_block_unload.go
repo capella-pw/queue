@@ -129,7 +129,7 @@ func (rsh *BlockUnloadHandler) Start(ctx context.Context) (err *mft.Error) {
 		go func() {
 			for {
 				ctxInternalMark, cancelMark := context.WithTimeout(context.Background(), rsh.Wait)
-				q, exists, err := rsh.Cluster.GetQueue(rsh, rsh.QueueName)
+				q, exists, err := rsh.Cluster.GetQueue(ctx, rsh, rsh.QueueName)
 				if err != nil {
 					err = GenerateErrorForClusterUserE(rsh, 10118300, err, rsh.QueueName)
 				} else if !exists {

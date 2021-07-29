@@ -34,7 +34,9 @@ func main() {
 
 	cl := cc.Cluster()
 
-	q, exists, err := cl.GetQueue(nil, "test_queue")
+	ctx := context.Background()
+
+	q, exists, err := cl.GetQueue(ctx, nil, "test_queue")
 	if err != nil {
 		log.Fatalln(err)
 		os.Exit(1)

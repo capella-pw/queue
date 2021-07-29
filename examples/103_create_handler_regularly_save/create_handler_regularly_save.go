@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"os"
@@ -23,7 +24,9 @@ func main() {
 
 	cl := cc.Cluster()
 
-	err := cl.AddHandler(nil, cluster.HandlerDescription{
+	ctx := context.Background()
+
+	err := cl.AddHandler(ctx, nil, cluster.HandlerDescription{
 		Name:       "test_queue_regularly_save",
 		UserName:   "",
 		Type:       cluster.RegularlySaveHandlerType,

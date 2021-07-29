@@ -20,7 +20,7 @@ func (s *SecurityATRZ) AdditionalCallFuncInClusterFunc(ctx context.Context,
 			return responce, true
 		}
 
-		err = s.AddUser(request, rq.Name, rq.IsAdmin)
+		err = s.AddUser(ctx, request, rq.Name, rq.IsAdmin)
 
 		responce = cluster.MarshalResponceMust(nil, err)
 		return responce, true
@@ -34,7 +34,7 @@ func (s *SecurityATRZ) AdditionalCallFuncInClusterFunc(ctx context.Context,
 			return responce, true
 		}
 
-		err = s.SetUserAdmin(request, rq.Name, rq.IsAdmin)
+		err = s.SetUserAdmin(ctx, request, rq.Name, rq.IsAdmin)
 
 		responce = cluster.MarshalResponceMust(nil, err)
 		return responce, true
@@ -48,7 +48,7 @@ func (s *SecurityATRZ) AdditionalCallFuncInClusterFunc(ctx context.Context,
 			return responce, true
 		}
 
-		err = s.DropUser(request, name)
+		err = s.DropUser(ctx, request, name)
 
 		responce = cluster.MarshalResponceMust(nil, err)
 		return responce, true
@@ -62,7 +62,7 @@ func (s *SecurityATRZ) AdditionalCallFuncInClusterFunc(ctx context.Context,
 			return responce, true
 		}
 
-		err = s.UserRuleSet(request, rq.Name, rq.ObjectType, rq.Action, rq.ObjectName, rq.Allowed)
+		err = s.UserRuleSet(ctx, request, rq.Name, rq.ObjectType, rq.Action, rq.ObjectName, rq.Allowed)
 
 		responce = cluster.MarshalResponceMust(nil, err)
 		return responce, true
@@ -76,13 +76,13 @@ func (s *SecurityATRZ) AdditionalCallFuncInClusterFunc(ctx context.Context,
 			return responce, true
 		}
 
-		err = s.UserRuleDrop(request, rq.Name, rq.ObjectType, rq.Action, rq.ObjectName)
+		err = s.UserRuleDrop(ctx, request, rq.Name, rq.ObjectType, rq.Action, rq.ObjectName)
 
 		responce = cluster.MarshalResponceMust(nil, err)
 		return responce, true
 	}
 	if request.Action == cn.OpAGetUseCluster {
-		names, err := s.Get(request)
+		names, err := s.Get(ctx, request)
 
 		responce = cluster.MarshalResponceMust(names, err)
 		return responce, true

@@ -90,14 +90,15 @@ func MarshalResponceMust(v interface{}, err *mft.Error) *ResponceBody {
 	return responce
 }
 
-func UnmarshalInnerObjectAndFindQueue(cluster Cluster, request *RequestBody, v interface{}) (queue queue.Queue, responce *ResponceBody, ok bool) {
+func UnmarshalInnerObjectAndFindQueue(ctx context.Context,
+	cluster Cluster, request *RequestBody, v interface{}) (queue queue.Queue, responce *ResponceBody, ok bool) {
 	err := request.UnmarshalInnerObject(v)
 	if err != nil {
 		responce = MarshalResponceMust(nil, err)
 		return nil, responce, false
 	}
 
-	queue, exists, err := cluster.GetQueue(request, request.ObjectName)
+	queue, exists, err := cluster.GetQueue(ctx, request, request.ObjectName)
 	if err != nil {
 		responce = MarshalResponceMust(nil, err)
 		return nil, responce, false
@@ -110,14 +111,15 @@ func UnmarshalInnerObjectAndFindQueue(cluster Cluster, request *RequestBody, v i
 	return queue, responce, true
 }
 
-func UnmarshalInnerObjectAndFindHandler(cluster Cluster, request *RequestBody, v interface{}) (handler Handler, responce *ResponceBody, ok bool) {
+func UnmarshalInnerObjectAndFindHandler(ctx context.Context,
+	cluster Cluster, request *RequestBody, v interface{}) (handler Handler, responce *ResponceBody, ok bool) {
 	err := request.UnmarshalInnerObject(v)
 	if err != nil {
 		responce = MarshalResponceMust(nil, err)
 		return nil, responce, false
 	}
 
-	handler, exists, err := cluster.GetHandler(request, request.ObjectName)
+	handler, exists, err := cluster.GetHandler(ctx, request, request.ObjectName)
 	if err != nil {
 		responce = MarshalResponceMust(nil, err)
 		return nil, responce, false
@@ -136,7 +138,7 @@ type AdditionalCallFuncInClusterFunc func(ctx context.Context,
 func CallFuncInCluster(ctx context.Context, cluster Cluster, request *RequestBody,
 	addFunc []AdditionalCallFuncInClusterFunc) (responce *ResponceBody) {
 	if request.Action == cn.OpGetName {
-		name, err := cluster.GetName(request)
+		name, err := cluster.GetName(ctx, request)
 
 		responce = MarshalResponceMust(name, err)
 		return responce
@@ -150,20 +152,20 @@ func CallFuncInCluster(ctx context.Context, cluster Cluster, request *RequestBod
 			return responce
 		}
 
-		err = cluster.SetName(request, name)
+		err = cluster.SetName(ctx, request, name)
 
 		responce = MarshalResponceMust(nil, err)
 		return responce
 	}
 
 	if request.Action == cn.OpPing {
-		err := cluster.Ping(request)
+		err := cluster.Ping(ctx, request)
 
 		responce = MarshalResponceMust(nil, err)
 		return responce
 	}
 	if request.Action == cn.OpGetNextId {
-		id, err := cluster.GetNextId(request)
+		id, err := cluster.GetNextId(ctx, request)
 
 		responce = MarshalResponceMust(id, err)
 		return responce
@@ -177,7 +179,7 @@ func CallFuncInCluster(ctx context.Context, cluster Cluster, request *RequestBod
 			return responce
 		}
 
-		ids, err := cluster.GetNextIds(request, cnt)
+		ids, err := cluster.GetNextIds(ctx, request, cnt)
 
 		responce = MarshalResponceMust(ids, err)
 		return responce
@@ -192,7 +194,7 @@ func CallFuncInCluster(ctx context.Context, cluster Cluster, request *RequestBod
 			return responce
 		}
 
-		err = cluster.AddQueue(request, queueDescription)
+		err = cluster.AddQueue(ctx, request, queueDescription)
 
 		responce = MarshalResponceMust(nil, err)
 		return responce
@@ -206,7 +208,7 @@ func CallFuncInCluster(ctx context.Context, cluster Cluster, request *RequestBod
 			return responce
 		}
 
-		err = cluster.DropQueue(request, name)
+		err = cluster.DropQueue(ctx, request, name)
 
 		responce = MarshalResponceMust(nil, err)
 		return responce
@@ -220,13 +222,13 @@ func CallFuncInCluster(ctx context.Context, cluster Cluster, request *RequestBod
 			return responce
 		}
 
-		queueDescription, err := cluster.GetQueueDescription(request, name)
+		queueDescription, err := cluster.GetQueueDescription(ctx, request, name)
 
 		responce = MarshalResponceMust(queueDescription, err)
 		return responce
 	}
 	if request.Action == cn.OpGetQueuesList {
-		names, err := cluster.GetQueuesList(request)
+		names, err := cluster.GetQueuesList(ctx, request)
 
 		responce = MarshalResponceMust(names, err)
 		return responce
@@ -241,7 +243,7 @@ func CallFuncInCluster(ctx context.Context, cluster Cluster, request *RequestBod
 			return responce
 		}
 
-		err = cluster.AddExternalCluster(request, clusterParams)
+		err = cluster.AddExternalCluster(ctx, request, clusterParams)
 
 		responce = MarshalResponceMust(nil, err)
 		return responce
@@ -255,7 +257,7 @@ func CallFuncInCluster(ctx context.Context, cluster Cluster, request *RequestBod
 			return responce
 		}
 
-		err = cluster.DropExternalCluster(request, name)
+		err = cluster.DropExternalCluster(ctx, request, name)
 
 		responce = MarshalResponceMust(nil, err)
 		return responce
@@ -269,13 +271,13 @@ func CallFuncInCluster(ctx context.Context, cluster Cluster, request *RequestBod
 			return responce
 		}
 
-		clusterParams, err := cluster.GetExternalClusterDescription(request, name)
+		clusterParams, err := cluster.GetExternalClusterDescription(ctx, request, name)
 
 		responce = MarshalResponceMust(clusterParams, err)
 		return responce
 	}
 	if request.Action == cn.OpGetExternalClustersList {
-		names, err := cluster.GetExternalClustersList(request)
+		names, err := cluster.GetExternalClustersList(ctx, request)
 
 		responce = MarshalResponceMust(names, err)
 		return responce
@@ -290,7 +292,7 @@ func CallFuncInCluster(ctx context.Context, cluster Cluster, request *RequestBod
 			return responce
 		}
 
-		err = cluster.AddHandler(request, handlerParams)
+		err = cluster.AddHandler(ctx, request, handlerParams)
 
 		responce = MarshalResponceMust(nil, err)
 		return responce
@@ -304,7 +306,7 @@ func CallFuncInCluster(ctx context.Context, cluster Cluster, request *RequestBod
 			return responce
 		}
 
-		err = cluster.DropHandler(request, name)
+		err = cluster.DropHandler(ctx, request, name)
 
 		responce = MarshalResponceMust(nil, err)
 		return responce
@@ -318,13 +320,13 @@ func CallFuncInCluster(ctx context.Context, cluster Cluster, request *RequestBod
 			return responce
 		}
 
-		handlerParams, err := cluster.GetHandlerDescription(request, name)
+		handlerParams, err := cluster.GetHandlerDescription(ctx, request, name)
 
 		responce = MarshalResponceMust(handlerParams, err)
 		return responce
 	}
 	if request.Action == cn.OpGetHandlersList {
-		names, err := cluster.GetHandlersList(request)
+		names, err := cluster.GetHandlersList(ctx, request)
 
 		responce = MarshalResponceMust(names, err)
 		return responce
@@ -339,14 +341,14 @@ func CallFuncInCluster(ctx context.Context, cluster Cluster, request *RequestBod
 			return responce
 		}
 
-		allowed, err := cluster.CheckPermission(request, params.ObjectType, params.Action, params.ObjectName)
+		allowed, err := cluster.CheckPermission(ctx, request, params.ObjectType, params.Action, params.ObjectName)
 
 		responce = MarshalResponceMust(allowed, err)
 		return responce
 	}
 
 	if request.Action == cn.OpGetFullStruct {
-		data, err := cluster.GetFullStruct(request)
+		data, err := cluster.GetFullStruct(ctx, request)
 
 		responce = MarshalResponceMust(data, err)
 		return responce
@@ -360,7 +362,7 @@ func CallFuncInCluster(ctx context.Context, cluster Cluster, request *RequestBod
 			return responce
 		}
 
-		err = cluster.LoadFullStruct(request, data)
+		err = cluster.LoadFullStruct(ctx, request, data)
 
 		responce = MarshalResponceMust(nil, err)
 		return responce
@@ -373,7 +375,7 @@ func CallFuncInCluster(ctx context.Context, cluster Cluster, request *RequestBod
 	if request.Action == cn.OpQueueAdd {
 		var qReq QueueAddRequest
 
-		queue, responce, ok := UnmarshalInnerObjectAndFindQueue(cluster, request, &qReq)
+		queue, responce, ok := UnmarshalInnerObjectAndFindQueue(ctx, cluster, request, &qReq)
 		if !ok {
 			return responce
 		}
@@ -386,7 +388,7 @@ func CallFuncInCluster(ctx context.Context, cluster Cluster, request *RequestBod
 	if request.Action == cn.OpQueueAddList {
 		var qReq QueueAddListRequest
 
-		queue, responce, ok := UnmarshalInnerObjectAndFindQueue(cluster, request, &qReq)
+		queue, responce, ok := UnmarshalInnerObjectAndFindQueue(ctx, cluster, request, &qReq)
 		if !ok {
 			return responce
 		}
@@ -400,7 +402,7 @@ func CallFuncInCluster(ctx context.Context, cluster Cluster, request *RequestBod
 	if request.Action == cn.OpQueueGet {
 		var qReq QueueGetRequest
 
-		queue, responce, ok := UnmarshalInnerObjectAndFindQueue(cluster, request, &qReq)
+		queue, responce, ok := UnmarshalInnerObjectAndFindQueue(ctx, cluster, request, &qReq)
 		if !ok {
 			return responce
 		}
@@ -414,7 +416,7 @@ func CallFuncInCluster(ctx context.Context, cluster Cluster, request *RequestBod
 	if request.Action == cn.OpQueueGetSegment {
 		var qReq QueueGetSegmentRequest
 
-		queue, responce, ok := UnmarshalInnerObjectAndFindQueue(cluster, request, &qReq)
+		queue, responce, ok := UnmarshalInnerObjectAndFindQueue(ctx, cluster, request, &qReq)
 		if !ok {
 			return responce
 		}
@@ -429,7 +431,7 @@ func CallFuncInCluster(ctx context.Context, cluster Cluster, request *RequestBod
 	}
 
 	if request.Action == cn.OpQueueSaveAll {
-		queue, responce, ok := UnmarshalInnerObjectAndFindQueue(cluster, request, nil)
+		queue, responce, ok := UnmarshalInnerObjectAndFindQueue(ctx, cluster, request, nil)
 		if !ok {
 			return responce
 		}
@@ -443,7 +445,7 @@ func CallFuncInCluster(ctx context.Context, cluster Cluster, request *RequestBod
 	if request.Action == cn.OpQueueAddUnique {
 		var qReq QueueAddRequest
 
-		queue, responce, ok := UnmarshalInnerObjectAndFindQueue(cluster, request, &qReq)
+		queue, responce, ok := UnmarshalInnerObjectAndFindQueue(ctx, cluster, request, &qReq)
 		if !ok {
 			return responce
 		}
@@ -456,7 +458,7 @@ func CallFuncInCluster(ctx context.Context, cluster Cluster, request *RequestBod
 	if request.Action == cn.OpQueueAddUniqueList {
 		var qReq QueueAddListRequest
 
-		queue, responce, ok := UnmarshalInnerObjectAndFindQueue(cluster, request, &qReq)
+		queue, responce, ok := UnmarshalInnerObjectAndFindQueue(ctx, cluster, request, &qReq)
 		if !ok {
 			return responce
 		}
@@ -470,7 +472,7 @@ func CallFuncInCluster(ctx context.Context, cluster Cluster, request *RequestBod
 	if request.Action == cn.OpQueueSubscriberSetLastRead {
 		var qReq QueueSubscriberSetLastReadRequest
 
-		queue, responce, ok := UnmarshalInnerObjectAndFindQueue(cluster, request, &qReq)
+		queue, responce, ok := UnmarshalInnerObjectAndFindQueue(ctx, cluster, request, &qReq)
 		if !ok {
 			return responce
 		}
@@ -483,7 +485,7 @@ func CallFuncInCluster(ctx context.Context, cluster Cluster, request *RequestBod
 	if request.Action == cn.OpQueueSubscriberGetLastRead {
 		var subscriber string
 
-		queue, responce, ok := UnmarshalInnerObjectAndFindQueue(cluster, request, &subscriber)
+		queue, responce, ok := UnmarshalInnerObjectAndFindQueue(ctx, cluster, request, &subscriber)
 		if !ok {
 			return responce
 		}
@@ -497,7 +499,7 @@ func CallFuncInCluster(ctx context.Context, cluster Cluster, request *RequestBod
 	if request.Action == cn.OpQueueSubscriberAddReplicaMember {
 		var subscriber string
 
-		queue, responce, ok := UnmarshalInnerObjectAndFindQueue(cluster, request, &subscriber)
+		queue, responce, ok := UnmarshalInnerObjectAndFindQueue(ctx, cluster, request, &subscriber)
 		if !ok {
 			return responce
 		}
@@ -511,7 +513,7 @@ func CallFuncInCluster(ctx context.Context, cluster Cluster, request *RequestBod
 	if request.Action == cn.OpQueueSubscriberRemoveReplicaMember {
 		var subscriber string
 
-		queue, responce, ok := UnmarshalInnerObjectAndFindQueue(cluster, request, &subscriber)
+		queue, responce, ok := UnmarshalInnerObjectAndFindQueue(ctx, cluster, request, &subscriber)
 		if !ok {
 			return responce
 		}
@@ -525,7 +527,7 @@ func CallFuncInCluster(ctx context.Context, cluster Cluster, request *RequestBod
 	if request.Action == cn.OpQueueSubscriberGetReplicaCount {
 		var id int64
 
-		queue, responce, ok := UnmarshalInnerObjectAndFindQueue(cluster, request, &id)
+		queue, responce, ok := UnmarshalInnerObjectAndFindQueue(ctx, cluster, request, &id)
 		if !ok {
 			return responce
 		}
@@ -540,7 +542,7 @@ func CallFuncInCluster(ctx context.Context, cluster Cluster, request *RequestBod
 
 	// handler
 	if request.Action == cn.OpHandlerStart {
-		handler, responce, ok := UnmarshalInnerObjectAndFindHandler(cluster, request, nil)
+		handler, responce, ok := UnmarshalInnerObjectAndFindHandler(ctx, cluster, request, nil)
 		if !ok {
 			return responce
 		}
@@ -551,7 +553,7 @@ func CallFuncInCluster(ctx context.Context, cluster Cluster, request *RequestBod
 		return responce
 	}
 	if request.Action == cn.OpHandlerStop {
-		handler, responce, ok := UnmarshalInnerObjectAndFindHandler(cluster, request, nil)
+		handler, responce, ok := UnmarshalInnerObjectAndFindHandler(ctx, cluster, request, nil)
 		if !ok {
 			return responce
 		}
@@ -562,7 +564,7 @@ func CallFuncInCluster(ctx context.Context, cluster Cluster, request *RequestBod
 		return responce
 	}
 	if request.Action == cn.OpHandlerLastError {
-		handler, responce, ok := UnmarshalInnerObjectAndFindHandler(cluster, request, nil)
+		handler, responce, ok := UnmarshalInnerObjectAndFindHandler(ctx, cluster, request, nil)
 		if !ok {
 			return responce
 		}
@@ -573,7 +575,7 @@ func CallFuncInCluster(ctx context.Context, cluster Cluster, request *RequestBod
 		return responce
 	}
 	if request.Action == cn.OpHandlerLastComplete {
-		handler, responce, ok := UnmarshalInnerObjectAndFindHandler(cluster, request, nil)
+		handler, responce, ok := UnmarshalInnerObjectAndFindHandler(ctx, cluster, request, nil)
 		if !ok {
 			return responce
 		}
@@ -584,7 +586,7 @@ func CallFuncInCluster(ctx context.Context, cluster Cluster, request *RequestBod
 		return responce
 	}
 	if request.Action == cn.OpHandlerIsStarted {
-		handler, responce, ok := UnmarshalInnerObjectAndFindHandler(cluster, request, nil)
+		handler, responce, ok := UnmarshalInnerObjectAndFindHandler(ctx, cluster, request, nil)
 		if !ok {
 			return responce
 		}
@@ -604,7 +606,7 @@ func CallFuncInCluster(ctx context.Context, cluster Cluster, request *RequestBod
 			return responce
 		}
 
-		clusterNext, exists, err := cluster.GetExternalCluster(request, request.ObjectName)
+		clusterNext, exists, err := cluster.GetExternalCluster(ctx, request, request.ObjectName)
 		if err != nil {
 			responce = MarshalResponceMust(nil, err)
 			return responce
@@ -654,7 +656,7 @@ func GetUserName(user cn.CapUser) string {
 	return user.GetName()
 }
 
-func (eac *ExternalAbstractCluster) GetName(user cn.CapUser) (name string, err *mft.Error) {
+func (eac *ExternalAbstractCluster) GetName(ctx context.Context, user cn.CapUser) (name string, err *mft.Error) {
 	request := MarshalRequestMust(user, cn.OpGetName, nil)
 	responce := eac.Call(request)
 
@@ -662,18 +664,18 @@ func (eac *ExternalAbstractCluster) GetName(user cn.CapUser) (name string, err *
 
 	return name, err
 }
-func (eac *ExternalAbstractCluster) SetName(user cn.CapUser, name string) (err *mft.Error) {
+func (eac *ExternalAbstractCluster) SetName(ctx context.Context, user cn.CapUser, name string) (err *mft.Error) {
 	request := MarshalRequestMust(user, cn.OpSetName, name)
 	responce := eac.Call(request)
 	return responce.Err
 }
 
-func (eac *ExternalAbstractCluster) Ping(user cn.CapUser) (err *mft.Error) {
+func (eac *ExternalAbstractCluster) Ping(ctx context.Context, user cn.CapUser) (err *mft.Error) {
 	request := MarshalRequestMust(user, cn.OpPing, nil)
 	responce := eac.Call(request)
 	return responce.Err
 }
-func (eac *ExternalAbstractCluster) GetNextId(user cn.CapUser) (id int64, err *mft.Error) {
+func (eac *ExternalAbstractCluster) GetNextId(ctx context.Context, user cn.CapUser) (id int64, err *mft.Error) {
 	request := MarshalRequestMust(user, cn.OpGetNextId, nil)
 	responce := eac.Call(request)
 
@@ -681,7 +683,7 @@ func (eac *ExternalAbstractCluster) GetNextId(user cn.CapUser) (id int64, err *m
 
 	return id, err
 }
-func (eac *ExternalAbstractCluster) GetNextIds(user cn.CapUser, cnt int) (ids []int64, err *mft.Error) {
+func (eac *ExternalAbstractCluster) GetNextIds(ctx context.Context, user cn.CapUser, cnt int) (ids []int64, err *mft.Error) {
 	request := MarshalRequestMust(user, cn.OpGetNextIds, cnt)
 	responce := eac.Call(request)
 
@@ -696,17 +698,17 @@ func (eac *ExternalAbstractCluster) ThrowError(err *mft.Error) bool {
 	}
 	panic(err)
 }
-func (eac *ExternalAbstractCluster) AddQueue(user cn.CapUser, queueDescription QueueDescription) (err *mft.Error) {
+func (eac *ExternalAbstractCluster) AddQueue(ctx context.Context, user cn.CapUser, queueDescription QueueDescription) (err *mft.Error) {
 	request := MarshalRequestMust(user, cn.OpAddQueue, queueDescription)
 	responce := eac.Call(request)
 	return responce.Err
 }
-func (eac *ExternalAbstractCluster) DropQueue(user cn.CapUser, name string) (err *mft.Error) {
+func (eac *ExternalAbstractCluster) DropQueue(ctx context.Context, user cn.CapUser, name string) (err *mft.Error) {
 	request := MarshalRequestMust(user, cn.OpDropQueue, name)
 	responce := eac.Call(request)
 	return responce.Err
 }
-func (eac *ExternalAbstractCluster) GetQueueDescription(user cn.CapUser, name string) (queueDescription QueueDescription, err *mft.Error) {
+func (eac *ExternalAbstractCluster) GetQueueDescription(ctx context.Context, user cn.CapUser, name string) (queueDescription QueueDescription, err *mft.Error) {
 	request := MarshalRequestMust(user, cn.OpGetQueueDescription, name)
 	responce := eac.Call(request)
 
@@ -714,7 +716,7 @@ func (eac *ExternalAbstractCluster) GetQueueDescription(user cn.CapUser, name st
 
 	return queueDescription, err
 }
-func (eac *ExternalAbstractCluster) GetQueuesList(user cn.CapUser) (names []string, err *mft.Error) {
+func (eac *ExternalAbstractCluster) GetQueuesList(ctx context.Context, user cn.CapUser) (names []string, err *mft.Error) {
 	request := MarshalRequestMust(user, cn.OpGetQueuesList, nil)
 	responce := eac.Call(request)
 
@@ -722,7 +724,7 @@ func (eac *ExternalAbstractCluster) GetQueuesList(user cn.CapUser) (names []stri
 
 	return names, err
 }
-func (eac *ExternalAbstractCluster) GetQueue(user cn.CapUser, name string) (queue queue.Queue, exists bool, err *mft.Error) {
+func (eac *ExternalAbstractCluster) GetQueue(ctx context.Context, user cn.CapUser, name string) (queue queue.Queue, exists bool, err *mft.Error) {
 	// TODO: Make check
 	eaq := &ExternalAbstractQueue{
 		QueueName: name,
@@ -731,17 +733,17 @@ func (eac *ExternalAbstractCluster) GetQueue(user cn.CapUser, name string) (queu
 	}
 	return eaq, true, nil
 }
-func (eac *ExternalAbstractCluster) AddExternalCluster(user cn.CapUser, clusterParams ExternalClusterDescription) (err *mft.Error) {
+func (eac *ExternalAbstractCluster) AddExternalCluster(ctx context.Context, user cn.CapUser, clusterParams ExternalClusterDescription) (err *mft.Error) {
 	request := MarshalRequestMust(user, cn.OpAddExternalCluster, clusterParams)
 	responce := eac.Call(request)
 	return responce.Err
 }
-func (eac *ExternalAbstractCluster) DropExternalCluster(user cn.CapUser, name string) (err *mft.Error) {
+func (eac *ExternalAbstractCluster) DropExternalCluster(ctx context.Context, user cn.CapUser, name string) (err *mft.Error) {
 	request := MarshalRequestMust(user, cn.OpDropExternalCluster, name)
 	responce := eac.Call(request)
 	return responce.Err
 }
-func (eac *ExternalAbstractCluster) GetExternalClusterDescription(user cn.CapUser, name string) (clusterParams ExternalClusterDescription, err *mft.Error) {
+func (eac *ExternalAbstractCluster) GetExternalClusterDescription(ctx context.Context, user cn.CapUser, name string) (clusterParams ExternalClusterDescription, err *mft.Error) {
 	request := MarshalRequestMust(user, cn.OpGetExternalClusterDescription, name)
 	responce := eac.Call(request)
 
@@ -749,7 +751,7 @@ func (eac *ExternalAbstractCluster) GetExternalClusterDescription(user cn.CapUse
 
 	return clusterParams, err
 }
-func (eac *ExternalAbstractCluster) GetExternalClustersList(user cn.CapUser) (names []string, err *mft.Error) {
+func (eac *ExternalAbstractCluster) GetExternalClustersList(ctx context.Context, user cn.CapUser) (names []string, err *mft.Error) {
 	request := MarshalRequestMust(user, cn.OpGetExternalClustersList, nil)
 	responce := eac.Call(request)
 
@@ -758,7 +760,7 @@ func (eac *ExternalAbstractCluster) GetExternalClustersList(user cn.CapUser) (na
 	return names, err
 }
 
-func (eac *ExternalAbstractCluster) GetExternalCluster(user cn.CapUser, name string) (cluster Cluster, exists bool, err *mft.Error) {
+func (eac *ExternalAbstractCluster) GetExternalCluster(ctx context.Context, user cn.CapUser, name string) (cluster Cluster, exists bool, err *mft.Error) {
 	// TODO: Make check
 	eacOut := &ExternalAbstractCluster{
 		CallTimeout: eac.CallTimeout,
@@ -775,17 +777,17 @@ func (eac *ExternalAbstractCluster) GetExternalCluster(user cn.CapUser, name str
 
 	return eacOut, true, nil
 }
-func (eac *ExternalAbstractCluster) AddHandler(user cn.CapUser, handlerParams HandlerDescription) (err *mft.Error) {
+func (eac *ExternalAbstractCluster) AddHandler(ctx context.Context, user cn.CapUser, handlerParams HandlerDescription) (err *mft.Error) {
 	request := MarshalRequestMust(user, cn.OpAddHandler, handlerParams)
 	responce := eac.Call(request)
 	return responce.Err
 }
-func (eac *ExternalAbstractCluster) DropHandler(user cn.CapUser, name string) (err *mft.Error) {
+func (eac *ExternalAbstractCluster) DropHandler(ctx context.Context, user cn.CapUser, name string) (err *mft.Error) {
 	request := MarshalRequestMust(user, cn.OpDropHandler, name)
 	responce := eac.Call(request)
 	return responce.Err
 }
-func (eac *ExternalAbstractCluster) GetHandlerDescription(user cn.CapUser, name string) (handlerParams HandlerDescription, err *mft.Error) {
+func (eac *ExternalAbstractCluster) GetHandlerDescription(ctx context.Context, user cn.CapUser, name string) (handlerParams HandlerDescription, err *mft.Error) {
 	request := MarshalRequestMust(user, cn.OpGetHandlerDescription, name)
 	responce := eac.Call(request)
 
@@ -793,7 +795,7 @@ func (eac *ExternalAbstractCluster) GetHandlerDescription(user cn.CapUser, name 
 
 	return handlerParams, err
 }
-func (eac *ExternalAbstractCluster) GetHandlersList(user cn.CapUser) (names []string, err *mft.Error) {
+func (eac *ExternalAbstractCluster) GetHandlersList(ctx context.Context, user cn.CapUser) (names []string, err *mft.Error) {
 	request := MarshalRequestMust(user, cn.OpGetHandlersList, nil)
 	responce := eac.Call(request)
 
@@ -802,7 +804,7 @@ func (eac *ExternalAbstractCluster) GetHandlersList(user cn.CapUser) (names []st
 	return names, err
 }
 
-func (eac *ExternalAbstractCluster) GetHandler(user cn.CapUser, name string) (handler Handler, exists bool, err *mft.Error) {
+func (eac *ExternalAbstractCluster) GetHandler(ctx context.Context, user cn.CapUser, name string) (handler Handler, exists bool, err *mft.Error) {
 	// TODO: Make check
 	eah := &ExternalAbstractHandler{
 		HandlerName: name,
@@ -818,7 +820,7 @@ type CheckPermissionRequest struct {
 	ObjectName string `json:"object_name"`
 }
 
-func (eac *ExternalAbstractCluster) CheckPermission(user cn.CapUser, objectType string, action string, objectName string) (allowed bool, err *mft.Error) {
+func (eac *ExternalAbstractCluster) CheckPermission(ctx context.Context, user cn.CapUser, objectType string, action string, objectName string) (allowed bool, err *mft.Error) {
 	request := MarshalRequestMust(user, cn.OpCheckPermission, CheckPermissionRequest{
 		ObjectType: objectType,
 		Action:     action,
@@ -830,7 +832,7 @@ func (eac *ExternalAbstractCluster) CheckPermission(user cn.CapUser, objectType 
 
 	return allowed, err
 }
-func (eac *ExternalAbstractCluster) GetFullStruct(user cn.CapUser) (data json.RawMessage, err *mft.Error) {
+func (eac *ExternalAbstractCluster) GetFullStruct(ctx context.Context, user cn.CapUser) (data json.RawMessage, err *mft.Error) {
 	request := MarshalRequestMust(user, cn.OpGetFullStruct, nil)
 	responce := eac.Call(request)
 
@@ -838,7 +840,7 @@ func (eac *ExternalAbstractCluster) GetFullStruct(user cn.CapUser) (data json.Ra
 
 	return data, err
 }
-func (eac *ExternalAbstractCluster) LoadFullStruct(user cn.CapUser, data json.RawMessage) (err *mft.Error) {
+func (eac *ExternalAbstractCluster) LoadFullStruct(ctx context.Context, user cn.CapUser, data json.RawMessage) (err *mft.Error) {
 	request := MarshalRequestMust(user, cn.OpLoadFullStruct, data)
 	responce := eac.Call(request)
 	return responce.Err

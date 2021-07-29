@@ -52,10 +52,10 @@ type SecurityATCB struct {
 	mxFile mfs.PMutex
 
 	// case nil then ignore
-	CheckPermissionFunc func(user cn.CapUser, objectType string, action string, objectName string) (allowed bool, err *mft.Error) `json:"-"`
+	CheckPermissionFunc func(ctx context.Context, user cn.CapUser, objectType string, action string, objectName string) (allowed bool, err *mft.Error) `json:"-"`
 }
 
-func (s *SecurityATCB) CheckPermissionForInternal(user cn.CapUser, objectType string, action string, objectName string) (allowed bool, err *mft.Error) {
+func (s *SecurityATCB) CheckPermissionForInternal(ctx context.Context, user cn.CapUser, objectType string, action string, objectName string) (allowed bool, err *mft.Error) {
 	if s == nil {
 		return false, nil
 	}
@@ -64,7 +64,7 @@ func (s *SecurityATCB) CheckPermissionForInternal(user cn.CapUser, objectType st
 		return true, nil
 	}
 
-	return s.CheckPermissionFunc(user, objectType, action, objectName)
+	return s.CheckPermissionFunc(ctx, user, objectType, action, objectName)
 }
 
 func (s *SecurityATCB) OnChange() (err *mft.Error) {
@@ -91,8 +91,8 @@ func Sha512(name string, pwd string) string {
 	return base64.StdEncoding.EncodeToString(sha[:])
 }
 
-func (s *SecurityATCB) Add(user cn.CapUser, us UserSend) (err *mft.Error) {
-	allowed, err := s.CheckPermissionForInternal(user, cn.AuthBasicSelfObjectType, cn.ABAddAction, us.Name)
+func (s *SecurityATCB) Add(ctx context.Context, user cn.CapUser, us UserSend) (err *mft.Error) {
+	allowed, err := s.CheckPermissionForInternal(ctx, user, cn.AuthBasicSelfObjectType, cn.ABAddAction, us.Name)
 
 	if err != nil {
 		return GenerateErrorForClusterUserE(user, 10300102, err)
@@ -121,8 +121,8 @@ func (s *SecurityATCB) Add(user cn.CapUser, us UserSend) (err *mft.Error) {
 	return GenerateError(10300100, u.Name)
 }
 
-func (s *SecurityATCB) Update(user cn.CapUser, us UserSend) (err *mft.Error) {
-	allowed, err := s.CheckPermissionForInternal(user, cn.AuthBasicSelfObjectType, cn.ABUpdateAction, us.Name)
+func (s *SecurityATCB) Update(ctx context.Context, user cn.CapUser, us UserSend) (err *mft.Error) {
+	allowed, err := s.CheckPermissionForInternal(ctx, user, cn.AuthBasicSelfObjectType, cn.ABUpdateAction, us.Name)
 
 	if err != nil {
 		return GenerateErrorForClusterUserE(user, 10300202, err)
@@ -153,8 +153,8 @@ func (s *SecurityATCB) Update(user cn.CapUser, us UserSend) (err *mft.Error) {
 	return GenerateError(10300200, u.Name)
 }
 
-func (s *SecurityATCB) Enable(user cn.CapUser, name string) (err *mft.Error) {
-	allowed, err := s.CheckPermissionForInternal(user, cn.AuthBasicSelfObjectType, cn.ABEnableAction, name)
+func (s *SecurityATCB) Enable(ctx context.Context, user cn.CapUser, name string) (err *mft.Error) {
+	allowed, err := s.CheckPermissionForInternal(ctx, user, cn.AuthBasicSelfObjectType, cn.ABEnableAction, name)
 
 	if err != nil {
 		return GenerateErrorForClusterUserE(user, 10300302, err)
@@ -178,8 +178,8 @@ func (s *SecurityATCB) Enable(user cn.CapUser, name string) (err *mft.Error) {
 	return GenerateError(10300300, name)
 }
 
-func (s *SecurityATCB) Disable(user cn.CapUser, name string) (err *mft.Error) {
-	allowed, err := s.CheckPermissionForInternal(user, cn.AuthBasicSelfObjectType, cn.ABDisableAction, name)
+func (s *SecurityATCB) Disable(ctx context.Context, user cn.CapUser, name string) (err *mft.Error) {
+	allowed, err := s.CheckPermissionForInternal(ctx, user, cn.AuthBasicSelfObjectType, cn.ABDisableAction, name)
 
 	if err != nil {
 		return GenerateErrorForClusterUserE(user, 10300402, err)
@@ -203,8 +203,8 @@ func (s *SecurityATCB) Disable(user cn.CapUser, name string) (err *mft.Error) {
 	return GenerateError(10300400, name)
 }
 
-func (s *SecurityATCB) Drop(user cn.CapUser, name string) (err *mft.Error) {
-	allowed, err := s.CheckPermissionForInternal(user, cn.AuthBasicSelfObjectType, cn.ABDropAction, name)
+func (s *SecurityATCB) Drop(ctx context.Context, user cn.CapUser, name string) (err *mft.Error) {
+	allowed, err := s.CheckPermissionForInternal(ctx, user, cn.AuthBasicSelfObjectType, cn.ABDropAction, name)
 
 	if err != nil {
 		return GenerateErrorForClusterUserE(user, 10300502, err)
@@ -228,8 +228,8 @@ func (s *SecurityATCB) Drop(user cn.CapUser, name string) (err *mft.Error) {
 	return GenerateError(10300500, name)
 }
 
-func (s *SecurityATCB) Get(user cn.CapUser) (users []UserCut, err *mft.Error) {
-	allowed, err := s.CheckPermissionForInternal(user, cn.AuthBasicSelfObjectType, cn.ABGetAction, "")
+func (s *SecurityATCB) Get(ctx context.Context, user cn.CapUser) (users []UserCut, err *mft.Error) {
+	allowed, err := s.CheckPermissionForInternal(ctx, user, cn.AuthBasicSelfObjectType, cn.ABGetAction, "")
 
 	if err != nil {
 		return users, GenerateErrorForClusterUserE(user, 10300801, err)
@@ -275,7 +275,7 @@ func StorageOnChangeFuncGenerator(s storage.Storage, file string) func(sec *Secu
 }
 
 func StorageLoad(s storage.Storage, file string,
-	checkPermissionFunc func(user cn.CapUser, objectType string, action string, objectName string) (allowed bool, err *mft.Error),
+	checkPermissionFunc func(ctx context.Context, user cn.CapUser, objectType string, action string, objectName string) (allowed bool, err *mft.Error),
 ) (sec *SecurityATCB, err *mft.Error) {
 
 	sec = &SecurityATCB{
@@ -356,7 +356,7 @@ func (s *SecurityATCB) CheckAuthFunc(ctx context.Context, serviceRequest *cluste
 	}
 
 	if serviceRequest.Request.User != serviceRequest.UserName {
-		allowed, err := s.CheckPermissionForInternal(serviceRequest,
+		allowed, err := s.CheckPermissionForInternal(ctx, serviceRequest,
 			cn.AuthBasicObjectType, cn.ABImpersonateAction, serviceRequest.Request.User)
 
 		if err != nil {

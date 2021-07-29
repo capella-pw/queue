@@ -23,7 +23,9 @@ func main() {
 
 	cl := cc.Cluster()
 
-	h, exists, err := cl.GetHandler(nil, "test_queue_regularly_save")
+	ctx := context.Background()
+
+	h, exists, err := cl.GetHandler(ctx, nil, "test_queue_regularly_save")
 	if err != nil {
 		log.Fatalln(err)
 		os.Exit(1)

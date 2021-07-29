@@ -24,8 +24,10 @@ func main() {
 
 	cl := cc.Cluster()
 
+	ctx := context.Background()
+
 	// Create handler
-	err := cl.AddHandler(nil, cluster.HandlerDescription{
+	err := cl.AddHandler(ctx, nil, cluster.HandlerDescription{
 		Name:     "test_queue_mark",
 		UserName: "",
 		Type:     cluster.BlockMarkHandlerType,
@@ -74,7 +76,7 @@ func main() {
 	}
 
 	// Start handler
-	h, exists, err := cl.GetHandler(nil, "test_queue_mark")
+	h, exists, err := cl.GetHandler(ctx, nil, "test_queue_mark")
 	if err != nil {
 		log.Fatalln(err)
 		os.Exit(1)

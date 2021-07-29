@@ -137,7 +137,7 @@ func (rsh *CopyUniqueHandler) Start(ctx context.Context) (err *mft.Error) {
 	if rsh.chStop == nil {
 		chStop := make(chan bool, 1)
 
-		srcQueue, exists, err := rsh.Cluster.GetQueue(rsh, rsh.SrcQueueName)
+		srcQueue, exists, err := rsh.Cluster.GetQueue(ctx, rsh, rsh.SrcQueueName)
 		if err != nil {
 			err = GenerateErrorForClusterUserE(rsh, 10118000, err, rsh.SrcQueueName)
 			return err
@@ -147,7 +147,7 @@ func (rsh *CopyUniqueHandler) Start(ctx context.Context) (err *mft.Error) {
 			return err
 		}
 
-		dstQueue, exists, err := rsh.Cluster.GetQueue(rsh, rsh.DstQueueName)
+		dstQueue, exists, err := rsh.Cluster.GetQueue(ctx, rsh, rsh.DstQueueName)
 		if err != nil {
 			err = GenerateErrorForClusterUserE(rsh, 10118002, err, rsh.DstQueueName)
 			return err

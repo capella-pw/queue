@@ -177,7 +177,7 @@ func (s *Source) LoadMessageFromCG(st *Settings) (msgs []queue.MessageJsonBody, 
 	var lastId int64
 	err = st.CG.FuncDOName(ctx, s.Name,
 		func(ctx context.Context, c *cluster.ExternalAbstractCluster) (err *mft.Error) {
-			q, exists, err = c.GetQueue(nil, s.QueueName)
+			q, exists, err = c.GetQueue(ctx, nil, s.QueueName)
 
 			if err != nil {
 				return err
@@ -266,7 +266,7 @@ func (s *Source) MarkCompleteMessagesFromCG(st *Settings, msgs []queue.MessageJs
 	var exists bool
 	err = st.CG.FuncDOName(ctx, s.Name,
 		func(ctx context.Context, c *cluster.ExternalAbstractCluster) (err *mft.Error) {
-			q, exists, err = c.GetQueue(nil, s.QueueName)
+			q, exists, err = c.GetQueue(ctx, nil, s.QueueName)
 
 			if err != nil {
 				return err
@@ -338,7 +338,7 @@ func (s *Source) SetMessagesFromCG(st *Settings, msgs []queue.MessageJsonBody) (
 	var ids []int64
 	err = st.CG.FuncDOName(ctx, s.Name,
 		func(ctx context.Context, c *cluster.ExternalAbstractCluster) (err *mft.Error) {
-			q, exists, err = c.GetQueue(nil, s.QueueName)
+			q, exists, err = c.GetQueue(ctx, nil, s.QueueName)
 
 			if err != nil {
 				return err

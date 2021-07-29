@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"os"
@@ -24,7 +25,9 @@ func main() {
 
 	cl := cc.Cluster()
 
-	err := cl.AddQueue(nil, cluster.QueueDescription{
+	ctx := context.Background()
+
+	err := cl.AddQueue(ctx, nil, cluster.QueueDescription{
 		Name: "test_queue_2",
 		Type: cluster.SimpleQueueType,
 		Params: cluster.SimpleQueueParams{
@@ -49,7 +52,7 @@ func main() {
 	}
 
 	// Direct copy
-	err = cl.AddHandler(nil, cluster.HandlerDescription{
+	err = cl.AddHandler(ctx, nil, cluster.HandlerDescription{
 		Name:     "test_queue_to_test_queue_2_copy_unique",
 		UserName: "",
 		Type:     cluster.CopyUniqueHandlerType,
@@ -78,7 +81,7 @@ func main() {
 	}
 
 	// Back copy
-	err = cl.AddHandler(nil, cluster.HandlerDescription{
+	err = cl.AddHandler(ctx, nil, cluster.HandlerDescription{
 		Name:     "test_queue_2_to_test_queue_copy_unique",
 		UserName: "",
 		Type:     cluster.CopyUniqueHandlerType,

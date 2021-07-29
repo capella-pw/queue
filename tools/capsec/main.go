@@ -110,7 +110,7 @@ func main() {
 	if *fCmd == "ping" {
 		err = cg.FuncDOName(ctx, *fConnectionName,
 			func(ctx context.Context, c *cluster.ExternalAbstractCluster) (err *mft.Error) {
-				err = c.Ping(nil)
+				err = c.Ping(ctx, nil)
 				return err
 			})
 		if err != nil {
