@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/capella-pw/queue/cn"
 	"github.com/capella-pw/queue/storage"
 	"github.com/myfantasy/mft"
 )
@@ -17,7 +18,7 @@ func TestSimpleQueue_NoSave_full(t *testing.T) {
 	// Add msgs
 	{
 		for i := 0; i < 10; i++ {
-			_, err := q.Add(context.Background(), nil, []byte("test text"), int64(i)+1, 0, "", 0, NotSaveSaveMode)
+			_, err := q.Add(context.Background(), nil, []byte("test text"), int64(i)+1, 0, "", 0, cn.NotSaveSaveMode)
 			if err != nil {
 				t.Error(err)
 			}
@@ -81,7 +82,7 @@ func TestSimpleQueue_SaveImmediately_full(t *testing.T) {
 	// Add msgs
 	{
 		for i := 0; i < 10; i++ {
-			_, err := q.Add(context.Background(), nil, []byte("test text"), int64(i)+1, 0, "", 0, SaveImmediatelySaveMode)
+			_, err := q.Add(context.Background(), nil, []byte("test text"), int64(i)+1, 0, "", 0, cn.SaveImmediatelySaveMode)
 			if err != nil {
 				t.Error(err)
 			}
@@ -151,7 +152,7 @@ func TestSimpleQueue_SaveMarkSaveMode_full(t *testing.T) {
 	// Add msgs
 	{
 		for i := 0; i < 10; i++ {
-			_, err := q.Add(context.Background(), nil, []byte("test text"), int64(i)+1, 0, "", 0, SaveMarkSaveMode)
+			_, err := q.Add(context.Background(), nil, []byte("test text"), int64(i)+1, 0, "", 0, cn.SaveMarkSaveMode)
 			if err != nil {
 				t.Error(err)
 			}
@@ -205,7 +206,7 @@ func TestSimpleQueue_SaveMarkSaveMode_full(t *testing.T) {
 			t.Error(err)
 		}
 		if ok {
-			t.Errorf("SimpleQueue (SaveMarkSaveMode) torage should be empty")
+			t.Errorf("SimpleQueue (cn.SaveMarkSaveMode) torage should be empty")
 		}
 
 		err = q.SaveAll(context.Background(), nil)
@@ -245,7 +246,7 @@ func TestSimpleQueue_SaveWaitSaveMode_full(t *testing.T) {
 			go func() {
 				waitMsgs++
 				mx.Unlock()
-				_, err := q.Add(context.Background(), nil, []byte("test text"), int64(iIx)+1, 0, "", 0, SaveWaitSaveMode)
+				_, err := q.Add(context.Background(), nil, []byte("test text"), int64(iIx)+1, 0, "", 0, cn.SaveWaitSaveMode)
 				if err != nil {
 					t.Error(err)
 				}
@@ -316,7 +317,7 @@ func TestSimpleQueue_SaveWaitSaveMode_full(t *testing.T) {
 			t.Error(err)
 		}
 		if ok {
-			t.Errorf("SimpleQueue (SaveMarkSaveMode) torage should be empty")
+			t.Errorf("SimpleQueue (cn.SaveMarkSaveMode) torage should be empty")
 		}
 
 		err = q.SaveAll(context.Background(), nil)
@@ -357,7 +358,7 @@ func TestSimpleQueue_SaveMarkSaveMode_Size(t *testing.T) {
 	// Add msgs
 	{
 		for i := 0; i < 10000; i++ {
-			_, err := q.Add(context.Background(), nil, []byte("test text"), int64(i)+1, 0, "", 0, SaveMarkSaveMode)
+			_, err := q.Add(context.Background(), nil, []byte("test text"), int64(i)+1, 0, "", 0, cn.SaveMarkSaveMode)
 			if err != nil {
 				t.Error(err)
 			}
@@ -391,7 +392,7 @@ func TestSimpleQueue_SaveMarkSaveMode_unload_and_load(t *testing.T) {
 	// Add msgs
 	{
 		for i := 0; i < 10; i++ {
-			_, err := q.Add(context.Background(), nil, []byte("test text"), int64(i)+1, 0, "", 0, SaveMarkSaveMode)
+			_, err := q.Add(context.Background(), nil, []byte("test text"), int64(i)+1, 0, "", 0, cn.SaveMarkSaveMode)
 			if err != nil {
 				t.Error(err)
 			}
@@ -508,7 +509,7 @@ func TestSimpleQueue_SaveMarkSaveMode_delete(t *testing.T) {
 	// Add msgs
 	{
 		for i := 0; i < 100; i++ {
-			_, err := q.Add(context.Background(), nil, []byte("test text"), int64(i)+1, 0, "", 0, SaveMarkSaveMode)
+			_, err := q.Add(context.Background(), nil, []byte("test text"), int64(i)+1, 0, "", 0, cn.SaveMarkSaveMode)
 			if err != nil {
 				t.Error(err)
 			}
@@ -624,7 +625,7 @@ func TestSimpleQueue_SaveMarkSaveMode_moveStorage(t *testing.T) {
 	// Add msgs
 	{
 		for i := 0; i < 100; i++ {
-			_, err := q.Add(context.Background(), nil, []byte("test text"), int64(i)+1, 0, "", 0, SaveMarkSaveMode)
+			_, err := q.Add(context.Background(), nil, []byte("test text"), int64(i)+1, 0, "", 0, cn.SaveMarkSaveMode)
 			if err != nil {
 				t.Error(err)
 			}
@@ -842,7 +843,7 @@ func TestSimpleQueue_SaveMarkSaveMode_saveUnique(t *testing.T) {
 			if i%3 == 1 {
 				source = "B"
 			}
-			_, err := q.AddUnique(context.Background(), nil, []byte("test text"), int64(i)+1, 0, source, 0, SaveMarkSaveMode)
+			_, err := q.AddUnique(context.Background(), nil, []byte("test text"), int64(i)+1, 0, source, 0, cn.SaveMarkSaveMode)
 			if err != nil {
 				t.Error(err)
 			}
@@ -889,7 +890,7 @@ func TestSimpleQueue_SaveMarkSaveMode_saveUnique(t *testing.T) {
 	{
 		for i := 0; i < 100; i++ {
 			source := "A"
-			_, err := q.AddUnique(context.Background(), nil, []byte("test text"), int64(i)+1, 0, source, 0, SaveMarkSaveMode)
+			_, err := q.AddUnique(context.Background(), nil, []byte("test text"), int64(i)+1, 0, source, 0, cn.SaveMarkSaveMode)
 			if err != nil {
 				t.Error(err)
 			}
@@ -913,7 +914,7 @@ func TestSimpleQueue_SaveMarkSaveMode_load(t *testing.T) {
 	// Add msgs
 	{
 		for i := 0; i < 10; i++ {
-			_, err := q.Add(context.Background(), nil, []byte("test text"), int64(i)+1, 0, "", 0, SaveMarkSaveMode)
+			_, err := q.Add(context.Background(), nil, []byte("test text"), int64(i)+1, 0, "", 0, cn.SaveMarkSaveMode)
 			if err != nil {
 				t.Error(err)
 			}

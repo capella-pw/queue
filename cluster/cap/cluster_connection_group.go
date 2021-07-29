@@ -6,6 +6,7 @@ import (
 	"sync"
 
 	"github.com/capella-pw/queue/cluster"
+	"github.com/capella-pw/queue/cn"
 	"github.com/capella-pw/queue/compress"
 	"github.com/capella-pw/queue/queue"
 	"github.com/myfantasy/mft"
@@ -254,7 +255,8 @@ func (cg *ConGroup) FuncDO(ctx context.Context, pgName string,
 }
 
 func QueueAddUnique(queueName string,
-	message []byte, externalID int64, externalDt int64, source string, segment int64, saveMode int,
+	message []byte, externalID int64,
+	externalDt int64, source string, segment int64, saveMode cn.SaveMode,
 	doOnOk func(id int64),
 ) func(ctx context.Context, cl *cluster.ExternalAbstractCluster) (err *mft.Error) {
 	return func(ctx context.Context, cl *cluster.ExternalAbstractCluster) (err *mft.Error) {
@@ -282,7 +284,7 @@ func QueueAddUnique(queueName string,
 }
 
 func QueueAddUniqueList(queueName string,
-	messages []queue.Message, saveMode int,
+	messages []queue.Message, saveMode cn.SaveMode,
 	doOnOk func(ids []int64),
 ) func(ctx context.Context, cl *cluster.ExternalAbstractCluster) (err *mft.Error) {
 	return func(ctx context.Context, cl *cluster.ExternalAbstractCluster) (err *mft.Error) {

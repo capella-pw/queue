@@ -14,19 +14,6 @@ import (
 	"github.com/myfantasy/segment"
 )
 
-const (
-	// NotSaveSaveMode - not save message to storage (not mark queue as need changed)
-	NotSaveSaveMode = 0
-	// SaveImmediatelySaveMode - save message immediatly after add element
-	SaveImmediatelySaveMode = 1
-	// SaveMarkSaveMode - not wait save message after add element (saving do on schedule)
-	SaveMarkSaveMode = 2
-	// SaveWaitSaveMode - wait save message after add element (saving do on schedule)
-	SaveWaitSaveMode = 3
-	// QueueSetDefaultMode - save mode setted in queue as DefaultSaveMode
-	QueueSetDefaultMode = 4
-)
-
 // MetaDataFileName - file name with metadata queue info
 const MetaDataFileName = "q.json"
 
@@ -79,8 +66,8 @@ type SimpleQueue struct {
 
 	Segments *segment.Segments `json:"segments,omitempty"`
 
-	DefaultSaveMode         int  `json:"default_save_mod,omitempty"`
-	UseDefaultSaveModeForce bool `json:"use_default_save_mod_force,omitempty"`
+	DefaultSaveMode         cn.SaveMode `json:"default_save_mod,omitempty"`
+	UseDefaultSaveModeForce bool        `json:"use_default_save_mod_force,omitempty"`
 }
 
 // SimpleQueueBlock block with data
@@ -275,7 +262,7 @@ func LoadSimpleQueue(ctx context.Context, metaStorage storage.Storage, subscribe
 // need q.mx Rlocked
 // case err is not nil -> q.mx Unlocked
 // case err is nil -> q.mx Rlocked
-func (q *SimpleQueue) currentBlockForWrite(ctx context.Context, saveMode int) (block *SimpleQueueBlock, chWait chan bool, err *mft.Error) {
+func (q *SimpleQueue) currentBlockForWrite(ctx context.Context, saveMode cn.SaveMode) (block *SimpleQueueBlock, chWait chan bool, err *mft.Error) {
 
 	if len(q.Blocks) == 0 {
 		return q.checkAndAddCurrentBlockForWrite(ctx, saveMode)
@@ -297,7 +284,7 @@ func (q *SimpleQueue) currentBlockForWrite(ctx context.Context, saveMode int) (b
 // need q.mx Rlocked
 // case err is not nil -> q.mx Unlocked
 // case err is nil -> q.mx Rlocked
-func (q *SimpleQueue) checkAndAddCurrentBlockForWrite(ctx context.Context, saveMode int) (block *SimpleQueueBlock, chWait chan bool, err *mft.Error) {
+func (q *SimpleQueue) checkAndAddCurrentBlockForWrite(ctx context.Context, saveMode cn.SaveMode) (block *SimpleQueueBlock, chWait chan bool, err *mft.Error) {
 	if !q.mx.TryPromoteF(ctx) {
 		return nil, nil, GenerateError(10010003)
 	}
@@ -328,7 +315,7 @@ func (q *SimpleQueue) checkAndAddCurrentBlockForWrite(ctx context.Context, saveM
 		q.ChangesRv = block.ID
 	}
 
-	if saveMode == SaveWaitSaveMode {
+	if saveMode == cn.SaveWaitSaveMode {
 		chWait = make(chan bool, 1)
 		q.SaveWait = append(q.SaveWait, chWait)
 	}
@@ -340,7 +327,9 @@ func (q *SimpleQueue) checkAndAddCurrentBlockForWrite(ctx context.Context, saveM
 // Add message to queue
 // externalDt is unix time
 // externalID is source id (should be != 0 if set 0 - not set)
-func (q *SimpleQueue) Add(ctx context.Context, user cn.CapUser, message []byte, externalID int64, externalDt int64, source string, segment int64, saveMode int) (id int64, err *mft.Error) {
+func (q *SimpleQueue) Add(ctx context.Context, user cn.CapUser, message []byte,
+	externalID int64, externalDt int64, source string, segment int64,
+	saveMode cn.SaveMode) (id int64, err *mft.Error) {
 	if externalDt > time.Now().Unix() {
 		return id, GenerateError(10010008, externalDt, time.Now())
 	}
@@ -351,14 +340,14 @@ func (q *SimpleQueue) Add(ctx context.Context, user cn.CapUser, message []byte, 
 
 	if q.UseDefaultSaveModeForce {
 		saveMode = q.DefaultSaveMode
-	} else if saveMode == QueueSetDefaultMode {
+	} else if saveMode == cn.QueueSetDefaultMode {
 		saveMode = q.DefaultSaveMode
 	}
 
-	if saveMode != NotSaveSaveMode &&
-		saveMode != SaveImmediatelySaveMode &&
-		saveMode != SaveMarkSaveMode &&
-		saveMode != SaveWaitSaveMode {
+	if saveMode != cn.NotSaveSaveMode &&
+		saveMode != cn.SaveImmediatelySaveMode &&
+		saveMode != cn.SaveMarkSaveMode &&
+		saveMode != cn.SaveWaitSaveMode {
 		return id, GenerateError(10010010, saveMode)
 	}
 
@@ -377,7 +366,7 @@ func (q *SimpleQueue) Add(ctx context.Context, user cn.CapUser, message []byte, 
 		source = q.Source
 	}
 
-	if saveMode != NotSaveSaveMode {
+	if saveMode != cn.NotSaveSaveMode {
 		// mark block as need to save even if there are errors
 
 		q.mxBlockSaveWait.Lock()
@@ -405,7 +394,7 @@ func (q *SimpleQueue) Add(ctx context.Context, user cn.CapUser, message []byte, 
 
 	q.mx.RUnlock()
 
-	if saveMode == SaveImmediatelySaveMode {
+	if saveMode == cn.SaveImmediatelySaveMode {
 		err = q.SaveAll(ctx, user)
 		if err != nil {
 			return id, err
@@ -413,7 +402,7 @@ func (q *SimpleQueue) Add(ctx context.Context, user cn.CapUser, message []byte, 
 		return id, nil
 	}
 
-	if saveMode == SaveWaitSaveMode {
+	if saveMode == cn.SaveWaitSaveMode {
 		if chWaitSaveMeta != nil {
 			select {
 			case <-chWaitSaveMeta:
@@ -432,10 +421,11 @@ func (q *SimpleQueue) Add(ctx context.Context, user cn.CapUser, message []byte, 
 	return id, nil
 }
 
-func (q *SimpleQueue) AddList(ctx context.Context, user cn.CapUser, messages []Message, saveMode int) (ids []int64, err *mft.Error) {
-	baseSaveMode := SaveMarkSaveMode
-	if saveMode == NotSaveSaveMode {
-		baseSaveMode = NotSaveSaveMode
+func (q *SimpleQueue) AddList(ctx context.Context, user cn.CapUser, messages []Message,
+	saveMode cn.SaveMode) (ids []int64, err *mft.Error) {
+	baseSaveMode := cn.SaveMarkSaveMode
+	if saveMode == cn.NotSaveSaveMode {
+		baseSaveMode = cn.NotSaveSaveMode
 	}
 	if len(messages) == 0 {
 		return make([]int64, 0), nil
@@ -474,7 +464,9 @@ func (q *SimpleQueue) AddList(ctx context.Context, user cn.CapUser, messages []M
 
 // add message to queue block
 // externalDt - unix()
-func (block *SimpleQueueBlock) add(ctx context.Context, message []byte, externalID int64, externalDt int64, source string, segment int64, idGen *mft.G, saveMode int) (id int64, chWait chan bool, err *mft.Error) {
+func (block *SimpleQueueBlock) add(ctx context.Context, message []byte,
+	externalID int64, externalDt int64, source string, segment int64,
+	idGen *mft.G, saveMode cn.SaveMode) (id int64, chWait chan bool, err *mft.Error) {
 	if !block.mx.TryLock(ctx) {
 		return id, nil, GenerateError(10010001)
 	}
@@ -505,7 +497,7 @@ func (block *SimpleQueueBlock) add(ctx context.Context, message []byte, external
 	block.ChangesRv = msg.ID
 	block.LastGet = time.Now()
 
-	if saveMode == SaveWaitSaveMode {
+	if saveMode == cn.SaveWaitSaveMode {
 		chWait = make(chan bool, 1)
 		block.SaveWait = append(block.SaveWait, chWait)
 	}
@@ -1574,7 +1566,9 @@ func (q *SimpleQueue) searchExtID(ctx context.Context, source string, extID int6
 // AddUnique message to queue
 // externalDt is unix time
 // externalID is source id (should be != 0 !!!!)
-func (q *SimpleQueue) AddUnique(ctx context.Context, user cn.CapUser, message []byte, externalID int64, externalDt int64, source string, segment int64, saveMode int) (id int64, err *mft.Error) {
+func (q *SimpleQueue) AddUnique(ctx context.Context, user cn.CapUser, message []byte,
+	externalID int64, externalDt int64, source string, segment int64,
+	saveMode cn.SaveMode) (id int64, err *mft.Error) {
 	if externalID == 0 {
 		return id, GenerateError(10029000)
 	}
@@ -1599,10 +1593,11 @@ func (q *SimpleQueue) AddUnique(ctx context.Context, user cn.CapUser, message []
 	return q.Add(ctx, user, message, externalID, externalDt, source, segment, saveMode)
 
 }
-func (q *SimpleQueue) AddUniqueList(ctx context.Context, user cn.CapUser, messages []Message, saveMode int) (ids []int64, err *mft.Error) {
-	baseSaveMode := SaveMarkSaveMode
-	if saveMode == NotSaveSaveMode {
-		baseSaveMode = NotSaveSaveMode
+func (q *SimpleQueue) AddUniqueList(ctx context.Context, user cn.CapUser, messages []Message,
+	saveMode cn.SaveMode) (ids []int64, err *mft.Error) {
+	baseSaveMode := cn.SaveMarkSaveMode
+	if saveMode == cn.NotSaveSaveMode {
+		baseSaveMode = cn.NotSaveSaveMode
 	}
 	if len(messages) == 0 {
 		return make([]int64, 0), nil
@@ -1701,7 +1696,9 @@ func (q *SimpleQueue) SaveSubscribers(ctx context.Context, user cn.CapUser) (err
 
 // SubscriberSetLastRead - set last read info
 // if id == 0 remove subscribe
-func (q *SimpleQueue) SubscriberSetLastRead(ctx context.Context, user cn.CapUser, subscriber string, id int64, saveMode int) (err *mft.Error) {
+func (q *SimpleQueue) SubscriberSetLastRead(ctx context.Context, user cn.CapUser,
+	subscriber string, id int64,
+	saveMode cn.SaveMode) (err *mft.Error) {
 
 	if !q.Subscribers.mx.TryLock(ctx) {
 		return GenerateError(10032000)
@@ -1709,14 +1706,14 @@ func (q *SimpleQueue) SubscriberSetLastRead(ctx context.Context, user cn.CapUser
 
 	if q.UseDefaultSaveModeForce {
 		saveMode = q.DefaultSaveMode
-	} else if saveMode == QueueSetDefaultMode {
+	} else if saveMode == cn.QueueSetDefaultMode {
 		saveMode = q.DefaultSaveMode
 	}
 
-	if saveMode != NotSaveSaveMode &&
-		saveMode != SaveImmediatelySaveMode &&
-		saveMode != SaveMarkSaveMode &&
-		saveMode != SaveWaitSaveMode {
+	if saveMode != cn.NotSaveSaveMode &&
+		saveMode != cn.SaveImmediatelySaveMode &&
+		saveMode != cn.SaveMarkSaveMode &&
+		saveMode != cn.SaveWaitSaveMode {
 		return GenerateError(10032002, saveMode)
 	}
 
@@ -1746,18 +1743,18 @@ func (q *SimpleQueue) SubscriberSetLastRead(ctx context.Context, user cn.CapUser
 		return nil
 	}
 
-	if saveMode == SaveWaitSaveMode {
+	if saveMode == cn.SaveWaitSaveMode {
 		chWait = make(chan bool, 1)
 		q.Subscribers.SaveWait = append(q.Subscribers.SaveWait, chWait)
 	}
 
-	if saveMode == SaveMarkSaveMode {
+	if saveMode == cn.SaveMarkSaveMode {
 		q.Subscribers.ChangesRv = q.IDGenerator.RvGetPart()
 	}
 
 	q.Subscribers.mx.Unlock()
 
-	if saveMode == SaveImmediatelySaveMode {
+	if saveMode == cn.SaveImmediatelySaveMode {
 		err = q.SaveSubscribers(ctx, user)
 		if err != nil {
 			return err
@@ -1765,7 +1762,7 @@ func (q *SimpleQueue) SubscriberSetLastRead(ctx context.Context, user cn.CapUser
 		return nil
 	}
 
-	if saveMode == SaveWaitSaveMode {
+	if saveMode == cn.SaveWaitSaveMode {
 		if chWait != nil {
 			select {
 			case <-chWait:

@@ -272,7 +272,7 @@ type SimpleQueueParams struct {
 	SubscriberStorageMountName      string            `json:"subscriber_mount_name"`
 	MarkerBlockDataStorageMountName map[string]string `json:"marker_block_mount_name"`
 	Segments                        *segment.Segments `json:"segments"`
-	DefaultSaveMode                 int               `json:"default_save_mod"`
+	DefaultSaveMode                 cn.SaveMode       `json:"default_save_mod"`
 	UseDefaultSaveModeForce         bool              `json:"use_default_save_mod_force"`
 }
 

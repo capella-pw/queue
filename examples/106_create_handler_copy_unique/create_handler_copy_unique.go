@@ -9,8 +9,8 @@ import (
 
 	"github.com/capella-pw/queue/cluster"
 	"github.com/capella-pw/queue/cluster/cap"
+	"github.com/capella-pw/queue/cn"
 	"github.com/capella-pw/queue/compress"
-	"github.com/capella-pw/queue/queue"
 )
 
 func main() {
@@ -64,8 +64,8 @@ func main() {
 			Interval: time.Millisecond * 30, // interval between call
 			Wait:     time.Second * 5,       // wait save timeout
 
-			SaveModeSrc:    queue.SaveMarkSaveMode,
-			SaveModeDst:    queue.SaveMarkSaveMode,
+			SaveModeSrc:    cn.SaveMarkSaveMode,
+			SaveModeDst:    cn.SaveMarkSaveMode,
 			SubscriberName: "test_subscr",
 			CntLimit:       100,
 			DoSaveDst:      true,
@@ -93,8 +93,8 @@ func main() {
 			Interval: time.Millisecond * 30, // interval between call
 			Wait:     time.Second * 5,       // wait save timeout
 
-			SaveModeSrc:    queue.SaveMarkSaveMode,
-			SaveModeDst:    queue.SaveMarkSaveMode,
+			SaveModeSrc:    cn.SaveMarkSaveMode,
+			SaveModeDst:    cn.SaveMarkSaveMode,
 			SubscriberName: "test_subscr2",
 			CntLimit:       100,
 			DoSaveDst:      true,

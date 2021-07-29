@@ -8,8 +8,8 @@ import (
 	"time"
 
 	"github.com/capella-pw/queue/cluster/cap"
+	"github.com/capella-pw/queue/cn"
 	"github.com/capella-pw/queue/compress"
-	"github.com/capella-pw/queue/queue"
 	"github.com/capella-pw/queue/security/authentication/basic"
 	"github.com/myfantasy/mft"
 )
@@ -75,7 +75,7 @@ func main() {
 
 	message := "Hello WORLD"
 	f := cap.QueueAddUnique("test_queue",
-		[]byte(message), 8, time.Now().Unix(), "s1", 1, queue.SaveImmediatelySaveMode,
+		[]byte(message), 8, time.Now().Unix(), "s1", 1, cn.SaveImmediatelySaveMode,
 		func(id int64) {
 			fmt.Println(id)
 		})

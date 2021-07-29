@@ -875,10 +875,12 @@ func (eac *ExternalAbstractQueue) MarshalRequestMust(user cn.CapUser, action str
 
 type QueueAddRequest struct {
 	Message  queue.Message `json:"msg"`
-	SaveMode int           `json:"sm"`
+	SaveMode cn.SaveMode   `json:"sm"`
 }
 
-func (eac *ExternalAbstractQueue) Add(ctx context.Context, user cn.CapUser, message []byte, externalID int64, externalDt int64, source string, segment int64, saveMode int) (id int64, err *mft.Error) {
+func (eac *ExternalAbstractQueue) Add(ctx context.Context, user cn.CapUser, message []byte,
+	externalID int64, externalDt int64, source string, segment int64,
+	saveMode cn.SaveMode) (id int64, err *mft.Error) {
 	request := eac.MarshalRequestMust(user, cn.OpQueueAdd, QueueAddRequest{
 		Message: queue.Message{
 			ExternalID: externalID,
@@ -898,10 +900,11 @@ func (eac *ExternalAbstractQueue) Add(ctx context.Context, user cn.CapUser, mess
 
 type QueueAddListRequest struct {
 	Messages []queue.Message `json:"msgs"`
-	SaveMode int             `json:"sm"`
+	SaveMode cn.SaveMode     `json:"sm"`
 }
 
-func (eac *ExternalAbstractQueue) AddList(ctx context.Context, user cn.CapUser, messages []queue.Message, saveMode int) (ids []int64, err *mft.Error) {
+func (eac *ExternalAbstractQueue) AddList(ctx context.Context, user cn.CapUser, messages []queue.Message,
+	saveMode cn.SaveMode) (ids []int64, err *mft.Error) {
 	request := eac.MarshalRequestMust(user,
 		cn.OpQueueAddList, QueueAddListRequest{
 			Messages: messages,
@@ -969,7 +972,9 @@ func (eac *ExternalAbstractQueue) SaveAll(ctx context.Context, user cn.CapUser) 
 	return responce.Err
 }
 
-func (eac *ExternalAbstractQueue) AddUnique(ctx context.Context, user cn.CapUser, message []byte, externalID int64, externalDt int64, source string, segment int64, saveMode int) (id int64, err *mft.Error) {
+func (eac *ExternalAbstractQueue) AddUnique(ctx context.Context, user cn.CapUser, message []byte,
+	externalID int64, externalDt int64, source string, segment int64,
+	saveMode cn.SaveMode) (id int64, err *mft.Error) {
 	request := eac.MarshalRequestMust(user,
 		cn.OpQueueAddUnique, QueueAddRequest{
 			Message: queue.Message{
@@ -988,7 +993,8 @@ func (eac *ExternalAbstractQueue) AddUnique(ctx context.Context, user cn.CapUser
 	return id, err
 }
 
-func (eac *ExternalAbstractQueue) AddUniqueList(ctx context.Context, user cn.CapUser, messages []queue.Message, saveMode int) (ids []int64, err *mft.Error) {
+func (eac *ExternalAbstractQueue) AddUniqueList(ctx context.Context, user cn.CapUser, messages []queue.Message,
+	saveMode cn.SaveMode) (ids []int64, err *mft.Error) {
 	request := eac.MarshalRequestMust(user,
 		cn.OpQueueAddUniqueList, QueueAddListRequest{
 			Messages: messages,
@@ -1002,13 +1008,13 @@ func (eac *ExternalAbstractQueue) AddUniqueList(ctx context.Context, user cn.Cap
 }
 
 type QueueSubscriberSetLastReadRequest struct {
-	Subscriber string `json:"sbscr"`
-	Id         int64  `json:"id"`
-	SaveMode   int    `json:"sm"`
+	Subscriber string      `json:"sbscr"`
+	Id         int64       `json:"id"`
+	SaveMode   cn.SaveMode `json:"sm"`
 }
 
 func (eac *ExternalAbstractQueue) SubscriberSetLastRead(ctx context.Context, user cn.CapUser,
-	subscriber string, id int64, saveMode int) (err *mft.Error) {
+	subscriber string, id int64, saveMode cn.SaveMode) (err *mft.Error) {
 	request := eac.MarshalRequestMust(user,
 		cn.OpQueueSubscriberSetLastRead, QueueSubscriberSetLastReadRequest{
 			Subscriber: subscriber,

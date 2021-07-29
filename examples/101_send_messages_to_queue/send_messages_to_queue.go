@@ -8,8 +8,8 @@ import (
 	"time"
 
 	"github.com/capella-pw/queue/cluster/cap"
+	"github.com/capella-pw/queue/cn"
 	"github.com/capella-pw/queue/compress"
-	"github.com/capella-pw/queue/queue"
 )
 
 func main() {
@@ -41,7 +41,8 @@ func main() {
 
 	message := "Hello WORLD"
 
-	id, err := q.Add(context.Background(), nil, []byte(message), 5, time.Now().Unix(), "s1", 1, queue.SaveImmediatelySaveMode)
+	id, err := q.Add(context.Background(), nil, []byte(message),
+		5, time.Now().Unix(), "s1", 1, cn.SaveImmediatelySaveMode)
 
 	if err != nil {
 		log.Fatalln(err)

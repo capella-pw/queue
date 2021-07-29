@@ -11,6 +11,7 @@ import (
 
 	"github.com/capella-pw/queue/cluster"
 	"github.com/capella-pw/queue/cluster/cap"
+	"github.com/capella-pw/queue/cn"
 	"github.com/capella-pw/queue/compress"
 	"github.com/capella-pw/queue/queue"
 	"github.com/myfantasy/mft"
@@ -316,7 +317,7 @@ func main() {
 					return err
 				}
 
-				ids, err = q.AddUniqueList(ctx, nil, messages, *fSaveMode)
+				ids, err = q.AddUniqueList(ctx, nil, messages, cn.SaveMode(*fSaveMode))
 
 				return err
 			})

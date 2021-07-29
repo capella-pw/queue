@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"time"
 
+	"github.com/capella-pw/queue/cn"
 	"github.com/capella-pw/queue/queue"
 	"github.com/myfantasy/mfs"
 	"github.com/myfantasy/mft"
@@ -87,8 +88,8 @@ type CopyUniqueHandlerParams struct {
 	// Wait - wait save timeout
 	Wait time.Duration `json:"wait"`
 
-	SaveModeSrc    int               `json:"src_save_mode"`
-	SaveModeDst    int               `json:"dst_save_mode"`
+	SaveModeSrc    cn.SaveMode       `json:"src_save_mode"`
+	SaveModeDst    cn.SaveMode       `json:"dst_save_mode"`
 	SubscriberName string            `json:"subscribe_name"`
 	CntLimit       int               `json:"cnt_limit"`
 	DoSaveDst      bool              `json:"do_save_dst"`
@@ -114,8 +115,8 @@ type CopyUniqueHandler struct {
 	UserName       string
 	HDescription   *HandlerLoadDescription
 
-	SaveModeSrc    int
-	SaveModeDst    int
+	SaveModeSrc    cn.SaveMode
+	SaveModeDst    cn.SaveMode
 	SubscriberName string
 	CntLimit       int
 	DoSaveDst      bool

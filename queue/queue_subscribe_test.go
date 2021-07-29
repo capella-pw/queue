@@ -4,6 +4,7 @@ import (
 	"context"
 	"testing"
 
+	"github.com/capella-pw/queue/cn"
 	"github.com/capella-pw/queue/storage"
 )
 
@@ -17,7 +18,7 @@ func TestSubscribeCopy_base(t *testing.T) {
 	q1.Source = "55"
 	q2.Source = "66"
 
-	copy := SubscribeCopyUnique(q1, q2, nil, nil, SaveMarkSaveMode, SaveMarkSaveMode, "q2_subscr", 3, false, nil)
+	copy := SubscribeCopyUnique(q1, q2, nil, nil, cn.SaveMarkSaveMode, cn.SaveMarkSaveMode, "q2_subscr", 3, false, nil)
 
 	ctx := context.Background()
 
@@ -34,7 +35,7 @@ func TestSubscribeCopy_base(t *testing.T) {
 	// Add msgs
 	{
 		for i := 0; i < 10; i++ {
-			_, err := q1.Add(context.Background(), nil, []byte("test text"), int64(i)+1, 0, "", 0, NotSaveSaveMode)
+			_, err := q1.Add(context.Background(), nil, []byte("test text"), int64(i)+1, 0, "", 0, cn.NotSaveSaveMode)
 			if err != nil {
 				t.Error(err)
 			}

@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/capella-pw/queue/cluster/cap"
+	"github.com/capella-pw/queue/cn"
 	"github.com/capella-pw/queue/compress"
 	"github.com/capella-pw/queue/queue"
 
@@ -75,7 +76,7 @@ func sendMsg(q queue.Queue, srvId int64) {
 
 	message := "Hello WORLD Iteration"
 
-	_, err := q.Add(context.Background(), nil, []byte(message), srvId, time.Now().Unix(), "s1", srvId%13, queue.SaveWaitSaveMode)
+	_, err := q.Add(context.Background(), nil, []byte(message), srvId, time.Now().Unix(), "s1", srvId%13, cn.SaveWaitSaveMode)
 
 	if err != nil {
 		fmt.Printf("Cnt: %v (%v|%v)\n%v\n", sendCnt, sendGo-sendCnt, errCnt, srvId)

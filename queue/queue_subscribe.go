@@ -10,7 +10,8 @@ import (
 
 // SubscribeCopyUnique subscribe on to queue and copy (addUniqueList) to destination
 func SubscribeCopyUnique(src Queue, dst Queue,
-	userSrc cn.CapUser, userDst cn.CapUser, saveModeSrc int, saveModeDst int,
+	userSrc cn.CapUser, userDst cn.CapUser,
+	saveModeSrc cn.SaveMode, saveModeDst cn.SaveMode,
 	subscriberName string, cntLimit int, doSaveDst bool,
 	segments *segment.Segments,
 ) func(ctx context.Context) (isEmpty bool, err *mft.Error) {

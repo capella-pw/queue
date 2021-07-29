@@ -9,6 +9,7 @@ import (
 
 	"github.com/capella-pw/queue/cluster"
 	"github.com/capella-pw/queue/cluster/cap"
+	"github.com/capella-pw/queue/cn"
 	"github.com/capella-pw/queue/queue"
 	"github.com/myfantasy/mft"
 
@@ -26,7 +27,7 @@ type Source struct {
 	Name               string        `json:"name"`
 	QueueName          string        `json:"queue_name"`
 	QueueSubscribeName string        `json:"subscribe_name"`
-	QueueSaveMode      int           `json:"queue_save_mode"`
+	QueueSaveMode      cn.SaveMode   `json:"queue_save_mode"`
 	Quantity           int           `json:"qty"`
 	GetQuery           string        `json:"get_query"`
 	CompleteQuery      string        `json:"complete_query"`
