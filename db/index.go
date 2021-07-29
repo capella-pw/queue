@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 
+	"github.com/capella-pw/queue/cn"
 	"github.com/myfantasy/mft"
 )
 
@@ -15,11 +16,6 @@ const (
 	IAdd        = "I_ADD"
 	SAdd        = "S_ADD"
 )
-
-// DBUser - user for db
-type DBUser interface {
-	GetName() string
-}
 
 type IAddIndexRequest struct {
 	Key     int64         `json:"key"`
@@ -62,24 +58,24 @@ type GetIndexResponce struct {
 }
 
 type Index interface {
-	Name(ctx context.Context, user DBUser) (name string, err *mft.Error)
-	NameSet(ctx context.Context, user DBUser, name string) (err *mft.Error)
+	Name(ctx context.Context, user cn.CapUser) (name string, err *mft.Error)
+	NameSet(ctx context.Context, user cn.CapUser, name string) (err *mft.Error)
 
-	IAdd(ctx context.Context, user DBUser, req IAddIndexRequest) (err *mft.Error)
-	SAdd(ctx context.Context, user DBUser, req SAddIndexRequest) (err *mft.Error)
+	IAdd(ctx context.Context, user cn.CapUser, req IAddIndexRequest) (err *mft.Error)
+	SAdd(ctx context.Context, user cn.CapUser, req SAddIndexRequest) (err *mft.Error)
 
-	IAddList(ctx context.Context, user DBUser, req []IAddIndexRequest) (err *mft.Error)
-	SAddList(ctx context.Context, user DBUser, req []SAddIndexRequest) (err *mft.Error)
+	IAddList(ctx context.Context, user cn.CapUser, req []IAddIndexRequest) (err *mft.Error)
+	SAddList(ctx context.Context, user cn.CapUser, req []SAddIndexRequest) (err *mft.Error)
 
-	IGet(ctx context.Context, user DBUser, req IGetIndexRequest) (res map[int64]GetIndexResponce, err *mft.Error)
-	SGet(ctx context.Context, user DBUser, req SGetIndexRequest) (res map[string]GetIndexResponce, err *mft.Error)
+	IGet(ctx context.Context, user cn.CapUser, req IGetIndexRequest) (res map[int64]GetIndexResponce, err *mft.Error)
+	SGet(ctx context.Context, user cn.CapUser, req SGetIndexRequest) (res map[string]GetIndexResponce, err *mft.Error)
 
-	IDelete(ctx context.Context, user DBUser, req IAddIndexRequest) (err *mft.Error)
-	SDelete(ctx context.Context, user DBUser, req SAddIndexRequest) (err *mft.Error)
+	IDelete(ctx context.Context, user cn.CapUser, req IAddIndexRequest) (err *mft.Error)
+	SDelete(ctx context.Context, user cn.CapUser, req SAddIndexRequest) (err *mft.Error)
 
-	IDeleteList(ctx context.Context, user DBUser, req []IAddIndexRequest) (err *mft.Error)
-	SDeleteList(ctx context.Context, user DBUser, req []SAddIndexRequest) (err *mft.Error)
+	IDeleteList(ctx context.Context, user cn.CapUser, req []IAddIndexRequest) (err *mft.Error)
+	SDeleteList(ctx context.Context, user cn.CapUser, req []SAddIndexRequest) (err *mft.Error)
 
-	OptimizeAll(ctx context.Context, user DBUser, deph int) (err *mft.Error)
-	Optimize(ctx context.Context, user DBUser, segment, deph int) (err *mft.Error)
+	OptimizeAll(ctx context.Context, user cn.CapUser, deph int) (err *mft.Error)
+	Optimize(ctx context.Context, user cn.CapUser, segment, deph int) (err *mft.Error)
 }

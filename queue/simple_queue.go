@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/capella-pw/queue/cn"
 	"github.com/capella-pw/queue/storage"
 	"github.com/myfantasy/mfs"
 	"github.com/myfantasy/mft"
@@ -339,7 +340,7 @@ func (q *SimpleQueue) checkAndAddCurrentBlockForWrite(ctx context.Context, saveM
 // Add message to queue
 // externalDt is unix time
 // externalID is source id (should be != 0 if set 0 - not set)
-func (q *SimpleQueue) Add(ctx context.Context, message []byte, externalID int64, externalDt int64, source string, segment int64, saveMode int) (id int64, err *mft.Error) {
+func (q *SimpleQueue) Add(ctx context.Context, user cn.CapUser, message []byte, externalID int64, externalDt int64, source string, segment int64, saveMode int) (id int64, err *mft.Error) {
 	if externalDt > time.Now().Unix() {
 		return id, GenerateError(10010008, externalDt, time.Now())
 	}
@@ -405,7 +406,7 @@ func (q *SimpleQueue) Add(ctx context.Context, message []byte, externalID int64,
 	q.mx.RUnlock()
 
 	if saveMode == SaveImmediatelySaveMode {
-		err = q.SaveAll(ctx)
+		err = q.SaveAll(ctx, user)
 		if err != nil {
 			return id, err
 		}
@@ -431,7 +432,7 @@ func (q *SimpleQueue) Add(ctx context.Context, message []byte, externalID int64,
 	return id, nil
 }
 
-func (q *SimpleQueue) AddList(ctx context.Context, messages []Message, saveMode int) (ids []int64, err *mft.Error) {
+func (q *SimpleQueue) AddList(ctx context.Context, user cn.CapUser, messages []Message, saveMode int) (ids []int64, err *mft.Error) {
 	baseSaveMode := SaveMarkSaveMode
 	if saveMode == NotSaveSaveMode {
 		baseSaveMode = NotSaveSaveMode
@@ -441,7 +442,7 @@ func (q *SimpleQueue) AddList(ctx context.Context, messages []Message, saveMode 
 	}
 	ids = make([]int64, 0, len(messages))
 	for i := 0; i < len(messages)-1; i++ {
-		id, err := q.Add(ctx, messages[i].Message,
+		id, err := q.Add(ctx, user, messages[i].Message,
 			messages[i].ExternalID,
 			messages[i].ExternalDt,
 			messages[i].Source,
@@ -456,7 +457,7 @@ func (q *SimpleQueue) AddList(ctx context.Context, messages []Message, saveMode 
 	}
 
 	i := len(messages) - 1
-	id, err := q.Add(ctx, messages[i].Message,
+	id, err := q.Add(ctx, user, messages[i].Message,
 		messages[i].ExternalID,
 		messages[i].ExternalDt,
 		messages[i].Source,
@@ -640,8 +641,8 @@ func (block *SimpleQueueBlock) getItemsAfter(ctx context.Context,
 
 // Get - gets messages from queue not more then cntLimit count and id more idStart
 // returns messages == nil when no elements
-func (q *SimpleQueue) Get(ctx context.Context, idStart int64, cntLimit int) (messages []*MessageWithMeta, err *mft.Error) {
-	messages, _, err = q.GetSegment(ctx, idStart, cntLimit, nil)
+func (q *SimpleQueue) Get(ctx context.Context, user cn.CapUser, idStart int64, cntLimit int) (messages []*MessageWithMeta, err *mft.Error) {
+	messages, _, err = q.GetSegment(ctx, user, idStart, cntLimit, nil)
 
 	return messages, err
 }
@@ -650,7 +651,7 @@ func (q *SimpleQueue) Get(ctx context.Context, idStart int64, cntLimit int) (mes
 // returns messages == nil when no elements
 // message should be in segment
 // lastId last readed message ID from queue
-func (q *SimpleQueue) GetSegment(ctx context.Context, idStart int64, cntLimit int,
+func (q *SimpleQueue) GetSegment(ctx context.Context, user cn.CapUser, idStart int64, cntLimit int,
 	segments *segment.Segments,
 ) (messages []*MessageWithMeta, lastId int64, err *mft.Error) {
 
@@ -698,7 +699,7 @@ func (q *SimpleQueue) GetSegment(ctx context.Context, idStart int64, cntLimit in
 // Save save meta info of queue
 // When MetaStorage == nil returns nil
 // When SaveRv == ChangesRv do nothing and returns nil
-func (q *SimpleQueue) Save(ctx context.Context) (err *mft.Error) {
+func (q *SimpleQueue) Save(ctx context.Context, user cn.CapUser) (err *mft.Error) {
 	if q.MetaStorage == nil {
 		return nil
 	}
@@ -852,7 +853,7 @@ func (block *SimpleQueueBlock) Save(ctx context.Context, q *SimpleQueue) (err *m
 }
 
 // SaveAll save all waiting for save block and metadata
-func (q *SimpleQueue) SaveAll(ctx context.Context) (err *mft.Error) {
+func (q *SimpleQueue) SaveAll(ctx context.Context, user cn.CapUser) (err *mft.Error) {
 
 	if !q.mxBlockSaveWait.TryLock(ctx) {
 		return GenerateError(10014000)
@@ -863,7 +864,7 @@ func (q *SimpleQueue) SaveAll(ctx context.Context) (err *mft.Error) {
 	}
 	q.mxBlockSaveWait.Unlock()
 
-	err = q.Save(ctx)
+	err = q.Save(ctx, user)
 	if err != nil {
 		q.mxBlockSaveWait.LockF()
 		for blockID, block := range waitSaveBlocks {
@@ -894,7 +895,7 @@ func (q *SimpleQueue) SaveAll(ctx context.Context) (err *mft.Error) {
 		return err
 	}
 
-	err = q.SaveSubscribers(ctx)
+	err = q.SaveSubscribers(ctx, user)
 	if err != nil {
 		return err
 	}
@@ -1240,7 +1241,7 @@ func (block *SimpleQueueBlock) delete(ctx context.Context, q *SimpleQueue) (err 
 }
 
 // SetUnload - find and set blocks as unload
-func (q *SimpleQueue) SetUnload(ctx context.Context, setBlockUnload func(ctx context.Context, i int, len int, q *SimpleQueue, block *SimpleQueueBlock) (needUnload bool, err *mft.Error)) (err *mft.Error) {
+func (q *SimpleQueue) SetUnload(ctx context.Context, user cn.CapUser, setBlockUnload func(ctx context.Context, i int, len int, q *SimpleQueue, block *SimpleQueueBlock) (needUnload bool, err *mft.Error)) (err *mft.Error) {
 
 	blocks := make([]*SimpleQueueBlock, 0)
 
@@ -1272,7 +1273,7 @@ func (q *SimpleQueue) SetUnload(ctx context.Context, setBlockUnload func(ctx con
 
 // SetMarks - find and set blocks marks
 // it needs to save q (q.save(ctx)) after done
-func (q *SimpleQueue) SetMarks(ctx context.Context, setBlockMark func(ctx context.Context, i int, len int, q *SimpleQueue, block *SimpleQueueBlock) (needSetMark bool, nextMark string, err *mft.Error)) (err *mft.Error) {
+func (q *SimpleQueue) SetMarks(ctx context.Context, user cn.CapUser, setBlockMark func(ctx context.Context, i int, len int, q *SimpleQueue, block *SimpleQueueBlock) (needSetMark bool, nextMark string, err *mft.Error)) (err *mft.Error) {
 
 	blocks := make([]*SimpleQueueBlock, 0)
 
@@ -1305,7 +1306,7 @@ func (q *SimpleQueue) SetMarks(ctx context.Context, setBlockMark func(ctx contex
 // SetDelete - find and set blocks to delete
 // it needs to save q (q.save(ctx)) after done
 // find first false (dunc returns false) block and all balcks befor false are need to delete
-func (q *SimpleQueue) SetDelete(ctx context.Context, setNeedDelete func(ctx context.Context, i int, len int, q *SimpleQueue, block *SimpleQueueBlock) (needDelete bool, err *mft.Error)) (err *mft.Error) {
+func (q *SimpleQueue) SetDelete(ctx context.Context, user cn.CapUser, setNeedDelete func(ctx context.Context, i int, len int, q *SimpleQueue, block *SimpleQueueBlock) (needDelete bool, err *mft.Error)) (err *mft.Error) {
 
 	blocks := make([]*SimpleQueueBlock, 0)
 
@@ -1346,7 +1347,7 @@ func (q *SimpleQueue) SetDelete(ctx context.Context, setNeedDelete func(ctx cont
 // UpdateMarks move from storage to storage and clear OldStorages
 // it needs to save q (q.save(ctx)) after done
 // blocksCount = 0 - unlimited
-func (q *SimpleQueue) UpdateMarks(ctx context.Context, blocksCount int) (err *mft.Error) {
+func (q *SimpleQueue) UpdateMarks(ctx context.Context, user cn.CapUser, blocksCount int) (err *mft.Error) {
 	blocks := make([]*SimpleQueueBlock, 0)
 
 	if !q.mx.RTryLock(ctx) {
@@ -1403,7 +1404,7 @@ func (q *SimpleQueue) UpdateMarks(ctx context.Context, blocksCount int) (err *mf
 
 // DeleteBlocks dete blocks (NeedDelete true)
 // blocksCount = 0 - unlimited
-func (q *SimpleQueue) DeleteBlocks(ctx context.Context, blocksCount int) (err *mft.Error) {
+func (q *SimpleQueue) DeleteBlocks(ctx context.Context, user cn.CapUser, blocksCount int) (err *mft.Error) {
 	blocks := make([]*SimpleQueueBlock, 0)
 
 	if !q.mx.RTryLock(ctx) {
@@ -1573,7 +1574,7 @@ func (q *SimpleQueue) searchExtID(ctx context.Context, source string, extID int6
 // AddUnique message to queue
 // externalDt is unix time
 // externalID is source id (should be != 0 !!!!)
-func (q *SimpleQueue) AddUnique(ctx context.Context, message []byte, externalID int64, externalDt int64, source string, segment int64, saveMode int) (id int64, err *mft.Error) {
+func (q *SimpleQueue) AddUnique(ctx context.Context, user cn.CapUser, message []byte, externalID int64, externalDt int64, source string, segment int64, saveMode int) (id int64, err *mft.Error) {
 	if externalID == 0 {
 		return id, GenerateError(10029000)
 	}
@@ -1595,10 +1596,10 @@ func (q *SimpleQueue) AddUnique(ctx context.Context, message []byte, externalID 
 		}
 	}
 
-	return q.Add(ctx, message, externalID, externalDt, source, segment, saveMode)
+	return q.Add(ctx, user, message, externalID, externalDt, source, segment, saveMode)
 
 }
-func (q *SimpleQueue) AddUniqueList(ctx context.Context, messages []Message, saveMode int) (ids []int64, err *mft.Error) {
+func (q *SimpleQueue) AddUniqueList(ctx context.Context, user cn.CapUser, messages []Message, saveMode int) (ids []int64, err *mft.Error) {
 	baseSaveMode := SaveMarkSaveMode
 	if saveMode == NotSaveSaveMode {
 		baseSaveMode = NotSaveSaveMode
@@ -1608,7 +1609,7 @@ func (q *SimpleQueue) AddUniqueList(ctx context.Context, messages []Message, sav
 	}
 	ids = make([]int64, 0, len(messages))
 	for i := 0; i < len(messages)-1; i++ {
-		id, err := q.AddUnique(ctx, messages[i].Message,
+		id, err := q.AddUnique(ctx, user, messages[i].Message,
 			messages[i].ExternalID,
 			messages[i].ExternalDt,
 			messages[i].Source,
@@ -1623,7 +1624,7 @@ func (q *SimpleQueue) AddUniqueList(ctx context.Context, messages []Message, sav
 	}
 
 	i := len(messages) - 1
-	id, err := q.AddUnique(ctx, messages[i].Message,
+	id, err := q.AddUnique(ctx, user, messages[i].Message,
 		messages[i].ExternalID,
 		messages[i].ExternalDt,
 		messages[i].Source,
@@ -1641,7 +1642,7 @@ func (q *SimpleQueue) AddUniqueList(ctx context.Context, messages []Message, sav
 // SaveSubscribers save subscribers info of queue
 // When MetaStorage == nil returns nil
 // When SaveRv == ChangesRv do nothing and returns nil
-func (q *SimpleQueue) SaveSubscribers(ctx context.Context) (err *mft.Error) {
+func (q *SimpleQueue) SaveSubscribers(ctx context.Context, user cn.CapUser) (err *mft.Error) {
 	if q.SubscriberStorage == nil {
 		return nil
 	}
@@ -1700,7 +1701,7 @@ func (q *SimpleQueue) SaveSubscribers(ctx context.Context) (err *mft.Error) {
 
 // SubscriberSetLastRead - set last read info
 // if id == 0 remove subscribe
-func (q *SimpleQueue) SubscriberSetLastRead(ctx context.Context, subscriber string, id int64, saveMode int) (err *mft.Error) {
+func (q *SimpleQueue) SubscriberSetLastRead(ctx context.Context, user cn.CapUser, subscriber string, id int64, saveMode int) (err *mft.Error) {
 
 	if !q.Subscribers.mx.TryLock(ctx) {
 		return GenerateError(10032000)
@@ -1757,7 +1758,7 @@ func (q *SimpleQueue) SubscriberSetLastRead(ctx context.Context, subscriber stri
 	q.Subscribers.mx.Unlock()
 
 	if saveMode == SaveImmediatelySaveMode {
-		err = q.SaveSubscribers(ctx)
+		err = q.SaveSubscribers(ctx, user)
 		if err != nil {
 			return err
 		}
@@ -1778,7 +1779,7 @@ func (q *SimpleQueue) SubscriberSetLastRead(ctx context.Context, subscriber stri
 }
 
 // SubscriberGetLastRead - get last read info
-func (q *SimpleQueue) SubscriberGetLastRead(ctx context.Context, subscriber string) (id int64, err *mft.Error) {
+func (q *SimpleQueue) SubscriberGetLastRead(ctx context.Context, user cn.CapUser, subscriber string) (id int64, err *mft.Error) {
 
 	if !q.Subscribers.mx.RTryLock(ctx) {
 		return 0, GenerateError(10033000)
@@ -1794,7 +1795,7 @@ func (q *SimpleQueue) SubscriberGetLastRead(ctx context.Context, subscriber stri
 }
 
 // SubscriberAddReplicaMember - add replication subscriber member
-func (q *SimpleQueue) SubscriberAddReplicaMember(ctx context.Context, subscriber string) (err *mft.Error) {
+func (q *SimpleQueue) SubscriberAddReplicaMember(ctx context.Context, user cn.CapUser, subscriber string) (err *mft.Error) {
 
 	if !q.Subscribers.mx.TryLock(ctx) {
 		return GenerateError(10033100)
@@ -1804,7 +1805,7 @@ func (q *SimpleQueue) SubscriberAddReplicaMember(ctx context.Context, subscriber
 
 	q.Subscribers.mx.Unlock()
 
-	err = q.SaveSubscribers(ctx)
+	err = q.SaveSubscribers(ctx, user)
 
 	if err != nil {
 		GenerateErrorE(10033101, err)
@@ -1814,7 +1815,7 @@ func (q *SimpleQueue) SubscriberAddReplicaMember(ctx context.Context, subscriber
 }
 
 // SubscriberRemoveReplicaMember - remove replication subscriber member
-func (q *SimpleQueue) SubscriberRemoveReplicaMember(ctx context.Context, subscriber string) (err *mft.Error) {
+func (q *SimpleQueue) SubscriberRemoveReplicaMember(ctx context.Context, user cn.CapUser, subscriber string) (err *mft.Error) {
 
 	if !q.Subscribers.mx.TryLock(ctx) {
 		return GenerateError(10033200)
@@ -1824,7 +1825,7 @@ func (q *SimpleQueue) SubscriberRemoveReplicaMember(ctx context.Context, subscri
 
 	q.Subscribers.mx.Unlock()
 
-	err = q.SaveSubscribers(ctx)
+	err = q.SaveSubscribers(ctx, user)
 
 	if err != nil {
 		GenerateErrorE(10033201, err)
@@ -1834,7 +1835,7 @@ func (q *SimpleQueue) SubscriberRemoveReplicaMember(ctx context.Context, subscri
 }
 
 // SubscriberGetReplicaCount - get count of replication subscriber member
-func (q *SimpleQueue) SubscriberGetReplicaCount(ctx context.Context, id int64) (cnt int, err *mft.Error) {
+func (q *SimpleQueue) SubscriberGetReplicaCount(ctx context.Context, user cn.CapUser, id int64) (cnt int, err *mft.Error) {
 
 	if !q.Subscribers.mx.RTryLock(ctx) {
 		return 0, GenerateError(10033300)

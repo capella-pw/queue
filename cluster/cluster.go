@@ -15,7 +15,12 @@ type QueueDescription struct {
 	Name         string          `json:"name"`
 	Type         string          `json:"type"`
 	CreateOnLoad bool            `json:"create_on_load"`
+	Owner        string          `json:"owner"`
 	Params       json.RawMessage `json:"params"`
+}
+
+func (qd QueueDescription) GetName() string {
+	return qd.Owner
 }
 
 // ExternalClusterDescription description of external cluster

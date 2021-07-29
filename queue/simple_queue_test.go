@@ -17,7 +17,7 @@ func TestSimpleQueue_NoSave_full(t *testing.T) {
 	// Add msgs
 	{
 		for i := 0; i < 10; i++ {
-			_, err := q.Add(context.Background(), []byte("test text"), int64(i)+1, 0, "", 0, NotSaveSaveMode)
+			_, err := q.Add(context.Background(), nil, []byte("test text"), int64(i)+1, 0, "", 0, NotSaveSaveMode)
 			if err != nil {
 				t.Error(err)
 			}
@@ -31,7 +31,7 @@ func TestSimpleQueue_NoSave_full(t *testing.T) {
 	// Get messages one by one
 	{
 		id := int64(0)
-		msgs, err := q.Get(context.Background(), id, 1)
+		msgs, err := q.Get(context.Background(), nil, id, 1)
 		extID := int64(0)
 		for len(msgs) != 0 {
 			extID++
@@ -53,7 +53,7 @@ func TestSimpleQueue_NoSave_full(t *testing.T) {
 
 			id = msgs[0].ID
 
-			msgs, err = q.Get(context.Background(), id, 1)
+			msgs, err = q.Get(context.Background(), nil, id, 1)
 		}
 
 		if err != nil {
@@ -81,7 +81,7 @@ func TestSimpleQueue_SaveImmediately_full(t *testing.T) {
 	// Add msgs
 	{
 		for i := 0; i < 10; i++ {
-			_, err := q.Add(context.Background(), []byte("test text"), int64(i)+1, 0, "", 0, SaveImmediatelySaveMode)
+			_, err := q.Add(context.Background(), nil, []byte("test text"), int64(i)+1, 0, "", 0, SaveImmediatelySaveMode)
 			if err != nil {
 				t.Error(err)
 			}
@@ -95,7 +95,7 @@ func TestSimpleQueue_SaveImmediately_full(t *testing.T) {
 	// Get messages one by one
 	{
 		id := int64(0)
-		msgs, err := q.Get(context.Background(), id, 1)
+		msgs, err := q.Get(context.Background(), nil, id, 1)
 		extID := int64(0)
 		for len(msgs) != 0 {
 			extID++
@@ -117,7 +117,7 @@ func TestSimpleQueue_SaveImmediately_full(t *testing.T) {
 
 			id = msgs[0].ID
 
-			msgs, err = q.Get(context.Background(), id, 1)
+			msgs, err = q.Get(context.Background(), nil, id, 1)
 		}
 
 		if err != nil {
@@ -151,7 +151,7 @@ func TestSimpleQueue_SaveMarkSaveMode_full(t *testing.T) {
 	// Add msgs
 	{
 		for i := 0; i < 10; i++ {
-			_, err := q.Add(context.Background(), []byte("test text"), int64(i)+1, 0, "", 0, SaveMarkSaveMode)
+			_, err := q.Add(context.Background(), nil, []byte("test text"), int64(i)+1, 0, "", 0, SaveMarkSaveMode)
 			if err != nil {
 				t.Error(err)
 			}
@@ -165,7 +165,7 @@ func TestSimpleQueue_SaveMarkSaveMode_full(t *testing.T) {
 	// Get messages one by one
 	{
 		id := int64(0)
-		msgs, err := q.Get(context.Background(), id, 1)
+		msgs, err := q.Get(context.Background(), nil, id, 1)
 		extID := int64(0)
 		for len(msgs) != 0 {
 			extID++
@@ -182,7 +182,7 @@ func TestSimpleQueue_SaveMarkSaveMode_full(t *testing.T) {
 
 			id = msgs[0].ID
 
-			msgs, err = q.Get(context.Background(), id, 1)
+			msgs, err = q.Get(context.Background(), nil, id, 1)
 		}
 
 		if err != nil {
@@ -208,7 +208,7 @@ func TestSimpleQueue_SaveMarkSaveMode_full(t *testing.T) {
 			t.Errorf("SimpleQueue (SaveMarkSaveMode) torage should be empty")
 		}
 
-		err = q.SaveAll(context.Background())
+		err = q.SaveAll(context.Background(), nil)
 		if err != nil {
 			t.Error(err)
 		}
@@ -245,7 +245,7 @@ func TestSimpleQueue_SaveWaitSaveMode_full(t *testing.T) {
 			go func() {
 				waitMsgs++
 				mx.Unlock()
-				_, err := q.Add(context.Background(), []byte("test text"), int64(iIx)+1, 0, "", 0, SaveWaitSaveMode)
+				_, err := q.Add(context.Background(), nil, []byte("test text"), int64(iIx)+1, 0, "", 0, SaveWaitSaveMode)
 				if err != nil {
 					t.Error(err)
 				}
@@ -265,7 +265,7 @@ func TestSimpleQueue_SaveWaitSaveMode_full(t *testing.T) {
 	// Get messages one by one
 	{
 		id := int64(0)
-		msgs, err := q.Get(context.Background(), id, 1)
+		msgs, err := q.Get(context.Background(), nil, id, 1)
 		extID := int64(0)
 		for len(msgs) != 0 {
 			extID++
@@ -282,7 +282,7 @@ func TestSimpleQueue_SaveWaitSaveMode_full(t *testing.T) {
 
 			id = msgs[0].ID
 
-			msgs, err = q.Get(context.Background(), id, 1)
+			msgs, err = q.Get(context.Background(), nil, id, 1)
 		}
 
 		if err != nil {
@@ -319,7 +319,7 @@ func TestSimpleQueue_SaveWaitSaveMode_full(t *testing.T) {
 			t.Errorf("SimpleQueue (SaveMarkSaveMode) torage should be empty")
 		}
 
-		err = q.SaveAll(context.Background())
+		err = q.SaveAll(context.Background(), nil)
 		if err != nil {
 			t.Error(err)
 		}
@@ -357,7 +357,7 @@ func TestSimpleQueue_SaveMarkSaveMode_Size(t *testing.T) {
 	// Add msgs
 	{
 		for i := 0; i < 10000; i++ {
-			_, err := q.Add(context.Background(), []byte("test text"), int64(i)+1, 0, "", 0, SaveMarkSaveMode)
+			_, err := q.Add(context.Background(), nil, []byte("test text"), int64(i)+1, 0, "", 0, SaveMarkSaveMode)
 			if err != nil {
 				t.Error(err)
 			}
@@ -366,7 +366,7 @@ func TestSimpleQueue_SaveMarkSaveMode_Size(t *testing.T) {
 
 	// save
 	{
-		err := q.SaveAll(context.Background())
+		err := q.SaveAll(context.Background(), nil)
 		if err != nil {
 			t.Error(err)
 		}
@@ -391,7 +391,7 @@ func TestSimpleQueue_SaveMarkSaveMode_unload_and_load(t *testing.T) {
 	// Add msgs
 	{
 		for i := 0; i < 10; i++ {
-			_, err := q.Add(context.Background(), []byte("test text"), int64(i)+1, 0, "", 0, SaveMarkSaveMode)
+			_, err := q.Add(context.Background(), nil, []byte("test text"), int64(i)+1, 0, "", 0, SaveMarkSaveMode)
 			if err != nil {
 				t.Error(err)
 			}
@@ -405,7 +405,7 @@ func TestSimpleQueue_SaveMarkSaveMode_unload_and_load(t *testing.T) {
 	// Get messages one by one
 	{
 		id := int64(0)
-		msgs, err := q.Get(context.Background(), id, 1)
+		msgs, err := q.Get(context.Background(), nil, id, 1)
 		extID := int64(0)
 		for len(msgs) != 0 {
 			extID++
@@ -422,7 +422,7 @@ func TestSimpleQueue_SaveMarkSaveMode_unload_and_load(t *testing.T) {
 
 			id = msgs[0].ID
 
-			msgs, err = q.Get(context.Background(), id, 1)
+			msgs, err = q.Get(context.Background(), nil, id, 1)
 		}
 
 		if err != nil {
@@ -443,7 +443,7 @@ func TestSimpleQueue_SaveMarkSaveMode_unload_and_load(t *testing.T) {
 
 	// save
 	{
-		err := q.SaveAll(context.Background())
+		err := q.SaveAll(context.Background(), nil)
 		if err != nil {
 			t.Error(err)
 		}
@@ -469,7 +469,7 @@ func TestSimpleQueue_SaveMarkSaveMode_unload_and_load(t *testing.T) {
 	// Get messages one by one
 	{
 		id := int64(0)
-		msgs, err := q.Get(context.Background(), id, 1)
+		msgs, err := q.Get(context.Background(), nil, id, 1)
 		extID := int64(0)
 		for len(msgs) != 0 {
 			extID++
@@ -486,7 +486,7 @@ func TestSimpleQueue_SaveMarkSaveMode_unload_and_load(t *testing.T) {
 
 			id = msgs[0].ID
 
-			msgs, err = q.Get(context.Background(), id, 1)
+			msgs, err = q.Get(context.Background(), nil, id, 1)
 		}
 
 		if err != nil {
@@ -508,7 +508,7 @@ func TestSimpleQueue_SaveMarkSaveMode_delete(t *testing.T) {
 	// Add msgs
 	{
 		for i := 0; i < 100; i++ {
-			_, err := q.Add(context.Background(), []byte("test text"), int64(i)+1, 0, "", 0, SaveMarkSaveMode)
+			_, err := q.Add(context.Background(), nil, []byte("test text"), int64(i)+1, 0, "", 0, SaveMarkSaveMode)
 			if err != nil {
 				t.Error(err)
 			}
@@ -522,7 +522,7 @@ func TestSimpleQueue_SaveMarkSaveMode_delete(t *testing.T) {
 	// Get messages one by one
 	{
 		id := int64(0)
-		msgs, err := q.Get(context.Background(), id, 1)
+		msgs, err := q.Get(context.Background(), nil, id, 1)
 		extID := int64(0)
 		for len(msgs) != 0 {
 			extID++
@@ -539,7 +539,7 @@ func TestSimpleQueue_SaveMarkSaveMode_delete(t *testing.T) {
 
 			id = msgs[0].ID
 
-			msgs, err = q.Get(context.Background(), id, 1)
+			msgs, err = q.Get(context.Background(), nil, id, 1)
 		}
 
 		if err != nil {
@@ -549,7 +549,7 @@ func TestSimpleQueue_SaveMarkSaveMode_delete(t *testing.T) {
 
 	// save
 	{
-		err := q.SaveAll(context.Background())
+		err := q.SaveAll(context.Background(), nil)
 		if err != nil {
 			t.Error(err)
 		}
@@ -558,7 +558,7 @@ func TestSimpleQueue_SaveMarkSaveMode_delete(t *testing.T) {
 
 	// delete first 3 blocks
 	{
-		err := q.SetDelete(context.Background(), func(ctx context.Context, i, len int, q *SimpleQueue, block *SimpleQueueBlock) (needDelete bool, err *mft.Error) {
+		err := q.SetDelete(context.Background(), nil, func(ctx context.Context, i, len int, q *SimpleQueue, block *SimpleQueueBlock) (needDelete bool, err *mft.Error) {
 			if i < 3 || i == 5 {
 				return true, nil
 			}
@@ -576,7 +576,7 @@ func TestSimpleQueue_SaveMarkSaveMode_delete(t *testing.T) {
 			t.Errorf("SimpleQueue.Blocks[2].NeedDelete should be true, but value is %v", q.Blocks[2].NeedDelete)
 		}
 
-		err = q.DeleteBlocks(context.Background(), 2)
+		err = q.DeleteBlocks(context.Background(), nil, 2)
 		if err != nil {
 			t.Error(err)
 		}
@@ -593,7 +593,7 @@ func TestSimpleQueue_SaveMarkSaveMode_delete(t *testing.T) {
 		}
 
 		id := int64(0)
-		msgs, err := q.Get(context.Background(), id, 1)
+		msgs, err := q.Get(context.Background(), nil, id, 1)
 		if err != nil {
 			t.Error(err)
 		}
@@ -602,7 +602,7 @@ func TestSimpleQueue_SaveMarkSaveMode_delete(t *testing.T) {
 			t.Errorf("SimpleQueue.Get()[0].ExternalID after delete should be 16, but value is %v", msgs[0].ExternalID)
 		}
 
-		err = q.DeleteBlocks(context.Background(), 0)
+		err = q.DeleteBlocks(context.Background(), nil, 0)
 		if err != nil {
 			t.Error(err)
 		}
@@ -624,7 +624,7 @@ func TestSimpleQueue_SaveMarkSaveMode_moveStorage(t *testing.T) {
 	// Add msgs
 	{
 		for i := 0; i < 100; i++ {
-			_, err := q.Add(context.Background(), []byte("test text"), int64(i)+1, 0, "", 0, SaveMarkSaveMode)
+			_, err := q.Add(context.Background(), nil, []byte("test text"), int64(i)+1, 0, "", 0, SaveMarkSaveMode)
 			if err != nil {
 				t.Error(err)
 			}
@@ -638,7 +638,7 @@ func TestSimpleQueue_SaveMarkSaveMode_moveStorage(t *testing.T) {
 	// Get messages one by one
 	{
 		id := int64(0)
-		msgs, err := q.Get(context.Background(), id, 1)
+		msgs, err := q.Get(context.Background(), nil, id, 1)
 		extID := int64(0)
 		for len(msgs) != 0 {
 			extID++
@@ -655,7 +655,7 @@ func TestSimpleQueue_SaveMarkSaveMode_moveStorage(t *testing.T) {
 
 			id = msgs[0].ID
 
-			msgs, err = q.Get(context.Background(), id, 1)
+			msgs, err = q.Get(context.Background(), nil, id, 1)
 		}
 
 		if err != nil {
@@ -665,7 +665,7 @@ func TestSimpleQueue_SaveMarkSaveMode_moveStorage(t *testing.T) {
 
 	// save
 	{
-		err := q.SaveAll(context.Background())
+		err := q.SaveAll(context.Background(), nil)
 		if err != nil {
 			t.Error(err)
 		}
@@ -693,7 +693,7 @@ func TestSimpleQueue_SaveMarkSaveMode_moveStorage(t *testing.T) {
 			t.Errorf("SimpleQueue.getStorageLock(\"a\") should be equal storA")
 		}
 
-		err = q.SetMarks(context.Background(), func(ctx context.Context, i, len int, q *SimpleQueue, block *SimpleQueueBlock) (needSetMark bool, nextMark string, err *mft.Error) {
+		err = q.SetMarks(context.Background(), nil, func(ctx context.Context, i, len int, q *SimpleQueue, block *SimpleQueueBlock) (needSetMark bool, nextMark string, err *mft.Error) {
 			if i < 3 {
 				return true, "a", nil
 			}
@@ -714,7 +714,7 @@ func TestSimpleQueue_SaveMarkSaveMode_moveStorage(t *testing.T) {
 			t.Errorf("SimpleQueue.Blocks[0].Mark should be \"\", but value is \"%v\"", q.Blocks[0].Mark)
 		}
 
-		err = q.UpdateMarks(context.Background(), 2)
+		err = q.UpdateMarks(context.Background(), nil, 2)
 		if err != nil {
 			t.Error(err)
 		}
@@ -754,14 +754,14 @@ func TestSimpleQueue_SaveMarkSaveMode_moveStorage(t *testing.T) {
 			t.Errorf("SimpleQueue.Blocks[2].Mark should be \"\", but value is \"%v\"", q.Blocks[2].Mark)
 		}
 
-		err = q.SetUnload(context.Background(), func(ctx context.Context, i, len int, q *SimpleQueue, block *SimpleQueueBlock) (needUnload bool, err *mft.Error) {
+		err = q.SetUnload(context.Background(), nil, func(ctx context.Context, i, len int, q *SimpleQueue, block *SimpleQueueBlock) (needUnload bool, err *mft.Error) {
 			return true, nil
 		})
 		if err != nil {
 			t.Error(err)
 		}
 
-		err = q.UpdateMarks(context.Background(), 2)
+		err = q.UpdateMarks(context.Background(), nil, 2)
 		if err != nil {
 			t.Error(err)
 		}
@@ -786,7 +786,7 @@ func TestSimpleQueue_SaveMarkSaveMode_moveStorage(t *testing.T) {
 	// Get messages one by one step 2
 	{
 		id := int64(0)
-		msgs, err := q.Get(context.Background(), id, 1)
+		msgs, err := q.Get(context.Background(), nil, id, 1)
 		extID := int64(0)
 		for len(msgs) != 0 {
 			extID++
@@ -803,7 +803,7 @@ func TestSimpleQueue_SaveMarkSaveMode_moveStorage(t *testing.T) {
 
 			id = msgs[0].ID
 
-			msgs, err = q.Get(context.Background(), id, 1)
+			msgs, err = q.Get(context.Background(), nil, id, 1)
 		}
 
 		if err != nil {
@@ -813,7 +813,7 @@ func TestSimpleQueue_SaveMarkSaveMode_moveStorage(t *testing.T) {
 
 	// move step 2
 	{
-		err := q.UpdateMarks(context.Background(), 0)
+		err := q.UpdateMarks(context.Background(), nil, 0)
 		if err != nil {
 			t.Error(err)
 		}
@@ -842,7 +842,7 @@ func TestSimpleQueue_SaveMarkSaveMode_saveUnique(t *testing.T) {
 			if i%3 == 1 {
 				source = "B"
 			}
-			_, err := q.AddUnique(context.Background(), []byte("test text"), int64(i)+1, 0, source, 0, SaveMarkSaveMode)
+			_, err := q.AddUnique(context.Background(), nil, []byte("test text"), int64(i)+1, 0, source, 0, SaveMarkSaveMode)
 			if err != nil {
 				t.Error(err)
 			}
@@ -860,7 +860,7 @@ func TestSimpleQueue_SaveMarkSaveMode_saveUnique(t *testing.T) {
 	// Get messages one by one
 	{
 		id := int64(0)
-		msgs, err := q.Get(context.Background(), id, 1)
+		msgs, err := q.Get(context.Background(), nil, id, 1)
 		extID := int64(0)
 		for len(msgs) != 0 {
 			extID++
@@ -877,7 +877,7 @@ func TestSimpleQueue_SaveMarkSaveMode_saveUnique(t *testing.T) {
 
 			id = msgs[0].ID
 
-			msgs, err = q.Get(context.Background(), id, 1)
+			msgs, err = q.Get(context.Background(), nil, id, 1)
 		}
 
 		if err != nil {
@@ -889,7 +889,7 @@ func TestSimpleQueue_SaveMarkSaveMode_saveUnique(t *testing.T) {
 	{
 		for i := 0; i < 100; i++ {
 			source := "A"
-			_, err := q.AddUnique(context.Background(), []byte("test text"), int64(i)+1, 0, source, 0, SaveMarkSaveMode)
+			_, err := q.AddUnique(context.Background(), nil, []byte("test text"), int64(i)+1, 0, source, 0, SaveMarkSaveMode)
 			if err != nil {
 				t.Error(err)
 			}
@@ -913,7 +913,7 @@ func TestSimpleQueue_SaveMarkSaveMode_load(t *testing.T) {
 	// Add msgs
 	{
 		for i := 0; i < 10; i++ {
-			_, err := q.Add(context.Background(), []byte("test text"), int64(i)+1, 0, "", 0, SaveMarkSaveMode)
+			_, err := q.Add(context.Background(), nil, []byte("test text"), int64(i)+1, 0, "", 0, SaveMarkSaveMode)
 			if err != nil {
 				t.Error(err)
 			}
@@ -927,7 +927,7 @@ func TestSimpleQueue_SaveMarkSaveMode_load(t *testing.T) {
 	// Get messages one by one
 	{
 		id := int64(0)
-		msgs, err := q.Get(context.Background(), id, 1)
+		msgs, err := q.Get(context.Background(), nil, id, 1)
 		extID := int64(0)
 		for len(msgs) != 0 {
 			extID++
@@ -944,7 +944,7 @@ func TestSimpleQueue_SaveMarkSaveMode_load(t *testing.T) {
 
 			id = msgs[0].ID
 
-			msgs, err = q.Get(context.Background(), id, 1)
+			msgs, err = q.Get(context.Background(), nil, id, 1)
 		}
 
 		if err != nil {
@@ -954,7 +954,7 @@ func TestSimpleQueue_SaveMarkSaveMode_load(t *testing.T) {
 
 	// save
 	{
-		err := q.SaveAll(context.Background())
+		err := q.SaveAll(context.Background(), nil)
 		if err != nil {
 			t.Error(err)
 		}
@@ -970,7 +970,7 @@ func TestSimpleQueue_SaveMarkSaveMode_load(t *testing.T) {
 	// Get messages one by one q2
 	{
 		id := int64(0)
-		msgs, err := q2.Get(context.Background(), id, 1)
+		msgs, err := q2.Get(context.Background(), nil, id, 1)
 		extID := int64(0)
 		for len(msgs) != 0 {
 			extID++
@@ -987,7 +987,7 @@ func TestSimpleQueue_SaveMarkSaveMode_load(t *testing.T) {
 
 			id = msgs[0].ID
 
-			msgs, err = q2.Get(context.Background(), id, 1)
+			msgs, err = q2.Get(context.Background(), nil, id, 1)
 		}
 
 		if err != nil {

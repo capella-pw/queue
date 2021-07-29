@@ -267,7 +267,7 @@ func QueueAddUnique(queueName string,
 			return GenerateError(10191200, queueName)
 		}
 
-		id, err := q.AddUnique(ctx, message, externalID, externalDt, source, segment, saveMode)
+		id, err := q.AddUnique(ctx, nil, message, externalID, externalDt, source, segment, saveMode)
 
 		if err != nil {
 			return GenerateErrorE(10191202, err, queueName)
@@ -295,7 +295,7 @@ func QueueAddUniqueList(queueName string,
 			return GenerateError(10191210, queueName)
 		}
 
-		ids, err := q.AddUniqueList(ctx, messages, saveMode)
+		ids, err := q.AddUniqueList(ctx, nil, messages, saveMode)
 
 		if err != nil {
 			return GenerateErrorE(10191212, err, queueName)

@@ -164,7 +164,7 @@ func (rsh *BlockMarkHandler) Start(ctx context.Context) (err *mft.Error) {
 				} else if sq, ok := q.(*queue.SimpleQueue); !ok {
 					err = GenerateErrorForClusterUser(rsh, 10118402, rsh.QueueName)
 				} else {
-					err = sq.SetMarks(ctxInternalMark,
+					err = sq.SetMarks(ctxInternalMark, rsh,
 						func(ctx context.Context,
 							i int, len int,
 							q *queue.SimpleQueue, block *queue.SimpleQueueBlock,
@@ -184,7 +184,7 @@ func (rsh *BlockMarkHandler) Start(ctx context.Context) (err *mft.Error) {
 					} else {
 						ctxInternalUpdate, cancelUpdate = context.WithTimeout(context.Background(), rsh.WaitUpdate)
 
-						err = sq.UpdateMarks(ctxInternalUpdate, rsh.LimitUpdateBlocks)
+						err = sq.UpdateMarks(ctxInternalUpdate, rsh, rsh.LimitUpdateBlocks)
 						if err != nil {
 							err = GenerateErrorForClusterUserE(rsh, 10118404, err, rsh.QueueName)
 						}

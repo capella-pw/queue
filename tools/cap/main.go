@@ -282,7 +282,7 @@ func main() {
 					return err
 				}
 
-				messages, err = q.Get(ctx, *fID, *fQty)
+				messages, err = q.Get(ctx, nil, *fID, *fQty)
 				return err
 			})
 		if err != nil {
@@ -316,7 +316,7 @@ func main() {
 					return err
 				}
 
-				ids, err = q.AddUniqueList(ctx, messages, *fSaveMode)
+				ids, err = q.AddUniqueList(ctx, nil, messages, *fSaveMode)
 
 				return err
 			})

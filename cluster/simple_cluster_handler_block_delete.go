@@ -148,7 +148,7 @@ func (rsh *BlockDeleteHandler) Start(ctx context.Context) (err *mft.Error) {
 
 					dtCheck := time.Now().Add(-rsh.StorageTime).Add(-sq.TimeLimit)
 
-					err = sq.SetDelete(ctxInternalMark,
+					err = sq.SetDelete(ctxInternalMark, rsh,
 						func(ctx context.Context,
 							i int, len int,
 							q *queue.SimpleQueue, block *queue.SimpleQueueBlock,
@@ -164,7 +164,7 @@ func (rsh *BlockDeleteHandler) Start(ctx context.Context) (err *mft.Error) {
 					} else {
 						ctxInternalDelete, cancelDelete = context.WithTimeout(context.Background(), rsh.WaitDelete)
 
-						err = sq.DeleteBlocks(ctxInternalDelete, rsh.LimitDelete)
+						err = sq.DeleteBlocks(ctxInternalDelete, rsh, rsh.LimitDelete)
 						if err != nil {
 							err = GenerateErrorForClusterUserE(rsh, 10118204, err, rsh.QueueName)
 						}

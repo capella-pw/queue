@@ -186,12 +186,12 @@ func (s *Source) LoadMessageFromCG(st *Settings) (msgs []queue.MessageJsonBody, 
 				return err
 			}
 
-			lastId, err = q.SubscriberGetLastRead(ctx, s.QueueSubscribeName)
+			lastId, err = q.SubscriberGetLastRead(ctx, nil, s.QueueSubscribeName)
 			if err != nil {
 				return err
 			}
 
-			messages, err = q.Get(ctx, lastId, s.Quantity)
+			messages, err = q.Get(ctx, nil, lastId, s.Quantity)
 			return err
 		})
 	if err != nil {
@@ -275,7 +275,7 @@ func (s *Source) MarkCompleteMessagesFromCG(st *Settings, msgs []queue.MessageJs
 				return err
 			}
 
-			err = q.SubscriberSetLastRead(ctx, s.QueueSubscribeName, lastId, s.QueueSaveMode)
+			err = q.SubscriberSetLastRead(ctx, nil, s.QueueSubscribeName, lastId, s.QueueSaveMode)
 			return err
 		})
 	if err != nil {
@@ -347,7 +347,7 @@ func (s *Source) SetMessagesFromCG(st *Settings, msgs []queue.MessageJsonBody) (
 				return err
 			}
 
-			ids, err = q.AddUniqueList(ctx, messages, s.QueueSaveMode)
+			ids, err = q.AddUniqueList(ctx, nil, messages, s.QueueSaveMode)
 			return err
 		})
 	if err != nil {

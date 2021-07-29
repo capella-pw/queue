@@ -119,7 +119,7 @@ func (rsh *RegularlySaveHandler) Start(ctx context.Context) (err *mft.Error) {
 				} else if !exists {
 					err = GenerateErrorForClusterUser(rsh, 10117401, rsh.QueueName)
 				} else {
-					err = q.SaveAll(ctxInternal)
+					err = q.SaveAll(ctxInternal, rsh)
 					if err != nil {
 						err = GenerateErrorForClusterUserE(rsh, 10117402, err, rsh.QueueName)
 					}

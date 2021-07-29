@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/capella-pw/queue/cn"
 	"github.com/myfantasy/mft"
 )
 
@@ -54,21 +55,21 @@ type ReindexTask struct {
 }
 
 type Storage interface {
-	ISet(ctx context.Context, user DBUser, req IAddStorageRequest) (err *mft.Error)
-	SSet(ctx context.Context, user DBUser, req SAddStorageRequest) (err *mft.Error)
+	ISet(ctx context.Context, user cn.CapUser, req IAddStorageRequest) (err *mft.Error)
+	SSet(ctx context.Context, user cn.CapUser, req SAddStorageRequest) (err *mft.Error)
 
-	ISetList(ctx context.Context, user DBUser, req []IAddStorageRequest) (err *mft.Error)
-	SSetList(ctx context.Context, user DBUser, req []SAddStorageRequest) (err *mft.Error)
+	ISetList(ctx context.Context, user cn.CapUser, req []IAddStorageRequest) (err *mft.Error)
+	SSetList(ctx context.Context, user cn.CapUser, req []SAddStorageRequest) (err *mft.Error)
 
-	IGet(ctx context.Context, user DBUser, req IGetItemRequest) (res map[int64]*IItem, err *mft.Error)
-	SGet(ctx context.Context, user DBUser, req SGetItemRequest) (res map[string]*SItem, err *mft.Error)
+	IGet(ctx context.Context, user cn.CapUser, req IGetItemRequest) (res map[int64]*IItem, err *mft.Error)
+	SGet(ctx context.Context, user cn.CapUser, req SGetItemRequest) (res map[string]*SItem, err *mft.Error)
 
 	// ReIndexItems - reindex current items: add index by last version and remove by previous
-	ReIndexItems(ctx context.Context, user DBUser, req []IGetItemRequest) (err *mft.Error)
+	ReIndexItems(ctx context.Context, user cn.CapUser, req []IGetItemRequest) (err *mft.Error)
 	// ReIndexAllTaskDo starts reindex if starts by this command then StartedNow = true
-	ReIndexAllTaskDo(ctx context.Context, user DBUser) (resp ReindexTask, err *mft.Error)
-	ReIndexAllTaskGet(ctx context.Context, user DBUser) (resp ReindexTask, err *mft.Error)
+	ReIndexAllTaskDo(ctx context.Context, user cn.CapUser) (resp ReindexTask, err *mft.Error)
+	ReIndexAllTaskGet(ctx context.Context, user cn.CapUser) (resp ReindexTask, err *mft.Error)
 
-	OptimizeAll(ctx context.Context, user DBUser, deph int) (err *mft.Error)
-	Optimize(ctx context.Context, user DBUser, segment, deph int) (err *mft.Error)
+	OptimizeAll(ctx context.Context, user cn.CapUser, deph int) (err *mft.Error)
+	Optimize(ctx context.Context, user cn.CapUser, segment, deph int) (err *mft.Error)
 }

@@ -45,6 +45,11 @@ type QueueLoadDescription struct {
 	RelativePath string          `json:"relative_path"`
 	Params       json.RawMessage `json:"params"`
 	Queue        queue.Queue     `json:"-"`
+	Owner        string          `json:"owner"`
+}
+
+func (qld *QueueLoadDescription) GetName() string {
+	return qld.Owner
 }
 
 func (qld *QueueLoadDescription) QueueDescription() QueueDescription {
@@ -53,6 +58,7 @@ func (qld *QueueLoadDescription) QueueDescription() QueueDescription {
 		Type:         qld.Type,
 		CreateOnLoad: qld.CreateOnLoad,
 		Params:       qld.Params,
+		Owner:        qld.Owner,
 	}
 
 	return qd
@@ -332,13 +338,14 @@ func SimppleQueueNewGenerator(ctx context.Context, storageGenerator *storage.Gen
 	sq.DefaultSaveMode = sqp.DefaultSaveMode
 	sq.UseDefaultSaveModeForce = sqp.UseDefaultSaveModeForce
 
-	err = sq.SaveAll(ctx)
+	err = sq.SaveAll(ctx, queueDescription)
 	if err != nil {
 		return nil, GenerateErrorE(10105005, err, qd.Name)
 	}
 
 	qd.Params = queueDescription.Params
 	qd.Queue = sq
+	qd.Owner = queueDescription.Owner
 
 	return qd, nil
 }

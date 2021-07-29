@@ -4,6 +4,7 @@ import (
 	"context"
 	"sort"
 
+	"github.com/capella-pw/queue/cn"
 	"github.com/myfantasy/mfs"
 	"github.com/myfantasy/mft"
 )
@@ -16,7 +17,7 @@ type SimpleIndex struct {
 	mx mfs.PMutex
 
 	// case nil then ignore
-	CheckPermissionFunc func(user DBUser, objectType string, action string, objectName string) (allowed bool, err *mft.Error) `json:"-"`
+	CheckPermissionFunc func(user cn.CapUser, objectType string, action string, objectName string) (allowed bool, err *mft.Error) `json:"-"`
 	// case nil then ignore
 	ThrowErrorFunc func(err *mft.Error) bool `json:"-"`
 }
@@ -77,7 +78,7 @@ func (si *SimpleIndex) ThrowError(err *mft.Error) bool {
 	return si.ThrowErrorFunc(err)
 }
 
-func (si *SimpleIndex) CheckPermission(user DBUser, objectType string, action string, objectName string) (allowed bool, err *mft.Error) {
+func (si *SimpleIndex) CheckPermission(user cn.CapUser, objectType string, action string, objectName string) (allowed bool, err *mft.Error) {
 	if si == nil {
 		return false, nil
 	}
@@ -89,7 +90,7 @@ func (si *SimpleIndex) CheckPermission(user DBUser, objectType string, action st
 	return si.CheckPermissionFunc(user, objectType, action, objectName)
 }
 
-func (si *SimpleIndex) CheckOneOfPermission(user DBUser, objectType string, objectName string, actions ...string) (allowed bool, err *mft.Error) {
+func (si *SimpleIndex) CheckOneOfPermission(user cn.CapUser, objectType string, objectName string, actions ...string) (allowed bool, err *mft.Error) {
 	if si == nil {
 		return false, nil
 	}
@@ -111,13 +112,13 @@ func (si *SimpleIndex) CheckOneOfPermission(user DBUser, objectType string, obje
 	return false, nil
 }
 
-func (si *SimpleIndex) IAdd(ctx context.Context, user DBUser, req IAddIndexRequest) (err *mft.Error) {
+func (si *SimpleIndex) IAdd(ctx context.Context, user cn.CapUser, req IAddIndexRequest) (err *mft.Error) {
 	allowed, err := si.CheckOneOfPermission(user, IndexObjectType, si.Name, INDEX_OWNER, IAdd)
 	if err != nil {
 		return err
 	}
 	if !allowed {
-		return GenerateErrorForDBUser(user, 10401001)
+		return GenerateErrorForCapUser(user, 10401001)
 	}
 
 	if !si.mx.RTryLock(ctx) {
@@ -150,13 +151,13 @@ func (si *SimpleIndex) IAdd(ctx context.Context, user DBUser, req IAddIndexReque
 
 	return err
 }
-func (si *SimpleIndex) SAdd(ctx context.Context, user DBUser, req SAddIndexRequest) (err *mft.Error) {
+func (si *SimpleIndex) SAdd(ctx context.Context, user cn.CapUser, req SAddIndexRequest) (err *mft.Error) {
 	allowed, err := si.CheckOneOfPermission(user, IndexObjectType, si.Name, INDEX_OWNER, SAdd)
 	if err != nil {
 		return err
 	}
 	if !allowed {
-		return GenerateErrorForDBUser(user, 10401051)
+		return GenerateErrorForCapUser(user, 10401051)
 	}
 
 	if !si.mx.RTryLock(ctx) {
@@ -359,7 +360,7 @@ func SRecordsAdd(records []SIndexRecord, record *SIndexRecord) (res []SIndexReco
 	return res
 }
 
-func (si *SimpleIndex) Save(ctx context.Context, user DBUser) (err *mft.Error) {
+func (si *SimpleIndex) Save(ctx context.Context, user cn.CapUser) (err *mft.Error) {
 	// Get struct
 	// Save all blocks
 	// Save struct

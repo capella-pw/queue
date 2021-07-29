@@ -3,25 +3,27 @@ package queue
 import (
 	"context"
 
+	"github.com/capella-pw/queue/cn"
 	"github.com/myfantasy/mft"
 	"github.com/myfantasy/segment"
 )
 
 // SubscribeCopyUnique subscribe on to queue and copy (addUniqueList) to destination
-func SubscribeCopyUnique(src Queue, dst Queue, saveModeSrc int, saveModeDst int,
+func SubscribeCopyUnique(src Queue, dst Queue,
+	userSrc cn.CapUser, userDst cn.CapUser, saveModeSrc int, saveModeDst int,
 	subscriberName string, cntLimit int, doSaveDst bool,
 	segments *segment.Segments,
 ) func(ctx context.Context) (isEmpty bool, err *mft.Error) {
 	var id int64
 	return func(ctx context.Context) (isEmpty bool, err *mft.Error) {
 		if id == 0 {
-			id, err = src.SubscriberGetLastRead(ctx, subscriberName)
+			id, err = src.SubscriberGetLastRead(ctx, userSrc, subscriberName)
 			if err != nil {
 				return false, err
 			}
 		}
 
-		mesages, lastID, err := src.GetSegment(ctx, id, cntLimit, segments)
+		mesages, lastID, err := src.GetSegment(ctx, userSrc, id, cntLimit, segments)
 		if err != nil {
 			return false, err
 		}
@@ -37,14 +39,14 @@ func SubscribeCopyUnique(src Queue, dst Queue, saveModeSrc int, saveModeDst int,
 				messageSend = append(messageSend, mesages[i].ToMessage())
 			}
 
-			_, err = dst.AddUniqueList(ctx, messageSend, saveModeDst)
+			_, err = dst.AddUniqueList(ctx, userDst, messageSend, saveModeDst)
 
 			if err != nil {
 				return false, err
 			}
 
 			if doSaveDst {
-				err = dst.SaveAll(ctx)
+				err = dst.SaveAll(ctx, userDst)
 				if err != nil {
 					return false, err
 				}
@@ -52,7 +54,7 @@ func SubscribeCopyUnique(src Queue, dst Queue, saveModeSrc int, saveModeDst int,
 		}
 
 		if lastID > id {
-			err = src.SubscriberSetLastRead(ctx, subscriberName, lastID, saveModeSrc)
+			err = src.SubscriberSetLastRead(ctx, userSrc, subscriberName, lastID, saveModeSrc)
 			if err != nil {
 				return false, err
 			}

@@ -141,7 +141,7 @@ func (rsh *BlockUnloadHandler) Start(ctx context.Context) (err *mft.Error) {
 					dtCheck := time.Now().Add(-rsh.StorageMemoryTime).Add(-sq.TimeLimit)
 					dtCheckLoad := time.Now().Add(-rsh.StorageLastLoadTime)
 
-					err = sq.SetUnload(ctxInternalMark,
+					err = sq.SetUnload(ctxInternalMark, rsh,
 						func(ctx context.Context,
 							i int, len int,
 							q *queue.SimpleQueue, block *queue.SimpleQueueBlock) (needUnload bool, err *mft.Error) {

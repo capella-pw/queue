@@ -3,6 +3,7 @@ package db
 import (
 	"fmt"
 
+	"github.com/capella-pw/queue/cn"
 	"github.com/myfantasy/mft"
 )
 
@@ -37,7 +38,7 @@ func GenerateErrorE(key int, err error, a ...interface{}) *mft.Error {
 }
 
 // GenerateError -
-func GenerateErrorForDBUser(user DBUser, key int, a ...interface{}) *mft.Error {
+func GenerateErrorForCapUser(user cn.CapUser, key int, a ...interface{}) *mft.Error {
 	userName := "???"
 	if user != nil {
 		userName = "\"" + user.GetName() + "\""
@@ -45,11 +46,11 @@ func GenerateErrorForDBUser(user DBUser, key int, a ...interface{}) *mft.Error {
 	if text, ok := Errors[key]; ok {
 		return mft.ErrorCS(key, "[user:"+userName+"] "+fmt.Sprintf(text, a...))
 	}
-	panic(fmt.Sprintf("db.GenerateErrorForDBUser, error not found code:%v", key))
+	panic(fmt.Sprintf("db.GenerateErrorForcn.CapUser, error not found code:%v", key))
 }
 
 // GenerateError -
-func GenerateErrorForDBUserE(user DBUser, key int, err error, a ...interface{}) *mft.Error {
+func GenerateErrorForCapUserE(user cn.CapUser, key int, err error, a ...interface{}) *mft.Error {
 	userName := "???"
 	if user != nil {
 		userName = "\"" + user.GetName() + "\""
@@ -57,5 +58,5 @@ func GenerateErrorForDBUserE(user DBUser, key int, err error, a ...interface{}) 
 	if text, ok := Errors[key]; ok {
 		return mft.ErrorCSE(key, "[user:"+userName+"] "+fmt.Sprintf(text, a...), err)
 	}
-	panic(fmt.Sprintf("db.GenerateErrorForDBUserE, error not found code:%v", key))
+	panic(fmt.Sprintf("db.GenerateErrorForcn.CapUserE, error not found code:%v", key))
 }

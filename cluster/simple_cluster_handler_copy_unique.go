@@ -161,6 +161,8 @@ func (rsh *CopyUniqueHandler) Start(ctx context.Context) (err *mft.Error) {
 		copy := queue.SubscribeCopyUnique(
 			srcQueue,
 			dstQueue,
+			rsh,
+			rsh,
 			rsh.SaveModeSrc,
 			rsh.SaveModeDst,
 			rsh.SubscriberName,

@@ -17,7 +17,7 @@ func TestSubscribeCopy_base(t *testing.T) {
 	q1.Source = "55"
 	q2.Source = "66"
 
-	copy := SubscribeCopyUnique(q1, q2, SaveMarkSaveMode, SaveMarkSaveMode, "q2_subscr", 3, false, nil)
+	copy := SubscribeCopyUnique(q1, q2, nil, nil, SaveMarkSaveMode, SaveMarkSaveMode, "q2_subscr", 3, false, nil)
 
 	ctx := context.Background()
 
@@ -34,7 +34,7 @@ func TestSubscribeCopy_base(t *testing.T) {
 	// Add msgs
 	{
 		for i := 0; i < 10; i++ {
-			_, err := q1.Add(context.Background(), []byte("test text"), int64(i)+1, 0, "", 0, NotSaveSaveMode)
+			_, err := q1.Add(context.Background(), nil, []byte("test text"), int64(i)+1, 0, "", 0, NotSaveSaveMode)
 			if err != nil {
 				t.Error(err)
 			}
@@ -60,7 +60,7 @@ func TestSubscribeCopy_base(t *testing.T) {
 	// Get messages one by one
 	{
 		id := int64(0)
-		msgs, err := q2.Get(context.Background(), id, 1)
+		msgs, err := q2.Get(context.Background(), nil, id, 1)
 		extID := int64(0)
 		for len(msgs) != 0 {
 			extID++
@@ -82,7 +82,7 @@ func TestSubscribeCopy_base(t *testing.T) {
 
 			id = msgs[0].ID
 
-			msgs, err = q2.Get(context.Background(), id, 1)
+			msgs, err = q2.Get(context.Background(), nil, id, 1)
 		}
 
 		if err != nil {
@@ -110,7 +110,7 @@ func TestSubscribeCopy_base(t *testing.T) {
 	// Get messages one by one
 	{
 		id := int64(0)
-		msgs, err := q2.Get(context.Background(), id, 1)
+		msgs, err := q2.Get(context.Background(), nil, id, 1)
 		extID := int64(0)
 		for len(msgs) != 0 {
 			extID++
@@ -132,7 +132,7 @@ func TestSubscribeCopy_base(t *testing.T) {
 
 			id = msgs[0].ID
 
-			msgs, err = q2.Get(context.Background(), id, 1)
+			msgs, err = q2.Get(context.Background(), nil, id, 1)
 		}
 
 		if err != nil {

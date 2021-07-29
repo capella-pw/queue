@@ -41,7 +41,7 @@ func main() {
 
 	message := "Hello WORLD"
 
-	id, err := q.Add(context.Background(), []byte(message), 5, time.Now().Unix(), "s1", 1, queue.SaveImmediatelySaveMode)
+	id, err := q.Add(context.Background(), nil, []byte(message), 5, time.Now().Unix(), "s1", 1, queue.SaveImmediatelySaveMode)
 
 	if err != nil {
 		log.Fatalln(err)

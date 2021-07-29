@@ -41,7 +41,7 @@ func main() {
 
 	message := "Hello WORLD"
 
-	msgs, err := q.Get(context.Background(), 0, 1)
+	msgs, err := q.Get(context.Background(), nil, 0, 1)
 
 	if err != nil {
 		log.Fatalln(err)
@@ -68,7 +68,7 @@ func main() {
 
 	checkLastId := msgs[0].ID
 
-	msgs, lastId, err := q.GetSegment(context.Background(), 0, 1, segment.MakeSegments())
+	msgs, lastId, err := q.GetSegment(context.Background(), nil, 0, 1, segment.MakeSegments())
 	if err != nil {
 		log.Fatalf("GetSegment err: %v\n", err)
 		os.Exit(1)

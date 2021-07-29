@@ -100,7 +100,7 @@ func main() {
 
 	message := "Hello WORLD"
 
-	msgs, err := q.Get(context.Background(), 0, 1)
+	msgs, err := q.Get(context.Background(), nil, 0, 1)
 
 	if err != nil {
 		log.Fatalln(err)

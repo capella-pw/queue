@@ -380,7 +380,7 @@ func CallFuncInCluster(ctx context.Context, cluster Cluster, request *RequestBod
 			return responce
 		}
 
-		id, err := queue.Add(ctx, qReq.Message.Message, qReq.Message.ExternalID, qReq.Message.ExternalDt, qReq.Message.Source, qReq.Message.Segment, qReq.SaveMode)
+		id, err := queue.Add(ctx, request, qReq.Message.Message, qReq.Message.ExternalID, qReq.Message.ExternalDt, qReq.Message.Source, qReq.Message.Segment, qReq.SaveMode)
 
 		responce = MarshalResponceMust(id, err)
 		return responce
@@ -393,7 +393,7 @@ func CallFuncInCluster(ctx context.Context, cluster Cluster, request *RequestBod
 			return responce
 		}
 
-		ids, err := queue.AddList(ctx, qReq.Messages, qReq.SaveMode)
+		ids, err := queue.AddList(ctx, request, qReq.Messages, qReq.SaveMode)
 
 		responce = MarshalResponceMust(ids, err)
 		return responce
@@ -407,7 +407,7 @@ func CallFuncInCluster(ctx context.Context, cluster Cluster, request *RequestBod
 			return responce
 		}
 
-		messages, err := queue.Get(ctx, qReq.IdStart, qReq.CntLimit)
+		messages, err := queue.Get(ctx, request, qReq.IdStart, qReq.CntLimit)
 
 		responce = MarshalResponceMust(messages, err)
 		return responce
@@ -421,7 +421,7 @@ func CallFuncInCluster(ctx context.Context, cluster Cluster, request *RequestBod
 			return responce
 		}
 
-		messages, lastId, err := queue.GetSegment(ctx, qReq.IdStart, qReq.CntLimit, qReq.Segments)
+		messages, lastId, err := queue.GetSegment(ctx, request, qReq.IdStart, qReq.CntLimit, qReq.Segments)
 
 		responce = MarshalResponceMust(QueueGetSegmentResponce{
 			Messages: messages,
@@ -436,7 +436,7 @@ func CallFuncInCluster(ctx context.Context, cluster Cluster, request *RequestBod
 			return responce
 		}
 
-		err := queue.SaveAll(ctx)
+		err := queue.SaveAll(ctx, request)
 
 		responce = MarshalResponceMust(nil, err)
 		return responce
@@ -450,7 +450,7 @@ func CallFuncInCluster(ctx context.Context, cluster Cluster, request *RequestBod
 			return responce
 		}
 
-		id, err := queue.AddUnique(ctx, qReq.Message.Message, qReq.Message.ExternalID, qReq.Message.ExternalDt, qReq.Message.Source, qReq.Message.Segment, qReq.SaveMode)
+		id, err := queue.AddUnique(ctx, request, qReq.Message.Message, qReq.Message.ExternalID, qReq.Message.ExternalDt, qReq.Message.Source, qReq.Message.Segment, qReq.SaveMode)
 
 		responce = MarshalResponceMust(id, err)
 		return responce
@@ -463,7 +463,7 @@ func CallFuncInCluster(ctx context.Context, cluster Cluster, request *RequestBod
 			return responce
 		}
 
-		ids, err := queue.AddUniqueList(ctx, qReq.Messages, qReq.SaveMode)
+		ids, err := queue.AddUniqueList(ctx, request, qReq.Messages, qReq.SaveMode)
 
 		responce = MarshalResponceMust(ids, err)
 		return responce
@@ -477,7 +477,7 @@ func CallFuncInCluster(ctx context.Context, cluster Cluster, request *RequestBod
 			return responce
 		}
 
-		err := queue.SubscriberSetLastRead(ctx, qReq.Subscriber, qReq.Id, qReq.SaveMode)
+		err := queue.SubscriberSetLastRead(ctx, request, qReq.Subscriber, qReq.Id, qReq.SaveMode)
 
 		responce = MarshalResponceMust(nil, err)
 		return responce
@@ -490,7 +490,7 @@ func CallFuncInCluster(ctx context.Context, cluster Cluster, request *RequestBod
 			return responce
 		}
 
-		id, err := queue.SubscriberGetLastRead(ctx, subscriber)
+		id, err := queue.SubscriberGetLastRead(ctx, request, subscriber)
 
 		responce = MarshalResponceMust(id, err)
 		return responce
@@ -504,7 +504,7 @@ func CallFuncInCluster(ctx context.Context, cluster Cluster, request *RequestBod
 			return responce
 		}
 
-		err := queue.SubscriberAddReplicaMember(ctx, subscriber)
+		err := queue.SubscriberAddReplicaMember(ctx, request, subscriber)
 
 		responce = MarshalResponceMust(nil, err)
 		return responce
@@ -518,7 +518,7 @@ func CallFuncInCluster(ctx context.Context, cluster Cluster, request *RequestBod
 			return responce
 		}
 
-		err := queue.SubscriberRemoveReplicaMember(ctx, subscriber)
+		err := queue.SubscriberRemoveReplicaMember(ctx, request, subscriber)
 
 		responce = MarshalResponceMust(nil, err)
 		return responce
@@ -532,7 +532,7 @@ func CallFuncInCluster(ctx context.Context, cluster Cluster, request *RequestBod
 			return responce
 		}
 
-		cnt, err := queue.SubscriberGetReplicaCount(ctx, id)
+		cnt, err := queue.SubscriberGetReplicaCount(ctx, request, id)
 
 		responce = MarshalResponceMust(cnt, err)
 		return responce
@@ -863,8 +863,11 @@ type ExternalAbstractQueue struct {
 	CallFunc  func(ctx context.Context, request *RequestBody) (responce *ResponceBody)
 }
 
-func (eac *ExternalAbstractQueue) MarshalRequestMust(action string, v interface{}) *RequestBody {
-	request := MarshalRequestMust(eac.User, action, v)
+func (eac *ExternalAbstractQueue) MarshalRequestMust(user cn.CapUser, action string, v interface{}) *RequestBody {
+	request := MarshalRequestMust( //eac.User,
+		user,
+		action,
+		v)
 	request.ObjectName = eac.QueueName
 
 	return request
@@ -875,8 +878,8 @@ type QueueAddRequest struct {
 	SaveMode int           `json:"sm"`
 }
 
-func (eac *ExternalAbstractQueue) Add(ctx context.Context, message []byte, externalID int64, externalDt int64, source string, segment int64, saveMode int) (id int64, err *mft.Error) {
-	request := eac.MarshalRequestMust(cn.OpQueueAdd, QueueAddRequest{
+func (eac *ExternalAbstractQueue) Add(ctx context.Context, user cn.CapUser, message []byte, externalID int64, externalDt int64, source string, segment int64, saveMode int) (id int64, err *mft.Error) {
+	request := eac.MarshalRequestMust(user, cn.OpQueueAdd, QueueAddRequest{
 		Message: queue.Message{
 			ExternalID: externalID,
 			ExternalDt: externalDt,
@@ -898,11 +901,12 @@ type QueueAddListRequest struct {
 	SaveMode int             `json:"sm"`
 }
 
-func (eac *ExternalAbstractQueue) AddList(ctx context.Context, messages []queue.Message, saveMode int) (ids []int64, err *mft.Error) {
-	request := eac.MarshalRequestMust(cn.OpQueueAddList, QueueAddListRequest{
-		Messages: messages,
-		SaveMode: saveMode,
-	})
+func (eac *ExternalAbstractQueue) AddList(ctx context.Context, user cn.CapUser, messages []queue.Message, saveMode int) (ids []int64, err *mft.Error) {
+	request := eac.MarshalRequestMust(user,
+		cn.OpQueueAddList, QueueAddListRequest{
+			Messages: messages,
+			SaveMode: saveMode,
+		})
 	responce := eac.CallFunc(ctx, request)
 
 	err = responce.UnmarshalInnerObject(&ids)
@@ -915,11 +919,12 @@ type QueueGetRequest struct {
 	CntLimit int   `json:"cnt_limit"`
 }
 
-func (eac *ExternalAbstractQueue) Get(ctx context.Context, idStart int64, cntLimit int) (messages []*queue.MessageWithMeta, err *mft.Error) {
-	request := eac.MarshalRequestMust(cn.OpQueueGet, QueueGetRequest{
-		IdStart:  idStart,
-		CntLimit: cntLimit,
-	})
+func (eac *ExternalAbstractQueue) Get(ctx context.Context, user cn.CapUser, idStart int64, cntLimit int) (messages []*queue.MessageWithMeta, err *mft.Error) {
+	request := eac.MarshalRequestMust(user,
+		cn.OpQueueGet, QueueGetRequest{
+			IdStart:  idStart,
+			CntLimit: cntLimit,
+		})
 	responce := eac.CallFunc(ctx, request)
 
 	err = responce.UnmarshalInnerObject(&messages)
@@ -938,16 +943,17 @@ type QueueGetSegmentResponce struct {
 	LastId   int64                    `json:"last_id"`
 }
 
-func (eac *ExternalAbstractQueue) GetSegment(ctx context.Context, idStart int64, cntLimit int,
+func (eac *ExternalAbstractQueue) GetSegment(ctx context.Context, user cn.CapUser, idStart int64, cntLimit int,
 	segments *segment.Segments,
 ) (messages []*queue.MessageWithMeta, lastId int64, err *mft.Error) {
 	var resp QueueGetSegmentResponce
 
-	request := eac.MarshalRequestMust(cn.OpQueueGetSegment, QueueGetSegmentRequest{
-		IdStart:  idStart,
-		CntLimit: cntLimit,
-		Segments: segments,
-	})
+	request := eac.MarshalRequestMust(user,
+		cn.OpQueueGetSegment, QueueGetSegmentRequest{
+			IdStart:  idStart,
+			CntLimit: cntLimit,
+			Segments: segments,
+		})
 	responce := eac.CallFunc(ctx, request)
 
 	err = responce.UnmarshalInnerObject(&resp)
@@ -955,24 +961,26 @@ func (eac *ExternalAbstractQueue) GetSegment(ctx context.Context, idStart int64,
 	return resp.Messages, resp.LastId, err
 }
 
-func (eac *ExternalAbstractQueue) SaveAll(ctx context.Context) (err *mft.Error) {
-	request := eac.MarshalRequestMust(cn.OpQueueSaveAll, nil)
+func (eac *ExternalAbstractQueue) SaveAll(ctx context.Context, user cn.CapUser) (err *mft.Error) {
+	request := eac.MarshalRequestMust(user,
+		cn.OpQueueSaveAll, nil)
 	responce := eac.CallFunc(ctx, request)
 
 	return responce.Err
 }
 
-func (eac *ExternalAbstractQueue) AddUnique(ctx context.Context, message []byte, externalID int64, externalDt int64, source string, segment int64, saveMode int) (id int64, err *mft.Error) {
-	request := eac.MarshalRequestMust(cn.OpQueueAddUnique, QueueAddRequest{
-		Message: queue.Message{
-			ExternalID: externalID,
-			ExternalDt: externalDt,
-			Source:     source,
-			Message:    message,
-			Segment:    segment,
-		},
-		SaveMode: saveMode,
-	})
+func (eac *ExternalAbstractQueue) AddUnique(ctx context.Context, user cn.CapUser, message []byte, externalID int64, externalDt int64, source string, segment int64, saveMode int) (id int64, err *mft.Error) {
+	request := eac.MarshalRequestMust(user,
+		cn.OpQueueAddUnique, QueueAddRequest{
+			Message: queue.Message{
+				ExternalID: externalID,
+				ExternalDt: externalDt,
+				Source:     source,
+				Message:    message,
+				Segment:    segment,
+			},
+			SaveMode: saveMode,
+		})
 	responce := eac.CallFunc(ctx, request)
 
 	err = responce.UnmarshalInnerObject(&id)
@@ -980,11 +988,12 @@ func (eac *ExternalAbstractQueue) AddUnique(ctx context.Context, message []byte,
 	return id, err
 }
 
-func (eac *ExternalAbstractQueue) AddUniqueList(ctx context.Context, messages []queue.Message, saveMode int) (ids []int64, err *mft.Error) {
-	request := eac.MarshalRequestMust(cn.OpQueueAddUniqueList, QueueAddListRequest{
-		Messages: messages,
-		SaveMode: saveMode,
-	})
+func (eac *ExternalAbstractQueue) AddUniqueList(ctx context.Context, user cn.CapUser, messages []queue.Message, saveMode int) (ids []int64, err *mft.Error) {
+	request := eac.MarshalRequestMust(user,
+		cn.OpQueueAddUniqueList, QueueAddListRequest{
+			Messages: messages,
+			SaveMode: saveMode,
+		})
 	responce := eac.CallFunc(ctx, request)
 
 	err = responce.UnmarshalInnerObject(&ids)
@@ -998,19 +1007,23 @@ type QueueSubscriberSetLastReadRequest struct {
 	SaveMode   int    `json:"sm"`
 }
 
-func (eac *ExternalAbstractQueue) SubscriberSetLastRead(ctx context.Context, subscriber string, id int64, saveMode int) (err *mft.Error) {
-	request := eac.MarshalRequestMust(cn.OpQueueSubscriberSetLastRead, QueueSubscriberSetLastReadRequest{
-		Subscriber: subscriber,
-		Id:         id,
-		SaveMode:   saveMode,
-	})
+func (eac *ExternalAbstractQueue) SubscriberSetLastRead(ctx context.Context, user cn.CapUser,
+	subscriber string, id int64, saveMode int) (err *mft.Error) {
+	request := eac.MarshalRequestMust(user,
+		cn.OpQueueSubscriberSetLastRead, QueueSubscriberSetLastReadRequest{
+			Subscriber: subscriber,
+			Id:         id,
+			SaveMode:   saveMode,
+		})
 	responce := eac.CallFunc(ctx, request)
 
 	return responce.Err
 }
 
-func (eac *ExternalAbstractQueue) SubscriberGetLastRead(ctx context.Context, subscriber string) (id int64, err *mft.Error) {
-	request := eac.MarshalRequestMust(cn.OpQueueSubscriberGetLastRead, subscriber)
+func (eac *ExternalAbstractQueue) SubscriberGetLastRead(ctx context.Context, user cn.CapUser,
+	subscriber string) (id int64, err *mft.Error) {
+	request := eac.MarshalRequestMust(user,
+		cn.OpQueueSubscriberGetLastRead, subscriber)
 	responce := eac.CallFunc(ctx, request)
 
 	err = responce.UnmarshalInnerObject(&id)
@@ -1018,8 +1031,10 @@ func (eac *ExternalAbstractQueue) SubscriberGetLastRead(ctx context.Context, sub
 	return id, err
 }
 
-func (eac *ExternalAbstractQueue) SubscriberAddReplicaMember(ctx context.Context, subscriber string) (err *mft.Error) {
-	request := eac.MarshalRequestMust(cn.OpQueueSubscriberAddReplicaMember, subscriber)
+func (eac *ExternalAbstractQueue) SubscriberAddReplicaMember(ctx context.Context, user cn.CapUser,
+	subscriber string) (err *mft.Error) {
+	request := eac.MarshalRequestMust(user,
+		cn.OpQueueSubscriberAddReplicaMember, subscriber)
 	responce := eac.CallFunc(ctx, request)
 
 	err = responce.Err
@@ -1027,8 +1042,10 @@ func (eac *ExternalAbstractQueue) SubscriberAddReplicaMember(ctx context.Context
 	return err
 }
 
-func (eac *ExternalAbstractQueue) SubscriberRemoveReplicaMember(ctx context.Context, subscriber string) (err *mft.Error) {
-	request := eac.MarshalRequestMust(cn.OpQueueSubscriberRemoveReplicaMember, subscriber)
+func (eac *ExternalAbstractQueue) SubscriberRemoveReplicaMember(ctx context.Context, user cn.CapUser,
+	subscriber string) (err *mft.Error) {
+	request := eac.MarshalRequestMust(user,
+		cn.OpQueueSubscriberRemoveReplicaMember, subscriber)
 	responce := eac.CallFunc(ctx, request)
 
 	err = responce.Err
@@ -1036,8 +1053,10 @@ func (eac *ExternalAbstractQueue) SubscriberRemoveReplicaMember(ctx context.Cont
 	return err
 }
 
-func (eac *ExternalAbstractQueue) SubscriberGetReplicaCount(ctx context.Context, id int64) (cnt int, err *mft.Error) {
-	request := eac.MarshalRequestMust(cn.OpQueueSubscriberGetReplicaCount, id)
+func (eac *ExternalAbstractQueue) SubscriberGetReplicaCount(ctx context.Context, user cn.CapUser,
+	id int64) (cnt int, err *mft.Error) {
+	request := eac.MarshalRequestMust(user,
+		cn.OpQueueSubscriberGetReplicaCount, id)
 	responce := eac.CallFunc(ctx, request)
 
 	err = responce.UnmarshalInnerObject(&cnt)

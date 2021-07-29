@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"time"
 
+	"github.com/capella-pw/queue/cn"
 	"github.com/myfantasy/mft"
 	"github.com/myfantasy/segment"
 )
@@ -56,45 +57,45 @@ type MessageJsonBody struct {
 
 // Queue - queue of messages
 type Queue interface {
-	Add(ctx context.Context, message []byte, externalID int64, externalDt int64, source string, segment int64, saveMode int) (id int64, err *mft.Error)
-	AddList(ctx context.Context, messages []Message, saveMode int) (ids []int64, err *mft.Error)
+	Add(ctx context.Context, user cn.CapUser, message []byte, externalID int64, externalDt int64, source string, segment int64, saveMode int) (id int64, err *mft.Error)
+	AddList(ctx context.Context, user cn.CapUser, messages []Message, saveMode int) (ids []int64, err *mft.Error)
 
 	// Get - gets messages from queue not more then cntLimit count and id more idStart
 	// returns messages == nil when no elements
-	Get(ctx context.Context, idStart int64, cntLimit int) (messages []*MessageWithMeta, err *mft.Error)
+	Get(ctx context.Context, user cn.CapUser, idStart int64, cntLimit int) (messages []*MessageWithMeta, err *mft.Error)
 
 	// GetSegment - gets messages from queue not more then cntLimit count and id more idStart
 	// returns messages == nil when no elements
 	// message should be in segment
 	// lastId last readed message ID from queue
-	GetSegment(ctx context.Context, idStart int64, cntLimit int,
+	GetSegment(ctx context.Context, user cn.CapUser, idStart int64, cntLimit int,
 		segments *segment.Segments,
 	) (messages []*MessageWithMeta, lastId int64, err *mft.Error)
 
 	// SaveAll save all waiting for save block and metadata and else
-	SaveAll(ctx context.Context) (err *mft.Error)
+	SaveAll(ctx context.Context, user cn.CapUser) (err *mft.Error)
 
 	// AddUnique message to queue
 	// externalDt is unix time
 	// externalID is source id (should be != 0 !!!!)
-	AddUnique(ctx context.Context, message []byte, externalID int64, externalDt int64, source string, segment int64, saveMode int) (id int64, err *mft.Error)
-	AddUniqueList(ctx context.Context, messages []Message, saveMode int) (ids []int64, err *mft.Error)
+	AddUnique(ctx context.Context, user cn.CapUser, message []byte, externalID int64, externalDt int64, source string, segment int64, saveMode int) (id int64, err *mft.Error)
+	AddUniqueList(ctx context.Context, user cn.CapUser, messages []Message, saveMode int) (ids []int64, err *mft.Error)
 
 	// SubscriberSetLastRead - set last read info
 	// if id == 0 remove subscribe
-	SubscriberSetLastRead(ctx context.Context, subscriber string, id int64, saveMode int) (err *mft.Error)
+	SubscriberSetLastRead(ctx context.Context, user cn.CapUser, subscriber string, id int64, saveMode int) (err *mft.Error)
 
 	// SubscriberGetLastRead - get last read info
-	SubscriberGetLastRead(ctx context.Context, subscriber string) (id int64, err *mft.Error)
+	SubscriberGetLastRead(ctx context.Context, user cn.CapUser, subscriber string) (id int64, err *mft.Error)
 
 	// SubscriberAddReplicaMember - add member to replica. Replica is group to control replication
-	SubscriberAddReplicaMember(ctx context.Context, subscriber string) (err *mft.Error)
+	SubscriberAddReplicaMember(ctx context.Context, user cn.CapUser, subscriber string) (err *mft.Error)
 
 	// SubscriberRemoveReplicaMember - remove member from replica. Replica is group to control replication
-	SubscriberRemoveReplicaMember(ctx context.Context, subscriber string) (err *mft.Error)
+	SubscriberRemoveReplicaMember(ctx context.Context, user cn.CapUser, subscriber string) (err *mft.Error)
 
 	// SubscriberGetReplicaCount - get how many members from replica get message. Replica is group to control replication
-	SubscriberGetReplicaCount(ctx context.Context, id int64) (cnt int, err *mft.Error)
+	SubscriberGetReplicaCount(ctx context.Context, user cn.CapUser, id int64) (cnt int, err *mft.Error)
 }
 
 // CopyWM copy message to QueueMessageWithMeta
