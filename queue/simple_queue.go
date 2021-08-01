@@ -900,12 +900,21 @@ func (q *SimpleQueue) SaveAll(ctx context.Context, user cn.CapUser) (err *mft.Er
 // Case err!=nil block.mx is Unlocked
 // case err==nil block.mx is RLocked
 func (block *SimpleQueueBlock) load(ctx context.Context, q *SimpleQueue) (err *mft.Error) {
+	if !block.IsUnload {
+		return nil
+	}
 	if !block.mxFileSave.TryLock(ctx) {
 		return GenerateError(10020000)
 	}
 	defer block.mxFileSave.Unlock()
 	if !block.mx.TryPromote(ctx) {
 		return GenerateError(10020001)
+	}
+
+	if !block.IsUnload {
+		block.mx.Reduce()
+
+		return nil
 	}
 
 	block.LastGet = time.Now()

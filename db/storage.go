@@ -13,7 +13,8 @@ type IAddStorageRequest struct {
 	Record IRecord `json:"ir,omitempty"`
 	// ConflictInit if true and exists conflict record then conflict will be begin
 	// ConflictInit if false and exists conflict record then error
-	ConflictInit bool `json:"conflict_init,omitempty"`
+	ConflictInit bool        `json:"conflict_init,omitempty"`
+	SaveMode     cn.SaveMode `json:"save_mode,omitempty"`
 }
 
 type SAddStorageRequest struct {
@@ -21,7 +22,8 @@ type SAddStorageRequest struct {
 	Record SRecord `json:"ir,omitempty"`
 	// ConflictInit if true and exists conflict record then conflict will be begin
 	// ConflictInit if false and exists conflict record then error
-	ConflictInit bool `json:"conflict_init,omitempty"`
+	ConflictInit bool        `json:"conflict_init,omitempty"`
+	SaveMode     cn.SaveMode `json:"save_mode,omitempty"`
 }
 
 type GetItemRequest struct {
@@ -54,6 +56,11 @@ type ReindexTask struct {
 	StartedNow bool       `json:"started_now"`
 }
 
+type OptimizeStorageRequest struct {
+	Segment int64 `json:"segment,omitempty"`
+	Deph    int   `json:"deph,omitempty"`
+}
+
 type Storage interface {
 	ISet(ctx context.Context, user cn.CapUser, req IAddStorageRequest) (err *mft.Error)
 	SSet(ctx context.Context, user cn.CapUser, req SAddStorageRequest) (err *mft.Error)
@@ -71,5 +78,5 @@ type Storage interface {
 	ReIndexAllTaskGet(ctx context.Context, user cn.CapUser) (resp ReindexTask, err *mft.Error)
 
 	OptimizeAll(ctx context.Context, user cn.CapUser, deph int) (err *mft.Error)
-	Optimize(ctx context.Context, user cn.CapUser, segment, deph int) (err *mft.Error)
+	Optimize(ctx context.Context, user cn.CapUser, req OptimizeStorageRequest) (err *mft.Error)
 }

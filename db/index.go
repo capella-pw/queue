@@ -18,14 +18,16 @@ const (
 )
 
 type IAddIndexRequest struct {
-	Key     int64         `json:"key"`
-	IRecord *IIndexRecord `json:"ir,omitempty"`
-	SRecord *SIndexRecord `json:"sr,omitempty"`
+	Key      int64         `json:"key"`
+	IRecord  *IIndexRecord `json:"ir,omitempty"`
+	SRecord  *SIndexRecord `json:"sr,omitempty"`
+	SaveMode cn.SaveMode   `json:"save_mode,omitempty"`
 }
 type SAddIndexRequest struct {
-	Key     string        `json:"key"`
-	IRecord *IIndexRecord `json:"ir,omitempty"`
-	SRecord *SIndexRecord `json:"sr,omitempty"`
+	Key      string        `json:"key"`
+	IRecord  *IIndexRecord `json:"ir,omitempty"`
+	SRecord  *SIndexRecord `json:"sr,omitempty"`
+	SaveMode cn.SaveMode   `json:"save_mode,omitempty"`
 }
 
 type GetIndexRequest struct {
@@ -57,6 +59,11 @@ type GetIndexResponce struct {
 	SRecords []SIndexRecord `json:"sr,omitempty"`
 }
 
+type OptimizeIndexRequest struct {
+	Segment int64 `json:"segment,omitempty"`
+	Deph    int   `json:"deph,omitempty"`
+}
+
 type Index interface {
 	Name(ctx context.Context, user cn.CapUser) (name string, err *mft.Error)
 	NameSet(ctx context.Context, user cn.CapUser, name string) (err *mft.Error)
@@ -77,5 +84,5 @@ type Index interface {
 	SDeleteList(ctx context.Context, user cn.CapUser, req []SAddIndexRequest) (err *mft.Error)
 
 	OptimizeAll(ctx context.Context, user cn.CapUser, deph int) (err *mft.Error)
-	Optimize(ctx context.Context, user cn.CapUser, segment, deph int) (err *mft.Error)
+	Optimize(ctx context.Context, user cn.CapUser, req OptimizeIndexRequest) (err *mft.Error)
 }
